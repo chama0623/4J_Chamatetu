@@ -126,14 +126,12 @@ void move(int *x,int *y,int d){
 
 void readImg(void){
     int i;
-    char fname[20];
+    char fname[40];
     for(i=0;i<MAP_NUM;i++){
         sprintf(fname,".\\mapparts\\map%d.png",i+1);
         mapimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &mapinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    printf("img1: id=%d, W=%d, H=%d, D=%d, A=%d\n", mapimg[1],
-           mapinfo[1].Width, mapinfo[1].Height, mapinfo[1].Depth, mapinfo[1].Alpha);
 }
 
 int getmapnum(int x,int y){
@@ -221,9 +219,9 @@ void readStation(void){
         exit(0);
     }else{
         while(fscanf(fp,"%s %d,%d",stations[i].name,&stations[i].x,&stations[i].y)!=EOF){
+            stations[i].ismonopoly=0;
             i++;
         }
-        stations[i].ismonopoly=0;
         fclose(fp);
     }
 }
@@ -275,7 +273,6 @@ void dispStation(int detail){
 }
 
 void Display(void){
-    int r;
     glClear(GL_COLOR_BUFFER_BIT);
     drawMap();
 /*

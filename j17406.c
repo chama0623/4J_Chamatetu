@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     
     readStation();
     readProperty();
-    dispStation(1);
+    dispStation(0);
     //イベント登録
     glutReshapeFunc(Reshape);
     glutDisplayFunc(Display);
