@@ -83,21 +83,26 @@ int isWall(int x,int y){
 // 1 : 右
 // 2 : 下
 // 3 : 左 
+//
+// 進めるとき 1
+// 進めないとき 0
 int isMovable(int x,int y,int d){
+    int xa=x/IMGSIZE;
+    int ya=y/IMGSIZE;
     if(d==0){ // 上
-        if(isWall(x,y-1)){
+        if(isWall(xa,ya-1)){
             return 0;
         }
     }else if(d==1){ //右
-        if(isWall(x+1,y)){
+        if(isWall(xa+1,ya)){
             return 0;
         }    
     }else if(d==2){ //下
-        if(isWall(x,y+1)){
+        if(isWall(xa,ya+1)){
             return 0;
         }   
     }else{ //左
-        if(isWall(x-1,y)){
+        if(isWall(xa-1,ya)){
             return 0;
         }   
     }
@@ -127,10 +132,17 @@ void move(int *x,int *y,int d){
 void readImg(void){
     int i;
     char fname[40];
+    //read mapimage
     for(i=0;i<MAP_NUM;i++){
         sprintf(fname,".\\mapparts\\map%d.png",i+1);
         mapimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &mapinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+    //read playerimage
+    for(i=0;i<PLAYERNUM;i++){
+        sprintf(fname,".\\eventparts\\player%d.png",i+1);
+        playerimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+       &playerinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 }
 
@@ -174,6 +186,17 @@ void drawMap(void){
             PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num]);
         }
     }
+}
+
+void drawPlayer(void){
+    int i;
+    for(i=0;i<PLAYERNUM;i++){
+        if(i!=turn){
+            PutSprite(playerimg[i], players[i].x,players[i].y, &playerinfo[i]);
+        }
+    }
+    // ターン中のプレイヤーを最上レイヤーに表示
+    PutSprite(playerimg[turn], players[turn].x,players[turn].y, &playerinfo[turn]);
 }
 
 void InitPlayer(void){
@@ -275,14 +298,11 @@ void dispStation(int detail){
 void Display(void){
     glClear(GL_COLOR_BUFFER_BIT);
     drawMap();
-/*
-    r = isMovable(players[0].x,players[0].y,0);
-    printf("上 : %d\n ",r);
+    drawPlayer();
+    printf("上 : %d\n ",isMovable(players[0].x,players[0].y,0));
     printf("右 : %d\n ",isMovable(players[0].x,players[0].y,1));
     printf("下 : %d\n ",isMovable(players[0].x,players[0].y,2));
     printf("左 : %d\n ",isMovable(players[0].x,players[0].y,3));
-    dispPlayer(1);
-    move(&players[0].x,&players[0].y,0);
-  */
+
     glFlush();
 }

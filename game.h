@@ -10,8 +10,8 @@
 #define PLAYERNUM 3 
 #define STATIONNUM 3
 
-#define INITX 4
-#define INITY 3
+#define INITX 4*IMGSIZE
+#define INITY 3*IMGSIZE
 #define INITMONEY 1000
 
 #define MAP_NUM 7
@@ -54,8 +54,14 @@ struct stationstatus{
 typedef struct stationstatus station;
 station stations[STATIONNUM];
 
+// 画像用変数
 GLuint mapimg[MAP_NUM];
 pngInfo mapinfo[MAP_NUM];
+GLuint playerimg[PLAYERNUM];
+pngInfo playerinfo[PLAYERNUM];
+
+// 誰のターンか判別
+int turn;
 
 void Reshape(int, int);
 void Timer(int);
@@ -68,6 +74,7 @@ void Display(void);
 void readImg(void);
 int getmapnum(int,int);
 void drawMap(void);
+void drawPlayer(void);
 
 void InitPlayer(void);
 void dispPlayer(int);
