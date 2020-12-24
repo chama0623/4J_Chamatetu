@@ -34,7 +34,22 @@ void Reshape(int w, int h)
 void Timer(int t)
 {
     glutPostRedisplay();
-    glutTimerFunc(t, Timer, 0);
+    glutTimerFunc(RESHAPETIME, Timer, 0);
+}
+
+void MoveTimer(int t)
+{
+    glutPostRedisplay();
+    move();
+    //printf("Position (%d,%d)\n",players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
+    //printf("Position amari(%d,%d)\n",players[turn].x%IMGSIZE,players[turn].y%IMGSIZE);
+    //printf("Next Station (%d,%d)\n",nx,ny);
+    
+    if((players[turn].x/IMGSIZE != nx)||(players[turn].y/IMGSIZE != ny)){
+        glutTimerFunc(MOVETIME, MoveTimer, 0);
+    }else if((players[turn].x%IMGSIZE!=0)||(players[turn].y%IMGSIZE!=0)){
+        glutTimerFunc(MOVETIME, MoveTimer, 0);
+    }
 }
 
 //
@@ -86,18 +101,18 @@ int isWall(int x,int y){
 //
 // 進めるとき 1
 // 進めないとき 0
-int isMovable(int x,int y,int d){
+int isMovable(int x,int y){
     int xa=x/IMGSIZE;
     int ya=y/IMGSIZE;
-    if(d==0){ // 上
+    if(direction==0){ // 上
         if(isWall(xa,ya-1)){
             return 0;
         }
-    }else if(d==1){ //右
+    }else if(direction==1){ //右
         if(isWall(xa+1,ya)){
             return 0;
         }    
-    }else if(d==2){ //下
+    }else if(direction==2){ //下
         if(isWall(xa,ya+1)){
             return 0;
         }   
@@ -109,23 +124,86 @@ int isMovable(int x,int y,int d){
     return 1;
 }
 
-void move(int *x,int *y,int d){
-    switch (d)
-    {
-    case 0:
-        *y-=1;
-        break;
-    case 1:
-        *x+=1;
-        break;
-    case 2:
-        *y+=1;
-        break;
-    case 3:
-        *x-=1;
-        break;
-    default:
-        break;
+void move(){
+    if(direction==0){
+        players[turn].y-=MOVESIZE;
+    }
+    if(direction==1){
+        players[turn].x+=MOVESIZE;
+    }
+    if(direction==2){
+        players[turn].y+=MOVESIZE;
+    }
+    if(direction==3){
+        players[turn].x-=MOVESIZE;
+    }
+}
+
+void nextStation(int x,int y){
+    int xa=x/IMGSIZE;
+    int ya=y/IMGSIZE;
+    //printf("Cal Next Station(%d,%d)\n",xa,ya);
+    if(direction==0){
+        while(1){
+            ya--;
+            if(getmapnum(xa,ya)!=5){
+                break;
+            }
+        }
+    }
+
+    if(direction==1){
+        while(1){
+            xa++;
+            if(getmapnum(xa,ya)!=6){
+                break;
+            }
+        }
+    }
+
+    if(direction==2){
+        while(1){
+            ya++;
+            if(getmapnum(xa,ya)!=5){
+                break;
+            }
+        }
+    }
+
+    if(direction==3){
+        while(1){
+            xa--;
+            if(getmapnum(xa,ya)!=6){
+                break;
+            }
+        }
+    }
+    nx=xa;
+    ny=ya;
+}
+
+void keyboard(unsigned char key,int x,int y){
+    int r = 623;
+    if(key=='w'){
+        direction=0;
+    }
+    if(key=='d'){
+        direction=1;
+    }
+    if(key=='s'){
+        direction=2;
+    }
+    if(key=='a'){
+        direction=3;
+    }
+    r=isMovable(players[turn].x,players[turn].y);
+    printf("r = %d\n",r);
+    if(r){
+        nextStation(players[turn].x,players[turn].y);
+        printf("Next Station(%d,%d)\n",nx,ny);
+        glutTimerFunc(MOVETIME, MoveTimer, 0);
+        //players[turn].x = nx*IMGSIZE;
+        //players[turn].y = ny*IMGSIZE;
     }
 }
 
@@ -299,10 +377,5 @@ void Display(void){
     glClear(GL_COLOR_BUFFER_BIT);
     drawMap();
     drawPlayer();
-    printf("上 : %d\n ",isMovable(players[0].x,players[0].y,0));
-    printf("右 : %d\n ",isMovable(players[0].x,players[0].y,1));
-    printf("下 : %d\n ",isMovable(players[0].x,players[0].y,2));
-    printf("左 : %d\n ",isMovable(players[0].x,players[0].y,3));
-
     glFlush();
 }

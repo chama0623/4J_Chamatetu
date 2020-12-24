@@ -28,10 +28,13 @@ int main(int argc, char **argv)
     dispStation(0);
 
     turn=0;
+    nx=0;
+    ny=0;
     //イベント登録
     glutReshapeFunc(Reshape);
     glutDisplayFunc(Display);
-    glutTimerFunc(2000, Timer, 0);
+    glutKeyboardFunc(keyboard);
+    glutTimerFunc(RESHAPETIME, Timer, 0);
     //  イベントループ突入
     glutMainLoop();
 

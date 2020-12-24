@@ -2,6 +2,7 @@
 #define InitHeight 320
 #define XMAX 10
 #define YMAX 7
+#define MOVESIZE 16
 #define IMGSIZE 32
 
 #define CARDMAX 5
@@ -15,6 +16,9 @@
 #define INITMONEY 1000
 
 #define MAP_NUM 7
+
+#define RESHAPETIME 100
+#define MOVETIME 200
 
 // プレイヤーの情報構造体
 struct playerstatus{
@@ -62,12 +66,18 @@ pngInfo playerinfo[PLAYERNUM];
 
 // 誰のターンか判別
 int turn;
+int direction;
+int nx;
+int ny;
 
 void Reshape(int, int);
 void Timer(int);
+void MoveTimer(int);
 void PutSprite(int, int, int, pngInfo *);
-int isMovable(int,int,int);
-void move(int *,int *,int);
+int isMovable(int,int);
+void move();
+void nextStation(int,int);
+void keyboard(unsigned char,int x,int y);
 
 void Display(void);
 
