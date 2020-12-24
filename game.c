@@ -6,13 +6,16 @@
 #include "game.h"
 
 char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
-        "AAAAAAAAAA",
-        "AAP-B-BAAA",
-        "AA|A|AAAAA",
-        "AAP-B--CAA",
-        "AAAA|AAAAA",
-        "AAAAMAAAAA",
-        "AAAAAAAAAA"
+        "AAAAAAAAAAAAAAA",
+        "AAP-B-B---CAAAAA",
+        "AA|A|AAAAAAAAAA",
+        "AAP-B--C--PAAAA",
+        "AAAA|AAAAA|AAAA",
+        "AAAAMAABAA|AAAA",
+        "AAAA|AA|AA|AAAA",
+        "AAAA|AA|AA|AAAA",
+        "AC--M--P--BAAAAA",
+        "AAAAAAAAAAAAAAA"
 };
 
 //
@@ -41,14 +44,33 @@ void MoveTimer(int t)
 {
     glutPostRedisplay();
     move();
-    //printf("Position (%d,%d)\n",players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
-    //printf("Position amari(%d,%d)\n",players[turn].x%IMGSIZE,players[turn].y%IMGSIZE);
-    //printf("Next Station (%d,%d)\n",nx,ny);
-    
     if((players[turn].x/IMGSIZE != nx)||(players[turn].y/IMGSIZE != ny)){
         glutTimerFunc(MOVETIME, MoveTimer, 0);
     }else if((players[turn].x%IMGSIZE!=0)||(players[turn].y%IMGSIZE!=0)){
         glutTimerFunc(MOVETIME, MoveTimer, 0);
+    }else{
+        if(dice-recount>0){
+            //printf("%d (%d,%d)\n",dice-recount-1,massRecord[dice-recount-1][0],massRecord[dice-recount-1][1]);
+            //printf("(%d,%d)\n",players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
+            if((massRecord[dice-recount-1][0]==players[turn].x/IMGSIZE)&&(massRecord[dice-recount-1][1]==players[turn].y/IMGSIZE)){
+                recount++;
+            }else{
+                recount--;
+            }
+        }else{
+            recount--;
+        }
+        keyboardflg=1;
+    }
+}
+
+void DiceTimer(int t)
+{
+    glutPostRedisplay();
+    dice=1+rand()%DICEMAX;
+    recount=dice;
+    if(diceflg==1){
+        glutTimerFunc(DICETIME, DiceTimer, 0);
     }
 }
 
@@ -184,6 +206,13 @@ void nextStation(int x,int y){
 
 void keyboard(unsigned char key,int x,int y){
     int r = 623;
+    if(turnstatus==1){
+        if(key=='e'){
+            diceflg=2;
+        }
+    }
+
+    if((turnstatus==2)&&(keyboardflg==1)){
     if(key=='w'){
         direction=0;
     }
@@ -197,13 +226,13 @@ void keyboard(unsigned char key,int x,int y){
         direction=3;
     }
     r=isMovable(players[turn].x,players[turn].y);
-    printf("r = %d\n",r);
     if(r){
+        massRecord[dice-recount][0]=players[turn].x/IMGSIZE;
+        massRecord[dice-recount][1]=players[turn].y/IMGSIZE;
         nextStation(players[turn].x,players[turn].y);
-        printf("Next Station(%d,%d)\n",nx,ny);
+        keyboardflg=2;
         glutTimerFunc(MOVETIME, MoveTimer, 0);
-        //players[turn].x = nx*IMGSIZE;
-        //players[turn].y = ny*IMGSIZE;
+    }
     }
 }
 
@@ -221,6 +250,13 @@ void readImg(void){
         sprintf(fname,".\\eventparts\\player%d.png",i+1);
         playerimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &playerinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+
+    //read playerimage
+    for(i=0;i<DICEMAX;i++){
+        sprintf(fname,".\\dice\\dice%d.png",i+1);
+        diceimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+       &diceinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 }
 
@@ -373,9 +409,58 @@ void dispStation(int detail){
     }
 }
 
+void dispmassRecord(void){
+    int i;
+    printf("\n---dispmass Record---\n");
+    for(i=0;i<=dice-recount;i++){
+        printf("%d (%d,%d)\n",i,massRecord[i][0],massRecord[i][1]);
+    }
+    printf("----------\n");
+}
+
 void Display(void){
     glClear(GL_COLOR_BUFFER_BIT);
     drawMap();
     drawPlayer();
+    //printf("turn status = %d\n",turnstatus);
+    if(turnstatus==0){
+        printf("%s社長のターンです\n",players[turn].name);
+        turnstatus=1;
+    }
+    if(turnstatus==1){
+        if(diceflg==0){
+            diceflg=1;
+            glutTimerFunc(DICETIME, DiceTimer, 0);
+        }
+        if(diceflg==1){
+            PutSprite(diceimg[dice], 448, 32, &diceinfo[dice]);
+        }
+        if(diceflg==2){
+            printf("dice = %d\n",dice);
+            turnstatus=2;
+        }
+    }
+    if(turnstatus==2){
+        PutSprite(diceimg[dice], 448, 32, &diceinfo[dice]);
+        PutSprite(diceimg[recount], 448, 64, &diceinfo[recount]);
+        if(keyboardflg==0){
+            keyboardflg=1;
+        }else{
+            printf("残り移動可能マス数 = %d\n",recount);
+            if(recount==-1){
+                keyboardflg=0;
+                direction=-1;
+                turnstatus=3;
+            }
+        }
+    }
+    if(turnstatus==3){
+        glColor3ub(255,0,0);
+        glRasterPos2i(400,80);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'s');
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'t');
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'o');
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'p');
+    }
     glFlush();
 }
