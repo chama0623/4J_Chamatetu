@@ -313,14 +313,12 @@ void readImg(void){
     //read Special Str red
     for(i=0;i<SPMAX;i++){
         sprintf(fname,".\\charimg\\%sred.png",spProtcol[i]);
-        printf("%s\n",fname);
         spredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &spredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
     //read Special Str black
     for(i=0;i<SPMAX;i++){
         sprintf(fname,".\\charimg\\%sblack.png",spProtcol[i]);
-        printf("%s\n",fname);
         spblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &spblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
@@ -597,34 +595,56 @@ void drawDialog(int x,int y,int width,int height,int red,int blue,int green){
 void drawStation(int x,int y){
     int i,j;
     int oku,man;
-    char fname[10];
+    char fname1[10];
+    char fname2[10];
      for(i=0;i<STATIONNUM;i++){
          if((stations[i].x==x)&&(stations[i].y==y)){
             // 駅名表示
-            drawDialog(11,11,InitWidth-22,42,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+            drawDialog(11,11,InitWidth-22,42,255,245,238);
             drawString(stations[i].name,0,0,16,16,1,0);
-            
+
+            // 所持金表示
+            drawDialog(11,61,InitWidth-22,34,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+            drawString("silozikinn",0,0,16,61+8,0.5,0);
+            oku = players[turn].money/10000;
+            man = players[turn].money%10000;
+            if(oku!=0){
+                if(man!=0){
+                    sprintf(fname1,"%do%dme",oku,man);
+                }else{
+                    sprintf(fname1,"%doe",oku);
+                }
+            }else{
+                sprintf(fname1,"%dme",man);
+            }
+            drawString(fname1,0,0,3*InitWidth/4,61+8,0.5,1);
+
             // 物件表示
-            drawDialog(11,61,InitWidth-22,21+16*stations[i].propertynum,255,245,238);
+            drawDialog(11,103,InitWidth-22,21+16*stations[i].propertynum,255,245,238);
             for(j=0;j<stations[i].propertynum;j++){
-                // 物件名
-                drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,18,11+50+7+17*j,0.5,0);
                 // price
-                oku = stations[i].plist[j].price/1000;
-                man = stations[i].plist[j].price%1000;
+                oku = stations[i].plist[j].price/10000;
+                man = stations[i].plist[j].price%10000;
                 if(oku!=0){
                     if(man!=0){
-                        sprintf(fname,"%do%dme",oku,man);
+                        sprintf(fname1,"%do%dme",oku,man);
                     }else{
-                        sprintf(fname,"%doe",oku);
+                        sprintf(fname1,"%doe",oku);
                     }
                 }else{
-                    sprintf(fname,"%dme",man);
+                    sprintf(fname1,"%dme",man);
                 }
-                drawString(fname,0,0,InitWidth/2,11+50+7+17*j,0.5,1);
                 // earings
-                sprintf(fname,"%dp",stations[i].plist[j].earnings);
-                drawString(fname,0,0,3*InitWidth/4,11+50+7+17*j,0.5,1);
+                sprintf(fname2,"%dp",stations[i].plist[j].earnings);
+                if(players[turn].money>=stations[i].plist[j].price){
+                    drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,18,42+11+50+7+17*j,0.5,0);
+                    drawString(fname1,0,0,InitWidth/2,42+11+50+7+17*j,0.5,1);
+                    drawString(fname2,0,0,3*InitWidth/4,42+11+50+7+17*j,0.5,1);
+                }else{
+                    drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,1,18,42+11+50+7+17*j,0.5,0);
+                    drawString(fname1,0,1,InitWidth/2,42+11+50+7+17*j,0.5,1);
+                    drawString(fname2,0,1,3*InitWidth/4,42+11+50+7+17*j,0.5,1);
+                }
             }
          }
      }
