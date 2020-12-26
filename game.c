@@ -2,6 +2,7 @@
 #include <GL/glpng.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "game.h"
 
@@ -17,6 +18,18 @@ char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
         "AC--M--P--BAAAAA",
         "AAAAAAAAAAAAAAA"
 };
+
+char jpProtcal[JPMAX][3] = {"aa","ii","uu","ee","oo",
+                            "ka","ki","ku","ke","ko",
+                            "sa","si","su","se","so",
+                            "ta","ti","tu","te","to",
+                            "na","ni","nu","ne","no",
+                            "ha","hi","hu","he","ho",
+                            "ma","mi","mu","me","mo",
+                            "ya","yu","yo",
+                            "ra","ri","ru","re","ro",
+                            "wa","wo","nn",
+                            "lt","la","lu","lo"};
 
 //
 //  ウィンドウのサイズ変更が発生したときに座標系を再設定する関数
@@ -77,12 +90,12 @@ void DiceTimer(int t)
 //
 //  num番のPNG画像を座標(x,y)に表示する
 //
-void PutSprite(int num, int x, int y, pngInfo *info)
+void PutSprite(int num, int x, int y, pngInfo *info,double scale)
 {
     int w, h;  //  テクスチャの幅と高さ
 
-    w = info->Width;   //  テクスチャの幅と高さを取得する
-    h = info->Height;
+    w = info->Width*scale;   //  テクスチャの幅と高さを取得する
+    h = info->Height*scale;
 
     glPushMatrix();
     glEnable(GL_TEXTURE_2D);
@@ -252,12 +265,32 @@ void readImg(void){
        &playerinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
-    //read playerimage
-    for(i=0;i<DICEMAX;i++){
-        sprintf(fname,".\\dice\\dice%d.png",i+1);
-        diceimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
-       &diceinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    //read Hiragana black
+    for(i=0;i<JPMAX;i++){
+        sprintf(fname,".\\charimg\\h%sblack.png",jpProtcal[i]);
+        hblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &hblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
+
+    //read Hiragana red
+    for(i=0;i<JPMAX;i++){
+        sprintf(fname,".\\charimg\\h%sred.png",jpProtcal[i]);
+        hredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &hredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+    //read Katakana black
+    for(i=0;i<JPMAX;i++){
+        sprintf(fname,".\\charimg\\k%sblack.png",jpProtcal[i]);
+        kblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &kblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+    //read Katakana red
+    for(i=0;i<JPMAX;i++){
+        sprintf(fname,".\\charimg\\k%sred.png",jpProtcal[i]);
+        kredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &kredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+
 }
 
 int getmapnum(int x,int y){
@@ -297,7 +330,7 @@ void drawMap(void){
             drawx = x*IMGSIZE;
             drawy = y*IMGSIZE;
             img_num = getmapnum(x,y);
-            PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num]);
+            PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num],1);
         }
     }
 }
@@ -306,11 +339,46 @@ void drawPlayer(void){
     int i;
     for(i=0;i<PLAYERNUM;i++){
         if(i!=turn){
-            PutSprite(playerimg[i], players[i].x,players[i].y, &playerinfo[i]);
+            PutSprite(playerimg[i], players[i].x,players[i].y, &playerinfo[i],1);
         }
     }
     // ターン中のプレイヤーを最上レイヤーに表示
-    PutSprite(playerimg[turn], players[turn].x,players[turn].y, &playerinfo[turn]);
+    PutSprite(playerimg[turn], players[turn].x,players[turn].y, &playerinfo[turn],1);
+}
+
+// int kh : 0,Hiragana 1,Katakana
+// int color 0,black 1,red
+void drawChar(int num,int kh,int color,int x,int y,double scale){
+    if(kh==0){
+        if(color==0){ // hiragana black
+            PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
+        }else{ //hiragana red
+            PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
+        }
+    }else{ 
+        if(color==0){ // katakana black
+            PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
+        }else{ // katakana red
+            PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
+        }
+    }
+}
+
+void drawString(char *string,int kh,int color,int xo,int yo,double scale){
+    int i,j;
+    int x=xo;
+    int y=yo;
+    int len = strlen(string)-1;
+    for(i=0;i<len;i+=2){
+        //printf("%c",string[i]);
+        //printf("%c ",string[i+1]);
+        for(j=0;j<JPMAX;j++){
+            if((jpProtcal[j][0]==string[i])&&(jpProtcal[j][1]==string[i+1])){
+                drawChar(j,kh,color,x,y,scale);
+                x+=IMGSIZE*scale;
+            }
+        }
+    }
 }
 
 void InitPlayer(void){
@@ -433,7 +501,7 @@ void Display(void){
             glutTimerFunc(DICETIME, DiceTimer, 0);
         }
         if(diceflg==1){
-            PutSprite(diceimg[dice], 448, 32, &diceinfo[dice]);
+            PutSprite(diceimg[dice], 448, 32, &diceinfo[dice],1);
         }
         if(diceflg==2){
             printf("dice = %d\n",dice);
@@ -441,8 +509,8 @@ void Display(void){
         }
     }
     if(turnstatus==2){
-        PutSprite(diceimg[dice], 448, 32, &diceinfo[dice]);
-        PutSprite(diceimg[recount], 448, 64, &diceinfo[recount]);
+        PutSprite(diceimg[dice], 448, 32, &diceinfo[dice],1);
+        PutSprite(diceimg[recount], 448, 64, &diceinfo[recount],1);
         if(keyboardflg==0){
             keyboardflg=1;
         }else{
@@ -461,6 +529,11 @@ void Display(void){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'t');
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'o');
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'p');
+
+        drawString("aaiiuueeoo",0,0,150,150,0.5);
+        drawString("aakasatanahamayarawa",0,1,150,150+16,1);
+        drawString("ltlalulo",1,0,150,150+40,1);
+        drawString("ookosotonohomoyorowo",1,1,150,150+70,0.5);
     }
     glFlush();
 }

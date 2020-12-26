@@ -6,12 +6,11 @@
 #define IMGSIZE 32
 
 #define DICEMAX 6
-
 #define CARDMAX 5
 #define PROPERTMAX 6
 
 #define PLAYERNUM 3 
-#define STATIONNUM 3
+#define STATIONNUM 5
 
 #define INITX 4*IMGSIZE
 #define INITY 3*IMGSIZE
@@ -22,6 +21,9 @@
 #define RESHAPETIME 500
 #define MOVETIME 100
 #define DICETIME 100
+
+#define JPMAX 50
+
 // プレイヤーの情報構造体
 struct playerstatus{
     char name[20];
@@ -68,6 +70,16 @@ pngInfo playerinfo[PLAYERNUM];
 GLuint diceimg[DICEMAX];
 pngInfo diceinfo[DICEMAX];
 
+// 日本語画像
+GLuint hblackimg[JPMAX];
+pngInfo hblackinfo[JPMAX];
+GLuint hredimg[JPMAX];
+pngInfo hredinfo[JPMAX];
+GLuint kblackimg[JPMAX];
+pngInfo kblackinfo[JPMAX];
+GLuint kredimg[JPMAX];
+pngInfo kredinfo[JPMAX];
+
 // 誰のターンか判別
 int turn;
 // ターンの状況
@@ -93,7 +105,7 @@ void Reshape(int, int);
 void Timer(int);
 void MoveTimer(int);
 void DiceTimer(int);
-void PutSprite(int, int, int, pngInfo *);
+void PutSprite(int, int, int, pngInfo *,double);
 int isMovable(int,int);
 void move();
 void nextStation(int,int);
@@ -105,6 +117,9 @@ void readImg(void);
 int getmapnum(int,int);
 void drawMap(void);
 void drawPlayer(void);
+
+void drawChar(int,int,int,int,int,double);
+void drawString(char *,int,int,int,int,double);
 
 void InitPlayer(void);
 void dispPlayer(int);

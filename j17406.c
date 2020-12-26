@@ -18,17 +18,18 @@ int main(int argc, char **argv)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
+    
+    //drawString();
     readImg();
     InitPlayer();
-    dispPlayer(1);
+    //dispPlayer(1);
     
     readStation();
     readProperty();
-    dispStation(0);
+    //dispStation(0);
 
     turn=0;
-    turnstatus=0;
+    turnstatus=3;
     nx=0;
     ny=0;
     keyboardflg=0;
