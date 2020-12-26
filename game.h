@@ -22,11 +22,14 @@
 #define MOVETIME 100
 #define DICETIME 100
 
-#define JPMAX 50
+#define JPMAX 75
+#define NAMEMAX 10
+#define STRMAX 40
 
 // プレイヤーの情報構造体
 struct playerstatus{
-    char name[20];
+    char name[NAMEMAX];
+    int nameAttribute[NAMEMAX];
     int money;
     int x;
     int y;
@@ -41,7 +44,8 @@ player players[PLAYERNUM];
 
 // 物件情報構造体
 struct propertystatus{
-    char name[40];
+    char name[STRMAX];
+    int nameAttribute;
     int holder;
     int price;
     int earnings;
@@ -51,7 +55,7 @@ typedef struct propertystatus property;
 
 // 駅情報構造体
 struct stationstatus{
-    char name[20];
+    char name[STRMAX];
     int x;
     int y;
     int ismonopoly;
@@ -125,6 +129,9 @@ void InitPlayer(void);
 void dispPlayer(int);
 
 void dispmassRecord(void);
+
+void drawDialog(int,int,int,int,int,int,int);
+void drawStation(int,int);
 
 void readStation(void);
 void readProperty(void);

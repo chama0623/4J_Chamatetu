@@ -1,5 +1,5 @@
-長野 4,2
-三越前 4,1
-茨城 6,1
-山梨 7,5
-埼玉 10,8
+nagano 4,3
+mitukosimaee 4,1
+iibaraki 6,1
+yamanasi 7,5
+saiitama 10,8

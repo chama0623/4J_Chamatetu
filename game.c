@@ -29,7 +29,17 @@ char jpProtcal[JPMAX][3] = {"aa","ii","uu","ee","oo",
                             "ya","yu","yo",
                             "ra","ri","ru","re","ro",
                             "wa","wo","nn",
-                            "lt","la","lu","lo"};
+                            "lt","la","lu","lo",
+                            "ga","gi","gu","ge","go",
+                            "za","zi","zu","ze","zo",
+                            "da","di","du","de","do",
+                            "ba","bi","bu","be","bo",
+                            "pa","pi","pu","pe","po",
+                            };
+
+int playercolor[3][3]={{30,144,255},
+                       {255,20,147},
+                       {255,255,0}};
 
 //
 //  ウィンドウのサイズ変更が発生したときに座標系を再設定する関数
@@ -81,6 +91,7 @@ void DiceTimer(int t)
 {
     glutPostRedisplay();
     dice=1+rand()%DICEMAX;
+    dice=2;
     recount=dice;
     if(diceflg==1){
         glutTimerFunc(DICETIME, DiceTimer, 0);
@@ -265,6 +276,12 @@ void readImg(void){
        &playerinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
+    // read diceimage
+    for(i=0;i<DICEMAX;i++){
+        sprintf(fname,".\\dice\\dice%d.png",i+1);
+        diceimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+       &diceinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
     //read Hiragana black
     for(i=0;i<JPMAX;i++){
         sprintf(fname,".\\charimg\\h%sblack.png",jpProtcal[i]);
@@ -372,17 +389,26 @@ void drawString(char *string,int kh,int color,int xo,int yo,double scale){
     for(i=0;i<len;i+=2){
         //printf("%c",string[i]);
         //printf("%c ",string[i+1]);
-        for(j=0;j<JPMAX;j++){
-            if((jpProtcal[j][0]==string[i])&&(jpProtcal[j][1]==string[i+1])){
-                drawChar(j,kh,color,x,y,scale);
-                x+=IMGSIZE*scale;
+        if((string[i]=='s')&&(string[i+1]=='s')){
+            x+=IMGSIZE*scale;
+        }else{
+            for(j=0;j<JPMAX;j++){
+                if((jpProtcal[j][0]==string[i])&&(jpProtcal[j][1]==string[i+1])){
+                    drawChar(j,kh,color,x,y,scale);
+                    x+=IMGSIZE*scale;
+                    break;
+                }
             }
+        }
+        if(x+IMGSIZE*scale>InitWidth){
+            x=xo;
+            y+=IMGSIZE*scale;
         }
     }
 }
 
 void InitPlayer(void){
-    int i;
+    int i,j;
     for(i=0;i<PLAYERNUM;i++){
         sprintf(players[i].name,"debug%d",i+1); // for debug
         players[i].x=INITX;
@@ -390,16 +416,23 @@ void InitPlayer(void){
         players[i].money=INITMONEY;
         players[i].isBonby=0;
         players[i].cardnum=0;
+        for(j=0;j<NAMEMAX;j++){
+            players[i].nameAttribute[j]=0;
+        }
     }
 }
 
 // detail : 0 全部表示 , else その番号の駅を表示
 void dispPlayer(int detail){
-    int i;
+    int i,j;
     if(detail==0){
         for(i=0;i<PLAYERNUM;i++){
             printf("--------------------\n");
             printf("%s社長 (%d,%d)\n",players[i].name,players[i].x,players[i].y);
+            for(j=0;j<NAMEMAX;j++){
+                printf("%d",players[i].nameAttribute[j]);
+            }
+            printf("\n");
             printf("所持金 : %d\n",players[i].money);
             printf("ボンビーフラグ : %d\n",players[i].isBonby);
             printf("カード枚数 : %d\n",players[i].cardnum);
@@ -408,6 +441,10 @@ void dispPlayer(int detail){
     }else{
         printf("--------------------\n");
         printf("%s社長 (%d,%d)\n",players[detail-1].name,players[detail-1].x,players[detail-1].y);
+        for(j=0;j<NAMEMAX;j++){
+            printf("%d",players[detail-1].nameAttribute[j]);
+        }
+        printf("\n");
         printf("所持金 : %d\n",players[detail-1].money);
         printf("ボンビーフラグ : %d\n",players[detail-1].isBonby);
         printf("カード枚数 : %d\n",players[detail-1].cardnum);
@@ -434,16 +471,16 @@ void readStation(void){
 void readProperty(void){
     FILE *fp;
     int i,j;
-    char fname[50];
+    char fname[80];
     for(i=0;i<STATIONNUM;i++){
         sprintf(fname,".\\property\\%s.txt",stations[i].name);
         fp=fopen(fname,"r");
         j=0;
         if(fp==NULL){
-            printf("file not found");
+            printf("file not found in %s",stations[i].name);
             exit(0);
         }else{
-            while(fscanf(fp,"%s %d,%d",stations[i].plist[j].name,&stations[i].plist[j].price,&stations[i].plist[j].earnings)!=EOF){
+            while(fscanf(fp,"%s %d,%d,%d",stations[i].plist[j].name,&stations[i].plist[j].price,&stations[i].plist[j].earnings,&stations[i].plist[j].nameAttribute)!=EOF){
             j++;
         }
         stations[i].propertynum=j;
@@ -462,7 +499,7 @@ void dispStation(int detail){
             printf("%s駅 (%d,%d)\n",stations[i].name,stations[i].x,stations[i].y);
             printf("独占フラグ : %d   物件数 : %d\n",stations[i].ismonopoly,stations[i].propertynum);
             for(j=0;j<stations[i].propertynum;j++){
-                printf("%s %d %d\n",stations[i].plist[j].name,stations[i].plist[j].price,stations[i].plist[j].earnings);
+                printf("%s %d %d %d\n",stations[i].plist[j].name,stations[i].plist[j].price,stations[i].plist[j].earnings,stations[i].plist[j].nameAttribute);
             }
             printf("--------------------\n\n");
         }
@@ -471,7 +508,7 @@ void dispStation(int detail){
         printf("%s駅 (%d,%d)\n",stations[detail-1].name,stations[detail-1].x,stations[detail-1].y);
         printf("独占フラグ : %d   物件数 : %d\n",stations[detail-1].ismonopoly,stations[detail-1].propertynum);
         for(j=0;j<stations[detail-1].propertynum;j++){
-            printf("%s %d %d\n",stations[detail-1].plist[j].name,stations[detail-1].plist[j].price,stations[detail-1].plist[j].earnings);
+            printf("%s %d %d %d\n",stations[detail-1].plist[j].name,stations[detail-1].plist[j].price,stations[detail-1].plist[j].earnings,stations[detail-1].plist[j].earnings);
         }
         printf("--------------------\n\n");     
     }
@@ -486,6 +523,46 @@ void dispmassRecord(void){
     printf("----------\n");
 }
 
+void drawDialog(int x,int y,int width,int height,int red,int blue,int green){
+    glColor3ub(red,blue,green);
+    glBegin(GL_QUADS);
+    glVertex2i(x,y);
+    glVertex2i(x,y+height);
+    glVertex2i(x+width,y+height);
+    glVertex2i(x+width,y);
+    glEnd();
+
+    glColor3ub(139,69,19);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(x,y);
+    glVertex2i(x,y+height);
+    glVertex2i(x+width,y+height);
+    glVertex2i(x+width,y);
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(x+5,y+5);
+    glVertex2i(x+5,y+height-5);
+    glVertex2i(x+width-5,y+height-5);
+    glVertex2i(x+width-5,y+5);
+    glEnd();
+}
+
+void drawStation(int x,int y){
+    int i,j;
+     for(i=0;i<STATIONNUM;i++){
+         if((stations[i].x==x)&&(stations[i].y==y)){
+            //printf("%s駅です\n",stations[i].name);
+            drawDialog(11,11,InitWidth-22,42,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+            drawString(stations[i].name,0,0,16,16,1);
+            drawDialog(11,11+50,InitWidth-22,16+17*stations[i].propertynum,255,245,238);
+            for(j=0;j<stations[i].propertynum;j++){
+                drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,16,11+50+10+17*j,0.5);
+            }
+         }
+     }
+}
+
 void Display(void){
     glClear(GL_COLOR_BUFFER_BIT);
     drawMap();
@@ -495,6 +572,7 @@ void Display(void){
         printf("%s社長のターンです\n",players[turn].name);
         turnstatus=1;
     }
+
     if(turnstatus==1){
         if(diceflg==0){
             diceflg=1;
@@ -508,6 +586,7 @@ void Display(void){
             turnstatus=2;
         }
     }
+
     if(turnstatus==2){
         PutSprite(diceimg[dice], 448, 32, &diceinfo[dice],1);
         PutSprite(diceimg[recount], 448, 64, &diceinfo[recount],1);
@@ -523,17 +602,15 @@ void Display(void){
         }
     }
     if(turnstatus==3){
-        glColor3ub(255,0,0);
-        glRasterPos2i(400,80);
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'s');
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'t');
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'o');
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,'p');
+        turnstatus=4;
+    }
+    if(turnstatus==4){
+        if(getmapnum(players[turn].x/IMGSIZE,players[turn].y/IMGSIZE)==4){
+            drawStation(players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
+        }else{
+            printf("物件駅ではありません\n");
+        }
 
-        drawString("aaiiuueeoo",0,0,150,150,0.5);
-        drawString("aakasatanahamayarawa",0,1,150,150+16,1);
-        drawString("ltlalulo",1,0,150,150+40,1);
-        drawString("ookosotonohomoyorowo",1,1,150,150+70,0.5);
     }
     glFlush();
 }

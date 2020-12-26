@@ -1,0 +1,5 @@
+nozawana 200,150,0
+nozawana 200,150,0
+ooyaki 700,80,0
+ooyaki 700,80,0
+naganokouusenn 3000000,5,0

@@ -1,0 +1,5 @@
+kusakasennbeii 200,40,0
+kusakasennbeii 200,40,0
+hukayanegi 800,70,0
+hukayanegi 800,70,0
+tawamann 600000,1,1
