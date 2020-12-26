@@ -19,7 +19,7 @@ char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
         "AAAAAAAAAAAAAAA"
 };
 
-char jpProtcol[JPMAX][3] = {"aa","ii","uu","ee","oo",
+char jpProtcol[JPMAX+SPMAX][3] = {"aa","ii","uu","ee","oo",
                             "ka","ki","ku","ke","ko",
                             "sa","si","su","se","so",
                             "ta","ti","tu","te","to",
@@ -35,10 +35,9 @@ char jpProtcol[JPMAX][3] = {"aa","ii","uu","ee","oo",
                             "da","di","du","de","do",
                             "ba","bi","bu","be","bo",
                             "pa","pi","pu","pe","po",
+                            "0","1","2","3","4","5"
+                            ,"6","7","8","9","ex","mx","ox","px"
                             };
-
-char spProtcol[SPMAX][2] = {"0","1","2","3","4","5"
-                            ,"6","7","8","9","e","m","o","p"};
 
 int playercolor[3][3]={{30,144,255},
                        {255,20,147},
@@ -94,7 +93,6 @@ void DiceTimer(int t)
 {
     glutPostRedisplay();
     dice=1+rand()%DICEMAX;
-    dice=2;
     recount=dice;
     if(diceflg==1){
         glutTimerFunc(DICETIME, DiceTimer, 0);
@@ -311,16 +309,16 @@ void readImg(void){
         &kredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
     //read Special Str red
-    for(i=0;i<SPMAX;i++){
-        sprintf(fname,".\\charimg\\%sred.png",spProtcol[i]);
-        spredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
-        &spredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    for(i=JPMAX;i<JPMAX+SPMAX;i++){
+        sprintf(fname,".\\charimg\\%sred.png",jpProtcol[i]);
+        hredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &hredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
     //read Special Str black
-    for(i=0;i<SPMAX;i++){
-        sprintf(fname,".\\charimg\\%sblack.png",spProtcol[i]);
-        spblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
-        &spblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    for(i=JPMAX;i<JPMAX+SPMAX;i++){
+        sprintf(fname,".\\charimg\\%sblack.png",jpProtcol[i]);
+        hblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &hblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
 }
@@ -380,74 +378,66 @@ void drawPlayer(void){
 
 // int kh : 0,Hiragana 1,Katakana
 // int color 0,black 1,red
-void drawChar(int num,int kh,int color,int x,int y,double scale,int protcol){
-    if(protcol==0){
-        if(kh==0){
-            if(color==0){ // hiragana black
-                PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
-            }else{ //hiragana red
-                PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
+void drawChar(int num,int kh,int color,int x,int y,double scale){
+    if(kh==0){
+        if(color==0){ // hiragana black
+            PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
+        }else{ //hiragana red
+            PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
             }
         }else{ 
-            if(color==0){ // katakana black
-                PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
-            }else{ // katakana red
-                PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
-            }
+        if(color==0){ // katakana black
+            PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
+        }else{ // katakana red
+            PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
         }
-    }else if(protcol==1){
-        if(color==0){ // sp black
-            PutSprite(spblackimg[num], x, y, &spblackinfo[num],scale);
-        }else{ // sp red
-            PutSprite(spredimg[num], x, y, &spredinfo[num],scale);
-        }        
     }
 }
 
-void drawString(char *string,int kh,int color,int xo,int yo,double scale,int protcol){
+void drawString(char *string,int kh,int color,int xo,int yo,double scale){
     int i,j;
+    int len = strlen(string)-1;
     int x=xo;
     int y=yo;
-    int len = strlen(string)-1;
-    int drawflg;
-    if(protcol==0){
-        for(i=0;i<len;i+=2){
-            drawflg=0;
-            // space
-            if((string[i]=='s')&&(string[i+1]=='s')){
-                x+=IMGSIZE*scale;
-                drawflg=1;
-            }
-            // japanese
-            if(drawflg==0){
+    int numberflg;
+    for(i=0;i<len;i++){
+        numberflg=-1;
+        switch (string[i])
+        {
+        case '0': numberflg=0; break;
+        case '1': numberflg=1; break;
+        case '2': numberflg=2; break;
+        case '3': numberflg=3; break;
+        case '4': numberflg=4; break;
+        case '5': numberflg=5; break;
+        case '6': numberflg=6; break;
+        case '7': numberflg=7; break;
+        case '8': numberflg=8; break;
+        case '9': numberflg=9; break;
+        default : numberflg=-1; break;
+        }
+        if(numberflg>=0){
+            drawChar(JPMAX+numberflg,0,color,x,y,scale);
+        }else{
             for(j=0;j<JPMAX;j++){
                 if((jpProtcol[j][0]==string[i])&&(jpProtcol[j][1]==string[i+1])){
-                    drawChar(j,kh,color,x,y,scale,protcol);
-                    x+=IMGSIZE*scale;
-                    drawflg=1;
+                    drawChar(j,kh,color,x,y,scale);
                     break;
                 }
-            }
+            }       
+            for(j=JPMAX+10;j<JPMAX+SPMAX;j++){
+                if((jpProtcol[j][0]==string[i])&&(jpProtcol[j][1]==string[i+1])){
+                    drawChar(j,kh,color,x,y,scale);
+                    break;
+                }
+            }          
+            i++;
         }
+        x+=IMGSIZE*scale;
         if(x+IMGSIZE*scale>InitWidth){
             x=xo;
             y+=IMGSIZE*scale;
         }
-    }
-    }else if(protcol==1){
-    for(i=0;i<=len;i++){
-        for(j=0;j<SPMAX;j++){
-            if(spProtcol[j][0]==string[i]){
-                drawChar(j,kh,color,x,y,scale,protcol);
-                x+=IMGSIZE*scale;
-            break;
-            }
-        }
-        if(x+IMGSIZE*scale>InitWidth){
-        x=xo;
-        y+=IMGSIZE*scale;
-        }
-    }
     }
 }
 
@@ -595,29 +585,29 @@ void drawDialog(int x,int y,int width,int height,int red,int blue,int green){
 void drawStation(int x,int y){
     int i,j;
     int oku,man;
-    char fname1[10];
-    char fname2[10];
+    char fname1[20];
+    char fname2[20];
      for(i=0;i<STATIONNUM;i++){
          if((stations[i].x==x)&&(stations[i].y==y)){
             // 駅名表示
             drawDialog(11,11,InitWidth-22,42,255,245,238);
-            drawString(stations[i].name,0,0,16,16,1,0);
+            drawString(stations[i].name,0,0,16,16,1);
 
             // 所持金表示
             drawDialog(11,61,InitWidth-22,34,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
-            drawString("silozikinn",0,0,16,61+8,0.5,0);
+            drawString("silozikinn",0,0,16,61+8,0.5);
             oku = players[turn].money/10000;
             man = players[turn].money%10000;
             if(oku!=0){
                 if(man!=0){
-                    sprintf(fname1,"%do%dme",oku,man);
+                    sprintf(fname1,"%dox%dmxex",oku,man);
                 }else{
-                    sprintf(fname1,"%doe",oku);
+                        sprintf(fname1,"%doxex",oku);
                 }
             }else{
-                sprintf(fname1,"%dme",man);
+                sprintf(fname1,"%dmxex",man);
             }
-            drawString(fname1,0,0,3*InitWidth/4,61+8,0.5,1);
+            drawString(fname1,0,0,3*InitWidth/4,61+8,0.5);
 
             // 物件表示
             drawDialog(11,103,InitWidth-22,21+16*stations[i].propertynum,255,245,238);
@@ -627,23 +617,23 @@ void drawStation(int x,int y){
                 man = stations[i].plist[j].price%10000;
                 if(oku!=0){
                     if(man!=0){
-                        sprintf(fname1,"%do%dme",oku,man);
+                        sprintf(fname1,"%dox%dmxex",oku,man);
                     }else{
-                        sprintf(fname1,"%doe",oku);
+                        sprintf(fname1,"%doxex",oku);
                     }
                 }else{
-                    sprintf(fname1,"%dme",man);
+                    sprintf(fname1,"%dmxex",man);
                 }
                 // earings
-                sprintf(fname2,"%dp",stations[i].plist[j].earnings);
+                sprintf(fname2,"%dpx",stations[i].plist[j].earnings);
                 if(players[turn].money>=stations[i].plist[j].price){
-                    drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,18,42+11+50+7+17*j,0.5,0);
-                    drawString(fname1,0,0,InitWidth/2,42+11+50+7+17*j,0.5,1);
-                    drawString(fname2,0,0,3*InitWidth/4,42+11+50+7+17*j,0.5,1);
+                    drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,18,42+11+50+7+17*j,0.5);
+                    drawString(fname1,0,0,InitWidth/2,42+11+50+7+17*j,0.5);
+                    drawString(fname2,0,0,3*InitWidth/4,42+11+50+7+17*j,0.5);
                 }else{
-                    drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,1,18,42+11+50+7+17*j,0.5,0);
-                    drawString(fname1,0,1,InitWidth/2,42+11+50+7+17*j,0.5,1);
-                    drawString(fname2,0,1,3*InitWidth/4,42+11+50+7+17*j,0.5,1);
+                    drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,1,18,42+11+50+7+17*j,0.5);
+                    drawString(fname1,0,1,InitWidth/2,42+11+50+7+17*j,0.5);
+                    drawString(fname2,0,1,3*InitWidth/4,42+11+50+7+17*j,0.5);
                 }
             }
          }

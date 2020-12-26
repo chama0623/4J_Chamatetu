@@ -76,19 +76,15 @@ GLuint diceimg[DICEMAX];
 pngInfo diceinfo[DICEMAX];
 
 // 日本語画像
-GLuint hblackimg[JPMAX];
-pngInfo hblackinfo[JPMAX];
-GLuint hredimg[JPMAX];
-pngInfo hredinfo[JPMAX];
+GLuint hblackimg[JPMAX+SPMAX];
+pngInfo hblackinfo[JPMAX+SPMAX];
+GLuint hredimg[JPMAX+SPMAX];
+pngInfo hredinfo[JPMAX+SPMAX];
 GLuint kblackimg[JPMAX];
 pngInfo kblackinfo[JPMAX];
 GLuint kredimg[JPMAX];
 pngInfo kredinfo[JPMAX];
-// 特殊文字
-GLuint spblackimg[SPMAX];
-pngInfo spblackinfo[SPMAX];
-GLuint spredimg[SPMAX];
-pngInfo spredinfo[SPMAX];
+
 
 // 誰のターンか判別
 int turn;
@@ -128,8 +124,8 @@ int getmapnum(int,int);
 void drawMap(void);
 void drawPlayer(void);
 
-void drawChar(int,int,int,int,int,double,int);
-void drawString(char *,int,int,int,int,double,int);
+void drawChar(int,int,int,int,int,double);
+void drawString(char *,int,int,int,int,double);
 
 void InitPlayer(void);
 void dispPlayer(int);
