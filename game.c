@@ -19,7 +19,7 @@ char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
         "AAAAAAAAAAAAAAA"
 };
 
-char jpProtcal[JPMAX][3] = {"aa","ii","uu","ee","oo",
+char jpProtcol[JPMAX][3] = {"aa","ii","uu","ee","oo",
                             "ka","ki","ku","ke","ko",
                             "sa","si","su","se","so",
                             "ta","ti","tu","te","to",
@@ -36,6 +36,9 @@ char jpProtcal[JPMAX][3] = {"aa","ii","uu","ee","oo",
                             "ba","bi","bu","be","bo",
                             "pa","pi","pu","pe","po",
                             };
+
+char spProtcol[SPMAX][2] = {"0","1","2","3","4","5"
+                            ,"6","7","8","9","e","m","o","p"};
 
 int playercolor[3][3]={{30,144,255},
                        {255,20,147},
@@ -284,28 +287,42 @@ void readImg(void){
     }
     //read Hiragana black
     for(i=0;i<JPMAX;i++){
-        sprintf(fname,".\\charimg\\h%sblack.png",jpProtcal[i]);
+        sprintf(fname,".\\charimg\\h%sblack.png",jpProtcol[i]);
         hblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &hblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
     //read Hiragana red
     for(i=0;i<JPMAX;i++){
-        sprintf(fname,".\\charimg\\h%sred.png",jpProtcal[i]);
+        sprintf(fname,".\\charimg\\h%sred.png",jpProtcol[i]);
         hredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &hredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
     //read Katakana black
     for(i=0;i<JPMAX;i++){
-        sprintf(fname,".\\charimg\\k%sblack.png",jpProtcal[i]);
+        sprintf(fname,".\\charimg\\k%sblack.png",jpProtcol[i]);
         kblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &kblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
     //read Katakana red
     for(i=0;i<JPMAX;i++){
-        sprintf(fname,".\\charimg\\k%sred.png",jpProtcal[i]);
+        sprintf(fname,".\\charimg\\k%sred.png",jpProtcol[i]);
         kredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &kredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+    //read Special Str red
+    for(i=0;i<SPMAX;i++){
+        sprintf(fname,".\\charimg\\%sred.png",spProtcol[i]);
+        printf("%s\n",fname);
+        spredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &spredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
+    }
+    //read Special Str black
+    for(i=0;i<SPMAX;i++){
+        sprintf(fname,".\\charimg\\%sblack.png",spProtcol[i]);
+        printf("%s\n",fname);
+        spblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+        &spblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
 }
@@ -365,37 +382,51 @@ void drawPlayer(void){
 
 // int kh : 0,Hiragana 1,Katakana
 // int color 0,black 1,red
-void drawChar(int num,int kh,int color,int x,int y,double scale){
-    if(kh==0){
-        if(color==0){ // hiragana black
-            PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
-        }else{ //hiragana red
-            PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
+void drawChar(int num,int kh,int color,int x,int y,double scale,int protcol){
+    if(protcol==0){
+        if(kh==0){
+            if(color==0){ // hiragana black
+                PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
+            }else{ //hiragana red
+                PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
+            }
+        }else{ 
+            if(color==0){ // katakana black
+                PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
+            }else{ // katakana red
+                PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
+            }
         }
-    }else{ 
-        if(color==0){ // katakana black
-            PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
-        }else{ // katakana red
-            PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
-        }
+    }else if(protcol==1){
+        if(color==0){ // sp black
+            PutSprite(spblackimg[num], x, y, &spblackinfo[num],scale);
+        }else{ // sp red
+            PutSprite(spredimg[num], x, y, &spredinfo[num],scale);
+        }        
     }
 }
 
-void drawString(char *string,int kh,int color,int xo,int yo,double scale){
+void drawString(char *string,int kh,int color,int xo,int yo,double scale,int protcol){
     int i,j;
     int x=xo;
     int y=yo;
     int len = strlen(string)-1;
-    for(i=0;i<len;i+=2){
-        //printf("%c",string[i]);
-        //printf("%c ",string[i+1]);
-        if((string[i]=='s')&&(string[i+1]=='s')){
-            x+=IMGSIZE*scale;
-        }else{
+    int drawflg;
+    if(protcol==0){
+        for(i=0;i<len;i+=2){
+            drawflg=0;
+            // space
+            if((string[i]=='s')&&(string[i+1]=='s')){
+                x+=IMGSIZE*scale;
+                drawflg=1;
+            }
+            // japanese
+            if(drawflg==0){
             for(j=0;j<JPMAX;j++){
-                if((jpProtcal[j][0]==string[i])&&(jpProtcal[j][1]==string[i+1])){
-                    drawChar(j,kh,color,x,y,scale);
+                if((jpProtcol[j][0]==string[i])&&(jpProtcol[j][1]==string[i+1])){
+                    drawChar(j,kh,color,x,y,scale,protcol);
                     x+=IMGSIZE*scale;
+                    drawflg=1;
                     break;
                 }
             }
@@ -404,6 +435,21 @@ void drawString(char *string,int kh,int color,int xo,int yo,double scale){
             x=xo;
             y+=IMGSIZE*scale;
         }
+    }
+    }else if(protcol==1){
+    for(i=0;i<=len;i++){
+        for(j=0;j<SPMAX;j++){
+            if(spProtcol[j][0]==string[i]){
+                drawChar(j,kh,color,x,y,scale,protcol);
+                x+=IMGSIZE*scale;
+            break;
+            }
+        }
+        if(x+IMGSIZE*scale>InitWidth){
+        x=xo;
+        y+=IMGSIZE*scale;
+        }
+    }
     }
 }
 
@@ -550,14 +596,35 @@ void drawDialog(int x,int y,int width,int height,int red,int blue,int green){
 
 void drawStation(int x,int y){
     int i,j;
+    int oku,man;
+    char fname[10];
      for(i=0;i<STATIONNUM;i++){
          if((stations[i].x==x)&&(stations[i].y==y)){
-            //printf("%s駅です\n",stations[i].name);
+            // 駅名表示
             drawDialog(11,11,InitWidth-22,42,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
-            drawString(stations[i].name,0,0,16,16,1);
-            drawDialog(11,11+50,InitWidth-22,16+17*stations[i].propertynum,255,245,238);
+            drawString(stations[i].name,0,0,16,16,1,0);
+            
+            // 物件表示
+            drawDialog(11,61,InitWidth-22,21+16*stations[i].propertynum,255,245,238);
             for(j=0;j<stations[i].propertynum;j++){
-                drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,16,11+50+10+17*j,0.5);
+                // 物件名
+                drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,0,18,11+50+7+17*j,0.5,0);
+                // price
+                oku = stations[i].plist[j].price/1000;
+                man = stations[i].plist[j].price%1000;
+                if(oku!=0){
+                    if(man!=0){
+                        sprintf(fname,"%do%dme",oku,man);
+                    }else{
+                        sprintf(fname,"%doe",oku);
+                    }
+                }else{
+                    sprintf(fname,"%dme",man);
+                }
+                drawString(fname,0,0,InitWidth/2,11+50+7+17*j,0.5,1);
+                // earings
+                sprintf(fname,"%dp",stations[i].plist[j].earnings);
+                drawString(fname,0,0,3*InitWidth/4,11+50+7+17*j,0.5,1);
             }
          }
      }
