@@ -11,7 +11,7 @@
 
 #define PLAYERNUM 3 
 #define STATIONNUM 5
-
+#define MAXMONTH 12
 #define INITX 4*IMGSIZE
 #define INITY 3*IMGSIZE
 #define INITMONEY 1000
@@ -21,6 +21,7 @@
 #define RESHAPETIME 500
 #define MOVETIME 100
 #define DICETIME 100
+#define RANDTIME 100
 
 #define JPMAX 75
 #define SPMAX 14
@@ -32,6 +33,7 @@ struct playerstatus{
     char name[NAMEMAX];
     int nameAttribute[NAMEMAX];
     int money;
+    int assets;
     int x;
     int y;
     int isBonby;
@@ -85,6 +87,8 @@ pngInfo kblackinfo[JPMAX];
 GLuint kredimg[JPMAX];
 pngInfo kredinfo[JPMAX];
 
+// 年月管理
+int month,year;
 
 // 誰のターンか判別
 int turn;
@@ -104,6 +108,18 @@ int dice;
 // 残り移動可能マス
 int recount;
 
+// 乱数生成用
+int randflg;
+int randreturn;
+int pm;
+int calflg;
+
+// 物件を買うときの変数
+int selectpos;
+int wherestation;
+int propertynum;
+int purchase;
+
 // 移動したマスを記録
 int massRecord[DICEMAX][2];
 
@@ -111,9 +127,10 @@ void Reshape(int, int);
 void Timer(int);
 void MoveTimer(int);
 void DiceTimer(int);
+void RandTimer(int);
 void PutSprite(int, int, int, pngInfo *,double);
 int isMovable(int,int);
-void move();
+void move(void);
 void nextStation(int,int);
 void keyboard(unsigned char,int x,int y);
 
@@ -133,6 +150,8 @@ void dispPlayer(int);
 void dispmassRecord(void);
 
 void drawDialog(int,int,int,int,int,int,int);
+void drawQUAD(int,int,int,int);
+void drawMoney(int,int,int,int,double);
 void drawStation(int,int);
 
 void readStation(void);

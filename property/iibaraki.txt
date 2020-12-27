@@ -1,4 +1,4 @@
+iimokennpi 200,50,0
+iimokennpi 200,50,0
 yakiiimo 500,50,0
 musiiimo 700,80,0
-iimokennpi 200,50,0
-iimokennpi 200,50,0

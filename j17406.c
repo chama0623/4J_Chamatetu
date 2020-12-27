@@ -25,8 +25,10 @@ int main(int argc, char **argv)
     
     readStation();
     readProperty();
-    //dispStation(0);
+    dispStation(0);
 
+    month=4;
+    year=0;
     turn=0;
     turnstatus=0;
     nx=0;
@@ -36,6 +38,7 @@ int main(int argc, char **argv)
     dice=0;
     recount=0;
     direction=-1;
+    randflg=0;
     //イベント登録
     glutReshapeFunc(Reshape);
     glutDisplayFunc(Display);
