@@ -24,19 +24,17 @@
 #define RANDTIME 100
 
 #define JPMAX 75
-#define SPMAX 14
+#define SPMAX 16
 #define NAMEMAX 10
 #define STRMAX 40
 
 // プレイヤーの情報構造体
 struct playerstatus{
     char name[NAMEMAX];
-    int nameAttribute[NAMEMAX];
     int money;
     int assets;
     int x;
     int y;
-    int isBonby;
     int cardnum;
     int cardlist[CARDMAX];
     int cardoption[CARDMAX];
@@ -101,6 +99,7 @@ int nx;
 int ny;
 // キーボードフラグ
 int keyboardflg;
+int keyboardflgformove;
 // サイコロフラグ
 int diceflg;
 // サイコロの目
@@ -125,6 +124,7 @@ int massRecord[DICEMAX][2];
 
 void Reshape(int, int);
 void Timer(int);
+void keyboardTimer(int);
 void MoveTimer(int);
 void DiceTimer(int);
 void RandTimer(int);

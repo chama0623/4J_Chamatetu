@@ -34,6 +34,7 @@ int main(int argc, char **argv)
     nx=0;
     ny=0;
     keyboardflg=0;
+    keyboardflgformove=0;
     diceflg=0;
     dice=0;
     recount=0;
