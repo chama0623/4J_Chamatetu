@@ -24,7 +24,7 @@
 #define RANDTIME 100
 
 #define JPMAX 75
-#define SPMAX 16
+#define SPMAX 24
 #define NAMEMAX 10
 #define STRMAX 40
 
@@ -109,6 +109,7 @@ int recount;
 
 // 乱数生成用
 int randflg;
+int range;
 int randreturn;
 int pm;
 int calflg;
@@ -152,7 +153,10 @@ void dispmassRecord(void);
 void drawDialog(int,int,int,int,int,int,int);
 void drawQUAD(int,int,int,int);
 void drawMoney(int,int,int,int,double);
+void drawText(char *,int,int);
 void drawStation(int,int);
+
+void debtprocess(void);
 
 void readStation(void);
 void readProperty(void);

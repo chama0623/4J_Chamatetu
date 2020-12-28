@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include "game.h"
 
 // マップ配列
@@ -39,7 +40,8 @@ char jpProtcol[JPMAX+SPMAX][3] = {"aa","ii","uu","ee","oo",
                             "pa","pi","pu","pe","po",
                             "0","1","2","3","4","5"
                             ,"6","7","8","9",
-                            "ex","mx","ox","px","ms","ps"
+                            "ex","mx","ox","px","ms","ps",
+                            "mr","tn","xq","xw","xe","xa","xs","xd"
                             };
 
 // プレイヤーカラー
@@ -140,7 +142,6 @@ void DiceTimer(int t)
 // ランダムタイマー
 void RandTimer(int t)
 {
-    int range;
     if(pm==0){ //プラス駅
         range = plusarray[month-1][1]-plusarray[month-1][0];
         randreturn = plusarray[month-1][0] + rand()%range;
@@ -303,6 +304,7 @@ int ispurchase(int where,int id){
 // キーボード割り込み処理
 void keyboard(unsigned char key,int x,int y){
     int r = 623;
+    int i,count;
 
     if(turnstatus==4){
         if(key=='q'){
@@ -328,8 +330,16 @@ void keyboard(unsigned char key,int x,int y){
                     players[turn].assets+=stations[wherestation].plist[selectpos-1].price;
                     players[turn].money-=stations[wherestation].plist[selectpos-1].price;
                     stations[wherestation].plist[selectpos-1].holder=turn+1;
-                    dispPlayer(1);
-                    dispStation(0);
+                    count=0;
+                    for(i=0;i<stations[wherestation].propertynum;i++){
+                        if(stations[wherestation].plist[i].holder==turn+1){
+                            count++;
+                        }
+                    }
+                    if(count==stations[wherestation].propertynum){
+                        stations[wherestation].ismonopoly=turn+1;
+                        printf("独占しました!\n");
+                    }
                     }else{
                     printf("買えないよ!\n");
                 }
@@ -344,7 +354,11 @@ void keyboard(unsigned char key,int x,int y){
         }
     }else if(turnstatus==1){
         if(key=='e'){
-            diceflg=2;
+            if(diceflg==1){
+                diceflg=2;
+            }else if(diceflg==2){
+                diceflg=3;
+            }
         }
     }else if((turnstatus==2)&&(keyboardflgformove==1)){
     if(key=='w'){
@@ -565,7 +579,7 @@ void drawString(char *string,int kh,int color,int xo,int yo,double scale){
             i++;
         }
         x+=IMGSIZE*scale;
-        if(x+IMGSIZE*scale>InitWidth){
+        if(x+IMGSIZE*scale>InitWidth-22){
             x=xo;
             y+=IMGSIZE*scale;
         }
@@ -746,6 +760,13 @@ void drawMoney(int money,int x,int y,int color,double scale){
     }
     drawString(fname,0,color,x,y,scale);
 }
+
+// テキスト表示
+void drawText(char *string,int y,int color){
+    drawDialog(11,y,InitWidth-22,42,255,245,238);
+    drawString(string,0,color,16,y+5,0.5);
+}
+
 // 物件情報を描画
 void drawStation(int x,int y){
     int i,j;
@@ -793,6 +814,183 @@ void drawStation(int x,int y){
          }
      }
 }
+
+void debtprocess(void){
+    int i,j;
+    int count=0;
+    int nearest;
+    int nearests,nearestid;
+    char fname[100];
+    printf("借金返済\n");
+    for(i=0;i<STATIONNUM;i++){
+        for(j=0;j<stations[i].propertynum;j++){
+            if(turn+1==stations[i].plist[j].holder){
+                count++;
+                //printf("%s\n",stations[i].plist[j].name);
+            }
+        }
+    }
+    if(count==0){
+        drawText(fname,225,0);
+    }else{
+        // 借金が資産より大きいときすべて売却
+        if(-players[turn].money>=players[turn].assets){
+            for(i=0;i<STATIONNUM;i++){
+                if(stations[i].ismonopoly==turn+1){
+                    stations[i].ismonopoly=0;
+                    printf("独占が崩れました\n");
+                }
+                for(j=0;j<stations[i].propertynum;j++){
+                if(turn+1==stations[i].plist[j].holder){
+                    printf("%s : %dを売却しました\n",stations[i].plist[j].name,stations[i].plist[j].price);
+                    stations[i].plist[j].holder=0;
+                    players[turn].money+=stations[i].plist[j].price;
+                    players[turn].assets-=stations[i].plist[j].price;
+                    printf("所持金 : %d\n", players[turn].money);
+                    }
+                }
+            }            
+        }else{ // 借金が資産より小さいとき
+            // 独占でない物件から売却
+            // 借金より価格が高く,借金に一番値段が近い物件を売却
+            while(1){
+                nearest = 9999999;
+                nearests =-1;
+                nearestid = -1;
+                for(i=0;i<STATIONNUM;i++){
+                    if(stations[i].ismonopoly!=turn+1){ // 独占でないなら
+                        for(j=0;j<stations[i].propertynum;j++){
+                            if(turn+1==stations[i].plist[j].holder){
+                                // 借金より資産が大きいとき
+                                if(stations[i].plist[j].price>=-players[turn].money){
+                                    if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                        nearest = abs(-players[turn].money-stations[i].plist[j].price);
+                                        nearests = i;
+                                        nearestid = j;       
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }  
+                if(nearests!=-1){
+                    printf("%sを売却しました\n",stations[nearests].plist[nearestid].name);
+                    stations[nearests].plist[nearestid].holder=0;
+                    players[turn].money+=stations[nearests].plist[nearestid].price;
+                    players[turn].assets-=stations[nearests].plist[nearestid].price;
+                    if(players[turn].money>=0){
+                        break;
+                    }
+                }else{
+                    break;
+                }
+            }
+            // 借金より価格が低く,借金に一番値段が近い物件を売却
+            if(players[turn].money<0){
+            while(1){
+                nearest = 9999999;
+                nearests =-1;
+                nearestid = -1;
+                for(i=0;i<STATIONNUM;i++){
+                    if(stations[i].ismonopoly!=turn+1){ // 独占でないなら
+                        for(j=0;j<stations[i].propertynum;j++){
+                            if(turn+1==stations[i].plist[j].holder){
+                                // 借金より資産が小さいとき
+                                    if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                        nearest = abs(-players[turn].money-stations[i].plist[j].price);   
+                                        nearests = i;
+                                        nearestid = j;       
+                                    }
+                            }
+                        }
+                    }
+                }  
+                if(nearests!=-1){
+                    printf("%s : %dを売却しました\n",stations[nearests].plist[nearestid].name,stations[nearests].plist[nearestid].price);
+                    stations[nearests].plist[nearestid].holder=0;
+                    players[turn].money+=stations[nearests].plist[nearestid].price;
+                    players[turn].assets-=stations[nearests].plist[nearestid].price;
+                    printf("所持金 : %d\n", players[turn].money);
+                    if(players[turn].money>=0){
+                        break;
+                    }
+                }else{
+                    break;
+                }
+            }
+            }
+            // 独占の物件を売却
+            if(players[turn].money<0){
+            while(1){
+                nearest = 9999999;
+                nearests =-1;
+                nearestid = -1;
+                for(i=0;i<STATIONNUM;i++){
+                        for(j=0;j<stations[i].propertynum;j++){
+                            if(turn+1==stations[i].plist[j].holder){
+                                // 借金より資産が大きいとき
+                                if(stations[i].plist[j].price>=-players[turn].money){
+                                    if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                        nearest = abs(-players[turn].money-stations[i].plist[j].price);  
+                                        nearests = i;
+                                        nearestid = j;       
+                                    }
+                                }
+                            }
+                        }
+                }  
+                if(nearests!=-1){
+                    printf("%sを売却しました\n",stations[nearests].plist[nearestid].name);
+                    printf("独占が崩れました\n");
+                    stations[nearests].plist[nearestid].holder=0;
+                    stations[nearests].ismonopoly=0;
+                    players[turn].money+=stations[nearests].plist[nearestid].price;
+                    players[turn].assets-=stations[nearests].plist[nearestid].price;
+                    if(players[turn].money>=0){
+                        break;
+                    }
+                }else{
+                    break;
+                }
+            }
+            }
+            if(players[turn].money<0){
+            while(1){
+                nearest = 9999999;
+                nearests =-1;
+                nearestid = -1;
+                for(i=0;i<STATIONNUM;i++){
+                        for(j=0;j<stations[i].propertynum;j++){
+                            if(turn+1==stations[i].plist[j].holder){
+                                // 借金より資産が小さいとき
+                                    if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                        nearest = abs(-players[turn].money-stations[i].plist[j].price);  
+                                        nearests = i;
+                                        nearestid = j;       
+                                    }
+                            }
+                        }
+                }  
+                if(nearests!=-1){
+                    printf("%s : %dを売却しました\n",stations[nearests].plist[nearestid].name,stations[nearests].plist[nearestid].price);
+                    printf("独占が崩れました\n");
+                    stations[nearests].plist[nearestid].holder=0;
+                    stations[nearests].ismonopoly=0;
+                    players[turn].money+=stations[nearests].plist[nearestid].price;
+                    players[turn].assets-=stations[nearests].plist[nearestid].price;
+                    printf("所持金 : %d\n", players[turn].money);
+                    if(players[turn].money>=0){
+                        break;
+                    }
+                }else{
+                    break;
+                }
+            }
+            }
+            }
+        }
+}
+
 // ディスプレイ関数
 void Display(void){
     int stopstation;
@@ -807,21 +1005,25 @@ void Display(void){
         selectpos=-623;
         printf("%s社長のターンです\n",players[turn].name);
         printf("%d年%d月目\n",year,month);
-        dispPlayer(turn+1);
-        sprintf(fname,"%ssilatilouunobanndesu",players[turn].name);
-        drawString(fname,0,0,10,200,0.5);
+        sprintf(fname,"%ssilatilouunobanndesumrssxessdesaiikorowomawasimasumr",players[turn].name);
+        drawText(fname,225,0);
     }
 
     //サイコロをふるとき
     if(turnstatus==1){
         if(diceflg==0){
             diceflg=1;
+            dispPlayer(1);
+            //dispStation(0);
             glutTimerFunc(DICETIME, DiceTimer, 0);
         }
         if(diceflg==1){
-            PutSprite(diceimg[dice], 448, 32, &diceinfo[dice],1);
+            PutSprite(diceimg[dice], 416, 32, &diceinfo[dice],1);
         }
         if(diceflg==2){
+            PutSprite(diceimg[dice], 416, 32, &diceinfo[dice],1);
+        }
+        if(diceflg==3){
             //printf("dice = %d\n",dice);
             turnstatus=2;
         }
@@ -829,8 +1031,8 @@ void Display(void){
 
     // マス移動のとき
     if(turnstatus==2){
-        PutSprite(diceimg[dice], 448, 32, &diceinfo[dice],1);
-        PutSprite(diceimg[recount], 448, 64, &diceinfo[recount],1);
+        sprintf(fname,"aato%dmasu",recount+1);
+        drawText(fname,225,0);
         if(keyboardflgformove==0){
             keyboardflgformove=1;
         }else{
@@ -879,6 +1081,8 @@ void Display(void){
         }
         if(randflg==2){ 
             if(calflg==0){
+                range = plusarray[month-1][1]-plusarray[month-1][0];
+                randreturn = plusarray[month-1][0] + rand()%range;
                 players[turn].money+=randreturn;
                 dispPlayer(turn+1);
                 drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
@@ -909,10 +1113,15 @@ void Display(void){
         }
         if(randflg==2){ 
             if(calflg==0){
+                range = minusarray[month-1][1]-minusarray[month-1][0];
+                randreturn = minusarray[month-1][0] + rand()%range;
                 players[turn].money-=randreturn;
                 dispPlayer(turn+1);
                 drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
                 drawMoney(-randreturn,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
+                if(players[turn].money<0){
+                    debtprocess();
+                }
                 calflg=1;
             }
             glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
