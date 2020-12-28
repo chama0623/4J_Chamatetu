@@ -27,20 +27,10 @@ int main(int argc, char **argv)
     readProperty();
     dispStation(0);
 
-    month=4;
-    sold=-1;
-    year=0;
     turn=0;
-    turnstatus=0;
-    nx=0;
-    ny=0;
-    keyboardflg=0;
-    keyboardflgformove=0;
-    diceflg=0;
-    dice=0;
-    recount=0;
-    direction=-1;
-    randflg=0;
+    Initvalue();
+    turnstatus=1000;
+    calflg3=1;
     //イベント登録
     glutReshapeFunc(Reshape);
     glutDisplayFunc(Display);

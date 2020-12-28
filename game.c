@@ -78,6 +78,7 @@ int minusarray[MAXMONTH][2] = {{4000,12000},
                                {400,1200},
                                {800,3000},
                                {2000,8000}};
+int shueki[3];
 //
 //  ウィンドウのサイズ変更が発生したときに座標系を再設定する関数
 //
@@ -155,6 +156,14 @@ void RandTimer(int t)
     }
 }
 
+void DistTimer(int t)
+{
+    glutPostRedisplay();
+    dist=rand()%STATIONNUM;
+    if(calflg==1){
+        glutTimerFunc(DICETIME, DistTimer, 0);
+    }
+}
 //
 //  num番のPNG画像を座標(x,y)に表示する
 void PutSprite(int num, int x, int y, pngInfo *info,double scale)
@@ -393,7 +402,31 @@ void keyboard(unsigned char key,int x,int y){
         if(key=='e'){
             randflg=3;
         }        
-    }  
+    }else if(turnstatus==101){
+        if(calflg==0){
+            if(key=='e'){
+                calflg=1;
+            }
+        }else if(calflg==1){
+            if(key=='e'){
+                calflg=2;
+            }
+        }else if(calflg==2){
+            if(key=='e'){
+                calflg=3;
+            }
+        }
+    }else if(turnstatus==50){
+        if(calflg==1){
+            if(key=='e'){
+                calflg=2;
+            }
+        }else if(calflg==2){
+            if(key=='e'){
+                calflg=3;
+            }
+        }
+    }
     keyboardflg=1;
     glutTimerFunc(500, keyboardTimer, 0);
     }
@@ -533,7 +566,7 @@ void drawChar(int num,int kh,int color,int x,int y,double scale){
 // 引数stringの文字列を表示
 void drawString(char *string,int color,int xo,int yo,double scale){
     int i,j;
-    int len = strlen(string)-1;
+    int len = strlen(string);
     int x=xo;
     int y=yo;
     int numberflg;
@@ -587,6 +620,22 @@ void drawString(char *string,int color,int xo,int yo,double scale){
         }
     }
 }
+
+//グローバル変数初期化
+void Initvalue(void){
+    sold=-1;
+    turnstatus=0;
+    nx=0;
+    ny=0;
+    keyboardflg=0;
+    keyboardflgformove=0;
+    diceflg=0;
+    dice=0;
+    recount=0;
+    direction=-1;
+    randflg=0;
+}
+
 // プレイヤー構造体を初期化
 void InitPlayer(void){
     int i;
@@ -813,9 +862,9 @@ void drawStation(int x,int y){
             }
         if(stations[i].ismonopoly!=0){
             sprintf(fname,"%ssilatilouunodokusenndesumr",players[stations[i].ismonopoly-1].name);
-            drawText(fname,191,0);
+            drawText(fname,210,0);
             sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
-            drawText(fname,241,0);
+            drawText(fname,260,0);
         }else{
                 sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
                 drawText(fname,225,0);
@@ -999,8 +1048,29 @@ int debtprocess(void){
     return count;
 }
 
+void kessan(void){
+    int i,j,k;
+    int dokusen;
+    for(i=0;i<PLAYERNUM;i++){
+        shueki[i]=0;
+        for(j=0;j<STATIONNUM;j++){
+            if(stations[j].ismonopoly==i+1){
+                dokusen=2;
+            }else{
+                dokusen=1;
+            }
+            for(k=0;k<stations[j].propertynum;k++){
+                if(stations[j].plist[k].holder==i+1){
+                    shueki[i]+=dokusen*stations[j].plist[k].price*stations[j].plist[k].earnings/100;
+                }
+            }
+        }
+    }
+}
+
 // ディスプレイ関数
 void Display(void){
+    int i;
     int stopstation;
     char fname[100];
     glClear(GL_COLOR_BUFFER_BIT);
@@ -1009,6 +1079,14 @@ void Display(void){
     
     //printf("turnstatus = %d\n",turnstatus);
     // ターン開始のとき
+
+    if(turnstatus==1000){
+        month=3;
+        year=0;
+        calflg=0;
+        turnstatus=50;
+    }
+
     if(turnstatus==0){
         selectpos=-623;
         //printf("%s社長のターンです\n",players[turn].name);
@@ -1070,7 +1148,11 @@ void Display(void){
     if(turnstatus==3){
         stopstation = getmapnum(players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
         if(stopstation==3){ // 物件にとまったとき
-            turnstatus=4;
+            if((players[turn].x/IMGSIZE == distx)&&(players[turn].y/IMGSIZE == disty)){
+                turnstatus=51;
+            }else{
+                turnstatus=4;
+            }
         }else if(stopstation==1){ // プラスマス
             turnstatus=5;
         }else if(stopstation==2){ //マイナスマス
@@ -1163,26 +1245,119 @@ void Display(void){
         }
     }
 
-    //ターン終了処理
-    if(turnstatus==100){
-        selectpos=-623;
-        sold=-1;
-        keyboardflgformove=0;
-        turn++;
-        if(turn==3){
-            month+=1;
-            if(month==13){
-                year+=1;
-                month=1;
-            }
-            turn =0;
+    if(turnstatus==50){
+        if(calflg==0){
+            calflg2=0;
+            glutTimerFunc(DICETIME, DistTimer, 0);
+            calflg=1;
         }
-        keyboardflgformove=0;
-        direction=-1;
-        randflg=0;
-        diceflg=0;
-        turnstatus=0;
+        if(calflg==1){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            drawString("mokutekiti",0,InitWidth/2-80,InitHeight/2-64,1);
+            drawString(stations[dist].name,0,InitWidth/2-80,InitHeight/2-16,1);
+        }
+
+        if(calflg==2){
+            if(calflg2==0){
+                dist=rand()%STATIONNUM;
+                distx = stations[dist].x;
+                disty = stations[dist].y;
+                calflg2=1;
+            }
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            drawString("mokutekiti",0,InitWidth/2-80,InitHeight/2-64,1);
+            drawString(stations[dist].name,0,InitWidth/2-80,InitHeight/2-16,1);
+        }
+        if(calflg3==1){
+            if(calflg==3){
+                turnstatus=0;
+                calflg3=0;
+            }
+        }else{
+            if(calflg==3){
+                turnstatus=4;
+            }
+        }
+    }
+    
+    if(turnstatus==51){
+        printf("プラス1億円\n");
+        players[turn].money+=10000;
+        calflg=0;
+        turnstatus=50;
     }
 
+    //ターン終了処理
+    if(turnstatus==100){
+        Initvalue();
+        selectpos=-623;
+        turn++;
+        // ターン更新処理
+        if(turn==3){
+            if(month==3){
+                calflg=0;
+                calflg2=0;
+                keyboardflg=0;
+                turnstatus=101;
+            }else{
+                month+=1;
+                if(month==13){
+                    month=1;
+                }
+                turn =0;
+            }
+        }
+    }
+
+    if(turnstatus==101){
+        if(calflg2==0){
+            year+=1;
+            kessan();
+            for(i=0;i<PLAYERNUM;i++){
+                players[i].money+=shueki[i];
+            }
+            printf("player1の収益 : %d\n",shueki[0]);
+            printf("player2の収益 : %d\n",shueki[1]);
+            printf("player3の収益 : %d\n",shueki[2]);
+            calflg2=1;
+        }
+        if(calflg==0){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            drawString("keltsann",0,InitWidth/2-64,InitHeight/2-16,1);
+        }
+        if(calflg==1){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            drawString("keltsann",0,InitWidth/2-64,11,1);
+            drawString("siluuueekigaku",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
+            }
+        }
+        if(calflg==2){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            drawString("keltsann",0,InitWidth/2-64,11,1);
+            drawString("souusisann",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                drawMoney(players[i].assets,InitWidth/2,75+25*i,0,0.7);
+            }
+        }
+        if(calflg==3){
+            month+=1;
+            if(month==13){
+                month=1;
+            }
+            turn =0;  
+            turnstatus=0;          
+        }
+    }
     glFlush();
 }

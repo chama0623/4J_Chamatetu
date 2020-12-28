@@ -84,6 +84,8 @@ pngInfo kredinfo[JPMAX];
 // 年月管理
 int month,year;
 
+//目的地
+int dist,distx,disty;
 // 誰のターンか判別
 int turn;
 // ターンの状況
@@ -109,6 +111,8 @@ int range;
 int randreturn;
 int pm;
 int calflg;
+int calflg2;
+int calflg3;
 
 // 物件を買うときの変数
 int selectpos;
@@ -125,6 +129,7 @@ void keyboardTimer(int);
 void MoveTimer(int);
 void DiceTimer(int);
 void RandTimer(int);
+void DistTimer(int);
 void PutSprite(int, int, int, pngInfo *,double);
 int isMovable(int,int);
 void move(void);
@@ -141,6 +146,7 @@ void drawPlayer(void);
 void drawChar(int,int,int,int,int,double);
 void drawString(char *,int,int,int,double);
 
+void Initvalue(void);
 void InitPlayer(void);
 void dispPlayer(int);
 
