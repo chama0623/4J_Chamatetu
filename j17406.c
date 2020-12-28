@@ -28,6 +28,7 @@ int main(int argc, char **argv)
     dispStation(0);
 
     month=4;
+    sold=-1;
     year=0;
     turn=0;
     turnstatus=0;

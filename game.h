@@ -6,7 +6,6 @@
 #define IMGSIZE 32
 
 #define DICEMAX 6
-#define CARDMAX 5
 #define PROPERTMAX 6
 
 #define PLAYERNUM 3 
@@ -16,7 +15,7 @@
 #define INITY 3*IMGSIZE
 #define INITMONEY 1000
 
-#define MAP_NUM 7
+#define MAP_NUM 6
 
 #define RESHAPETIME 500
 #define MOVETIME 100
@@ -35,9 +34,6 @@ struct playerstatus{
     int assets;
     int x;
     int y;
-    int cardnum;
-    int cardlist[CARDMAX];
-    int cardoption[CARDMAX];
 };
 
 typedef struct playerstatus player;
@@ -106,7 +102,7 @@ int diceflg;
 int dice;
 // 残り移動可能マス
 int recount;
-
+int sold;
 // 乱数生成用
 int randflg;
 int range;
@@ -143,7 +139,7 @@ void drawMap(void);
 void drawPlayer(void);
 
 void drawChar(int,int,int,int,int,double);
-void drawString(char *,int,int,int,int,double);
+void drawString(char *,int,int,int,double);
 
 void InitPlayer(void);
 void dispPlayer(int);
@@ -156,7 +152,7 @@ void drawMoney(int,int,int,int,double);
 void drawText(char *,int,int);
 void drawStation(int,int);
 
-void debtprocess(void);
+int debtprocess(void);
 
 void readStation(void);
 void readProperty(void);

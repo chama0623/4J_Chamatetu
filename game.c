@@ -10,14 +10,14 @@
 // マップ配列
 char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
         "AAAAAAAAAAAAAAA",
-        "AAP-B-B---CAAAAA",
+        "AAP-B-B---PAAAAA",
         "AA|A|AAAAAAAAAA",
-        "AAP-B--C--PAAAA",
+        "AAP-B--P--PAAAA",
         "AAAA|AAAAA|AAAA",
         "AAAAMAABAA|AAAA",
         "AAAA|AA|AA|AAAA",
         "AAAA|AA|AA|AAAA",
-        "AC--M--P--BAAAAA",
+        "AP--M--P--BAAAAA",
         "AAAAAAAAAAAAAAA"
 };
 
@@ -157,7 +157,6 @@ void RandTimer(int t)
 
 //
 //  num番のPNG画像を座標(x,y)に表示する
-//
 void PutSprite(int num, int x, int y, pngInfo *info,double scale)
 {
     int w, h;  //  テクスチャの幅と高さ
@@ -251,7 +250,7 @@ void nextStation(int x,int y){
     if(direction==0){
         while(1){
             ya--;
-            if(getmapnum(xa,ya)!=5){
+            if(getmapnum(xa,ya)!=4){
                 break;
             }
         }
@@ -260,7 +259,7 @@ void nextStation(int x,int y){
     if(direction==1){
         while(1){
             xa++;
-            if(getmapnum(xa,ya)!=6){
+            if(getmapnum(xa,ya)!=5){
                 break;
             }
         }
@@ -269,7 +268,7 @@ void nextStation(int x,int y){
     if(direction==2){
         while(1){
             ya++;
-            if(getmapnum(xa,ya)!=5){
+            if(getmapnum(xa,ya)!=4){
                 break;
             }
         }
@@ -278,7 +277,7 @@ void nextStation(int x,int y){
     if(direction==3){
         while(1){
             xa--;
-            if(getmapnum(xa,ya)!=6){
+            if(getmapnum(xa,ya)!=5){
                 break;
             }
         }
@@ -326,7 +325,6 @@ void keyboard(unsigned char key,int x,int y){
             if(selectpos!=0){
                 //printf("%s\n",stations[wherestation].plist[selectpos-1].name);
                 if(ispurchase(wherestation,selectpos-1)==1){
-                    printf("買えるよ!\n");
                     players[turn].assets+=stations[wherestation].plist[selectpos-1].price;
                     players[turn].money-=stations[wherestation].plist[selectpos-1].price;
                     stations[wherestation].plist[selectpos-1].holder=turn+1;
@@ -338,11 +336,8 @@ void keyboard(unsigned char key,int x,int y){
                     }
                     if(count==stations[wherestation].propertynum){
                         stations[wherestation].ismonopoly=turn+1;
-                        printf("独占しました!\n");
                     }
-                    }else{
-                    printf("買えないよ!\n");
-                }
+                    }
             }
         }
     }
@@ -473,22 +468,19 @@ int getmapnum(int x,int y){
         img_num=0;
         break;
     case 'B': // 物件
-        img_num=4;
+        img_num=3;
          break;
     case '|': // 線路(縦)
-        img_num=5;
+        img_num=4;
         break; 
     case '-': // 線路(横)
-        img_num=6;
+        img_num=5;
         break;
     case 'P': // プラス駅
         img_num=1;
         break;
     case 'M': // マイナス駅
         img_num=2;
-        break;
-    case 'C': // カード駅
-        img_num=3;
         break;
     }
     return img_num;
@@ -539,12 +531,13 @@ void drawChar(int num,int kh,int color,int x,int y,double scale){
     }
 }
 // 引数stringの文字列を表示
-void drawString(char *string,int kh,int color,int xo,int yo,double scale){
+void drawString(char *string,int color,int xo,int yo,double scale){
     int i,j;
     int len = strlen(string)-1;
     int x=xo;
     int y=yo;
     int numberflg;
+    int kh=0;
     for(i=0;i<len;i++){
         numberflg=-1;
         switch (string[i])
@@ -575,7 +568,16 @@ void drawString(char *string,int kh,int color,int xo,int yo,double scale){
                     drawChar(j,kh,color,x,y,scale);
                     break;
                 }
-            }          
+            }
+            if((string[i]=='l')&&(string[i+1]=='l')){
+                kh=1-kh;
+                x-=IMGSIZE*scale;
+            }
+            if((string[i]=='x')&&(string[i+1]=='x')){
+                x=xo;
+                x-=IMGSIZE*scale;
+                y+=IMGSIZE*scale;
+            }     
             i++;
         }
         x+=IMGSIZE*scale;
@@ -594,7 +596,6 @@ void InitPlayer(void){
         players[i].y=INITY;
         players[i].money=INITMONEY;
         players[i].assets=0;
-        players[i].cardnum=0;
     }
 }
 // デバッグ用関数 
@@ -609,7 +610,6 @@ void dispPlayer(int detail){
             printf("\n");
             printf("所持金 : %d\n",players[i].money);
             printf("総資産 : %d\n",players[i].assets);
-            printf("カード枚数 : %d\n",players[i].cardnum);
             printf("--------------------\n\n");
         }
     }else{
@@ -618,7 +618,6 @@ void dispPlayer(int detail){
         printf("\n");
         printf("所持金 : %d\n",players[detail-1].money);
         printf("総資産 : %d\n",players[detail-1].assets);
-        printf("カード枚数 : %d\n",players[detail-1].cardnum);
         printf("--------------------\n\n");   
     }
 }
@@ -758,19 +757,19 @@ void drawMoney(int money,int x,int y,int color,double scale){
             sprintf(fname,"ms%dmxex",man);
         }        
     }
-    drawString(fname,0,color,x,y,scale);
+    drawString(fname,color,x,y,scale);
 }
 
 // テキスト表示
 void drawText(char *string,int y,int color){
     drawDialog(11,y,InitWidth-22,42,255,245,238);
-    drawString(string,0,color,16,y+5,0.5);
+    drawString(string,color,16,y+5,0.5);
 }
 
 // 物件情報を描画
 void drawStation(int x,int y){
     int i,j;
-    char fname[40];
+    char fname[100];
     int holder;
     int color;
      for(i=0;i<STATIONNUM;i++){
@@ -779,11 +778,12 @@ void drawStation(int x,int y){
             wherestation = i;
             // 駅名表示
             drawDialog(11,11,InitWidth-22,42,255,245,238);
-            drawString(stations[i].name,0,0,16,16,1);
+            sprintf(fname,"%seeki",stations[i].name);
+            drawString(fname,0,16,16,1);
 
             // 所持金表示
             drawDialog(11,61,InitWidth-22,34,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
-            drawString("silozikinn",0,0,16,61+8,0.5);
+            drawString("silozikinn",0,16,61+8,0.5);
             drawMoney(players[turn].money,2*InitWidth/4,61+8,0,0.5);
             
             // 物件表示
@@ -807,21 +807,28 @@ void drawStation(int x,int y){
                 }else{
                     color=1;
                 }
-                drawString(stations[i].plist[j].name,stations[i].plist[j].nameAttribute,color,18,42+11+50+7+17*j,0.5);
+                drawString(stations[i].plist[j].name,color,18,42+11+50+7+17*j,0.5);
                 drawMoney(stations[i].plist[j].price,InitWidth/2,42+11+50+7+17*j,color,0.5);
-                drawString(fname,0,color,3*InitWidth/4,42+11+50+7+17*j,0.5);
+                drawString(fname,color,3*InitWidth/4,42+11+50+7+17*j,0.5);
             }
-         }
+        if(stations[i].ismonopoly!=0){
+            sprintf(fname,"%ssilatilouunodokusenndesumr",players[stations[i].ismonopoly-1].name);
+            drawText(fname,191,0);
+            sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
+            drawText(fname,241,0);
+        }else{
+                sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
+                drawText(fname,225,0);
+        }
+        }
      }
 }
 
-void debtprocess(void){
+int debtprocess(void){
     int i,j;
     int count=0;
     int nearest;
     int nearests,nearestid;
-    char fname[100];
-    printf("借金返済\n");
     for(i=0;i<STATIONNUM;i++){
         for(j=0;j<stations[i].propertynum;j++){
             if(turn+1==stations[i].plist[j].holder){
@@ -830,27 +837,25 @@ void debtprocess(void){
             }
         }
     }
-    if(count==0){
-        drawText(fname,225,0);
-    }else{
+    if(count!=0){
         // 借金が資産より大きいときすべて売却
         if(-players[turn].money>=players[turn].assets){
+            printf("全ての物件を売却しました\n");
+            count=-623;
             for(i=0;i<STATIONNUM;i++){
                 if(stations[i].ismonopoly==turn+1){
                     stations[i].ismonopoly=0;
-                    printf("独占が崩れました\n");
                 }
                 for(j=0;j<stations[i].propertynum;j++){
                 if(turn+1==stations[i].plist[j].holder){
-                    printf("%s : %dを売却しました\n",stations[i].plist[j].name,stations[i].plist[j].price);
                     stations[i].plist[j].holder=0;
                     players[turn].money+=stations[i].plist[j].price;
                     players[turn].assets-=stations[i].plist[j].price;
-                    printf("所持金 : %d\n", players[turn].money);
                     }
                 }
             }            
         }else{ // 借金が資産より小さいとき
+        count=0;
             // 独占でない物件から売却
             // 借金より価格が高く,借金に一番値段が近い物件を売却
             while(1){
@@ -875,6 +880,7 @@ void debtprocess(void){
                 }  
                 if(nearests!=-1){
                     printf("%sを売却しました\n",stations[nearests].plist[nearestid].name);
+                    count++;
                     stations[nearests].plist[nearestid].holder=0;
                     players[turn].money+=stations[nearests].plist[nearestid].price;
                     players[turn].assets-=stations[nearests].plist[nearestid].price;
@@ -906,11 +912,11 @@ void debtprocess(void){
                     }
                 }  
                 if(nearests!=-1){
-                    printf("%s : %dを売却しました\n",stations[nearests].plist[nearestid].name,stations[nearests].plist[nearestid].price);
+                    printf("%sを売却しました\n",stations[nearests].plist[nearestid].name);
+                    count++;
                     stations[nearests].plist[nearestid].holder=0;
                     players[turn].money+=stations[nearests].plist[nearestid].price;
                     players[turn].assets-=stations[nearests].plist[nearestid].price;
-                    printf("所持金 : %d\n", players[turn].money);
                     if(players[turn].money>=0){
                         break;
                     }
@@ -942,6 +948,7 @@ void debtprocess(void){
                 if(nearests!=-1){
                     printf("%sを売却しました\n",stations[nearests].plist[nearestid].name);
                     printf("独占が崩れました\n");
+                    count++;
                     stations[nearests].plist[nearestid].holder=0;
                     stations[nearests].ismonopoly=0;
                     players[turn].money+=stations[nearests].plist[nearestid].price;
@@ -972,13 +979,13 @@ void debtprocess(void){
                         }
                 }  
                 if(nearests!=-1){
-                    printf("%s : %dを売却しました\n",stations[nearests].plist[nearestid].name,stations[nearests].plist[nearestid].price);
+                    printf("%sを売却しました\n",stations[nearests].plist[nearestid].name);
                     printf("独占が崩れました\n");
+                    count++;
                     stations[nearests].plist[nearestid].holder=0;
                     stations[nearests].ismonopoly=0;
                     players[turn].money+=stations[nearests].plist[nearestid].price;
                     players[turn].assets-=stations[nearests].plist[nearestid].price;
-                    printf("所持金 : %d\n", players[turn].money);
                     if(players[turn].money>=0){
                         break;
                     }
@@ -989,6 +996,7 @@ void debtprocess(void){
             }
             }
         }
+    return count;
 }
 
 // ディスプレイ関数
@@ -1003,9 +1011,18 @@ void Display(void){
     // ターン開始のとき
     if(turnstatus==0){
         selectpos=-623;
-        printf("%s社長のターンです\n",players[turn].name);
-        printf("%d年%d月目\n",year,month);
-        sprintf(fname,"%ssilatilouunobanndesumrssxessdesaiikorowomawasimasumr",players[turn].name);
+        //printf("%s社長のターンです\n",players[turn].name);
+        //printf("%d年%d月目\n",year,month);
+
+        // 所持金表示
+        drawDialog(11,11,InitWidth-22,34+16,playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+        sprintf(fname,"%dnennmess%dgatu",year,month);
+        drawString(fname,0,16,11+8,0.5);
+        drawMoney(players[turn].money,2*InitWidth/4,11+8+16,0,0.5);
+        sprintf(fname,"%ssilatilouussssss",players[turn].name);
+        drawString(fname,0,16,11+8+16,0.5);
+
+        sprintf(fname,"%ssilatilouunobanndesumrxxxedellsaiikorollwomawasitekudasaiimr",players[turn].name);
         drawText(fname,225,0);
     }
 
@@ -1019,9 +1036,13 @@ void Display(void){
         }
         if(diceflg==1){
             PutSprite(diceimg[dice], 416, 32, &diceinfo[dice],1);
+            sprintf(fname,"xewooositekudasaiimr");
+            drawText(fname,225,0);
         }
         if(diceflg==2){
             PutSprite(diceimg[dice], 416, 32, &diceinfo[dice],1);
+            sprintf(fname,"%ddesumrxewooositekudasaiimr",recount+1);
+            drawText(fname,225,0);
         }
         if(diceflg==3){
             //printf("dice = %d\n",dice);
@@ -1031,7 +1052,7 @@ void Display(void){
 
     // マス移動のとき
     if(turnstatus==2){
-        sprintf(fname,"aato%dmasu",recount+1);
+        sprintf(fname,"aato%dllmasullssssxwssxassxsssxddeiidouudekimasumr",recount+1);
         drawText(fname,225,0);
         if(keyboardflgformove==0){
             keyboardflgformove=1;
@@ -1048,7 +1069,7 @@ void Display(void){
     // 駅に止まったとき
     if(turnstatus==3){
         stopstation = getmapnum(players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
-        if(stopstation==4){ // 物件にとまったとき
+        if(stopstation==3){ // 物件にとまったとき
             turnstatus=4;
         }else if(stopstation==1){ // プラスマス
             turnstatus=5;
@@ -1120,13 +1141,22 @@ void Display(void){
                 drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
                 drawMoney(-randreturn,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
                 if(players[turn].money<0){
-                    debtprocess();
+                    sold=debtprocess();
                 }
                 calflg=1;
             }
             glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
             drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
             drawMoney(-randreturn,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
+            if(sold!=-1){
+                if(sold==-623){
+                    sprintf(fname,"silaltkinnwoseoolttesimaiimasitamrxxsubetenobultkennwobaiikilakusimasitamr");
+                    drawText(fname,225,0);
+                }else{
+                    sprintf(fname,"silaltkinnwoseoolttesimaiimasitamrxx%dkennnobultkennwobaiikilakusimasitamr",sold);
+                    drawText(fname,225,0);
+                }
+            }
         }   
         if(randflg==3){
             turnstatus=100;
@@ -1136,13 +1166,14 @@ void Display(void){
     //ターン終了処理
     if(turnstatus==100){
         selectpos=-623;
+        sold=-1;
         keyboardflgformove=0;
         turn++;
         if(turn==3){
             month+=1;
             if(month==13){
                 year+=1;
-                month=0;
+                month=1;
             }
             turn =0;
         }
