@@ -19,7 +19,6 @@
 
 #define RESHAPETIME 500
 #define MOVETIME 100
-#define DICETIME 100
 #define RANDTIME 100
 
 #define JPMAX 75
@@ -62,6 +61,7 @@ struct stationstatus{
 
 typedef struct stationstatus station;
 station stations[STATIONNUM];
+station distination;
 
 // 画像用変数
 GLuint mapimg[MAP_NUM];
@@ -83,9 +83,6 @@ pngInfo kredinfo[JPMAX];
 
 // 年月管理
 int month,year;
-
-//目的地
-int dist,distx,disty;
 // 誰のターンか判別
 int turn;
 // ターンの状況
@@ -98,27 +95,26 @@ int ny;
 // キーボードフラグ
 int keyboardflg;
 int keyboardflgformove;
-// サイコロフラグ
-int diceflg;
-// サイコロの目
-int dice;
 // 残り移動可能マス
 int recount;
 int sold;
+
 // 乱数生成用
 int randflg;
 int range;
-int randreturn;
-int pm;
-int calflg;
-int calflg2;
-int calflg3;
+int randresult;
+int dummyresult;
+
+int tmpmoney;
+int onetime;
+int inflg;
+int goalflg;
+int rdebet;
 
 // 物件を買うときの変数
 int selectpos;
-int wherestation;
+int stid;
 int propertynum;
-int purchase;
 
 // 移動したマスを記録
 int massRecord[DICEMAX][2];
@@ -127,9 +123,7 @@ void Reshape(int, int);
 void Timer(int);
 void keyboardTimer(int);
 void MoveTimer(int);
-void DiceTimer(int);
 void RandTimer(int);
-void DistTimer(int);
 void PutSprite(int, int, int, pngInfo *,double);
 int isMovable(int,int);
 void move(void);
@@ -152,11 +146,11 @@ void dispPlayer(int);
 
 void dispmassRecord(void);
 
-void drawDialog(int,int,int,int,int,int,int);
+void drawDialog(int,int,int,int);
 void drawQUAD(int,int,int,int);
 void drawMoney(int,int,int,int,double);
-void drawText(char *,int,int);
-void drawStation(int,int);
+void drawText(char *,int,int,int,int,int);
+void drawStation(void);
 
 int debtprocess(void);
 
