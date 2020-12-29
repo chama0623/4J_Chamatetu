@@ -15,7 +15,7 @@
 #define INITY 3*IMGSIZE
 #define INITMONEY 1000
 
-#define MAP_NUM 6
+#define MAP_NUM 7
 
 #define RESHAPETIME 500
 #define MOVETIME 100
@@ -70,6 +70,9 @@ GLuint playerimg[PLAYERNUM];
 pngInfo playerinfo[PLAYERNUM];
 GLuint diceimg[DICEMAX];
 pngInfo diceinfo[DICEMAX];
+
+GLuint kessanimg[2];
+pngInfo kessaninfo[2];
 
 // 日本語画像
 GLuint hblackimg[JPMAX+SPMAX];

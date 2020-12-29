@@ -318,6 +318,14 @@ void purchase(int id){
 void readImg(void){
     int i;
     char fname[100];
+
+    //read kessanimg
+    for(i=0;i<2;i++){
+        sprintf(fname,".\\eventparts\\kessan%d.png",i+1);
+        kessanimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+       &kessaninfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
+    }
+
     //read mapimage
     for(i=0;i<MAP_NUM;i++){
         sprintf(fname,".\\mapparts\\map%d.png",i+1);
@@ -453,7 +461,11 @@ void drawMap(void){
             drawx = x*IMGSIZE;
             drawy = y*IMGSIZE;
             img_num = getmapnum(x,y);
-            PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num],1);
+            if((distination.x==x)&&(distination.y==y)){
+                PutSprite(mapimg[6], drawx, drawy, &mapinfo[6],1);
+            }else{
+                PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num],1);
+            }
         }
     }
 }
@@ -831,6 +843,16 @@ if(keyboardflg==0){
         if(isE(key)){
             inflg++;
         }        
+    }else if(turnstatus==17){
+        if(inflg==4){
+            if(key=='q'){
+                exit(0);
+            }
+        }else{
+            if(isE(key)){
+                inflg++;
+            }
+        }        
     }
 
     if(turnstatus!=5){
@@ -979,8 +1001,8 @@ void Display(void){
     //printf("turnstatus = %d\n",turnstatus);
     if(turnstatus==0){ // ゲーム初期化処理
         Initvalue();
-        month=4;
-        year=0;
+        month=3;
+        year=1;
         turn=0;
         onetime=0;
         goalflg=0;
@@ -995,17 +1017,30 @@ void Display(void){
 
     }else if(turnstatus==2){ // 目的地設定
 
-        if(inflg==0){ // 乱数生成用の設定
+        if(inflg==0){
+            if(goalflg==0){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            sprintf(fname,"saiisilonomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
+            drawText(fname,11,225,InitWidth-22,42,0);             
+            }else if(goalflg==1){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            sprintf(fname,"tuginomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
+            drawText(fname,11,225,InitWidth-22,42,0);                    
+            }
+        }
+        if(inflg==1){ // 乱数生成用の設定
             range=STATIONNUM;
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
-            inflg=1;
-        }else if(inflg==1){ // ランダム表示
+            inflg=2;
+        }else if(inflg==2){ // ランダム表示
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
             drawString("mokutekiti",0,InitWidth/2-80,InitHeight/2-64,1);
             drawString(stations[dummyresult].name,0,InitWidth/2-80,InitHeight/2-16,1);            
-        }else if(inflg==2){
+        }else if(inflg==3){
             if(onetime==0){
                 randflg=0;
                 randresult=rand()%range;
@@ -1017,7 +1052,7 @@ void Display(void){
             drawQUAD(0,0,InitWidth,InitHeight);
             drawString("mokutekiti",0,InitWidth/2-80,InitHeight/2-64,1);
             drawString(stations[randresult].name,0,InitWidth/2-80,InitHeight/2-16,1);  
-        }else if(inflg==3){
+        }else if(inflg==4){
             onetime=0;
             inflg=0;
             if(goalflg==1){
@@ -1207,17 +1242,21 @@ void Display(void){
             inflg=0;
             turnstatus=15;
         }
-    }else if(turnstatus==15){
+    }else if(turnstatus==15){ // 月別分岐
         // ターン終了処理
         turn++;
         onetime=0;
         if(turn==3){
             month++;
         }
-        // 3月の場合は決算を行う
+        // 決算月かどうか判別
         if((turn==3)&&(month==4)){
-            turn=0;
-            turnstatus=16;
+            if(year==3){
+                turnstatus=17;
+            }else{
+                turn=0;
+                turnstatus=16;
+            }
         }else{
             if(turn==3){
                 turn=0;
@@ -1227,7 +1266,7 @@ void Display(void){
             }
             turnstatus=3;
         }
-    }else if(turnstatus==16){
+    }else if(turnstatus==16){ // 決算月
         if(inflg==0){
             kessan();
             for(i=0;i<PLAYERNUM;i++){
@@ -1237,10 +1276,12 @@ void Display(void){
         }else if(inflg==1){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            drawString("keltsann",0,InitWidth/2-64,InitHeight/2-16,1);            
+            //drawString("keltsann",0,InitWidth/2-64,InitHeight/2-16,1); 
+            PutSprite(kessanimg[0], 0, 0, &kessaninfo[0],1);           
         }else if(inflg==2){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
             drawString("keltsann",0,InitWidth/2-64,11,1);
             drawString("siluuueekigaku",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
@@ -1251,17 +1292,58 @@ void Display(void){
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
             drawString("keltsann",0,InitWidth/2-64,11,1);
             drawString("souusisann",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
                 sprintf(fname,"%s",players[i].name);
                 drawString(fname,0,11,75+25*i,0.7);
-                drawMoney(players[i].assets,InitWidth/2,75+25*i,0,0.7);
+                drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
             }
         }else if(inflg==4){
             inflg=0;
             year++;
             turnstatus=3;
+        }
+    }else if(turnstatus==17){ // 最終成績
+        if(inflg==0){
+            kessan();
+            for(i=0;i<PLAYERNUM;i++){
+                players[i].money+=shueki[i];
+            }
+            inflg++;
+        }else if(inflg==1){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            //drawString("saiisiluuuseiiseki",0,InitWidth/2-144,InitHeight/2-16,1);
+            PutSprite(kessanimg[0], 0, 0, &kessaninfo[0],1);            
+        }else if(inflg==2){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
+            drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
+            drawString("siluuueekigaku",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
+            }            
+        }else if(inflg==3){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
+            drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
+            drawString("souusisann",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
+            }
+        }else if(inflg==4){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            drawString("ootukaresamadesita",0,InitWidth/2-144,InitHeight/2-48,1);
+            drawString("xqdellgellmsllmullwosiluuurilouusimasu",0,InitWidth/2-120,InitHeight/2+16,0.5);          
         }
     }
     glFlush();
