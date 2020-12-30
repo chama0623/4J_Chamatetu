@@ -6,19 +6,39 @@
 #include <time.h>
 #include <math.h>
 #include "game.h"
-
 // マップ配列
 char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
-        "AAAAAAAAAAAAAAA",
-        "AAP-B-B---PAAAAA",
-        "AA|A|AAAAAAAAAA",
-        "AAP-B--P--PAAAA",
-        "AAAA|AAAAA|AAAA",
-        "AAAAMAABAA|AAAA",
-        "AAAA|AA|AA|AAAA",
-        "AAAA|AA|AA|AAAA",
-        "AP--M--P--BAAAAA",
-        "AAAAAAAAAAAAAAA"
+       //012345678901234567890123456789      
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", // 0
+        "AAAAAAAAAAAP-M--M-BAAAAAAAAAAA", // 1
+        "AAAAAAAAAAA|A|AAAAAAAAAAAAAAAA", // 2
+        "AAAAAAAAAAAM-BAAAAAAAAAAAAAAAA", // 3
+        "AAAAAAAAAAAAA|AAAAAAAAAAAAAAAA", // 4
+        "AAAAAAAAAP-M-PAAAAAAAAAAAAAAAA", // 5
+        "AAAAAAAAA|AAA|AAAAAAAAAAAAAAAA", // 6
+        "AAAB-M---P---B--P--BAAAAAAAAAA", // 7
+        "AAA|AAAAA|AAAAAA|AA|AAAAAAAAAA", // 8
+        "AAAMAAAAABAAAAAAM--PAAAAAAAAAA", // 9
+        "AAA|AAAAA|AABAAAAAA|AAAAAAAAAA", // 0
+        "AAAM-MAAA|AA|AAAAAABAAAAAAAAAA", // 1
+        "AAA|A|AAAB--M--PAAA|AAAAAAAAAA", // 2
+        "AAAP-MAAA|AAAAAAAAAMAAAAAAAAAA", // 3
+        "AAA|AAAAA|AAAAAAAAA|AAAAAAAAAA", // 4
+        "AAA|AAAAAB-P-M-M-P-B-P-BAAAAAA", // 5
+        "AAAMAAAAA|AAAAAAAAAAAAA|AAAAAA", // 6
+        "AAA|AAAAAPAAAAAAAAAAAAA|AAAAAA", // 7
+        "AAABAAAAA|AAAAAAAAAAAAABAAAAAA", // 8
+        "AAA|AAAAAPAAAAAAAAAAAAA|AAAAAA", // 9
+        "AAABAAAAA|AAAAAAAAAAAAA|AAAAAA", // 0
+        "AAA|AAAAA|AAAAAAAAAAAAA|AAAAAA", // 1
+        "AAAM-----B--P--P-MAAAAA|AAAAAA", // 2
+        "AAAAAAAAA|AAAAAAA|AAP--PAAAAAA", // 3
+        "AAAAAAAAA|AAAAAAA|AA|AA|AAAAAA", // 4
+        "AAABAP-M-M-----M-B--P--PAAAAAA", // 5
+        "AAA|A|A|A|AAAAA|A|AAAAA|AAAAAA", // 6
+        "AAAM-P-P-BAAAAA|A|AAAAABAAAAAA", // 7
+        "AAAAAAAAAAAAAAAM-P--BAAAAAAAAA", // 8
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"  // 9
 };
 
 // 日本語プロトコル
@@ -79,7 +99,7 @@ int minusarray[MAXMONTH][2] = {{4000,12000},
                                {800,3000},
                                {2000,8000}};
 // 収益計算用
-int shueki[3];
+int shueki[3]={0,0,0};
 
 // ウィンドウサイズ変更時に座標を再設定
 void Reshape(int w, int h)
@@ -102,7 +122,6 @@ void Timer(int t)
 // 乱数を一定時間ごとに生成するタイマー
 void RandTimer(int t)
 {
-    glutPostRedisplay();
     dummyresult = rand()%range;
     if(randflg==1){
         glutTimerFunc(RANDTIME, RandTimer, 0);
@@ -112,7 +131,6 @@ void RandTimer(int t)
 // 駅移動管理タイマー
 void MoveTimer(int t)
 {
-    glutPostRedisplay();
     move();
     if((players[turn].x/IMGSIZE != nx)||(players[turn].y/IMGSIZE != ny)){
         glutTimerFunc(MOVETIME, MoveTimer, 0);
@@ -144,7 +162,6 @@ int isE(unsigned char key){
 //キーボード入力管理タイマー 
 void keyboardTimer(int t)
 {
-    glutPostRedisplay();
     keyboardflg=0;
 }
 
@@ -319,11 +336,11 @@ void readImg(void){
     int i;
     char fname[100];
 
-    //read kessanimg
-    for(i=0;i<2;i++){
-        sprintf(fname,".\\eventparts\\kessan%d.png",i+1);
-        kessanimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
-       &kessaninfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
+    //read spimg
+    for(i=0;i<3;i++){
+        sprintf(fname,".\\eventparts\\sp%d.png",i+1);
+        spimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+       &spinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
     }
 
     //read mapimage
@@ -414,11 +431,11 @@ void readProperty(void){
             printf("file not found in %s",stations[i].name);
             exit(0);
         }else{
-            while(fscanf(fp,"%s %d,%d,%d",stations[i].plist[j].name,&stations[i].plist[j].price,&stations[i].plist[j].earnings,&stations[i].plist[j].nameAttribute)!=EOF){
+            while(fscanf(fp,"%s %d,%d",stations[i].plist[j].name,&stations[i].plist[j].price,&stations[i].plist[j].earnings)!=EOF){
+            stations[i].plist[j].holder=0;
             j++;
         }
         stations[i].propertynum=j;
-        stations[i].plist[j].holder=0;
         fclose(fp);
     }
 
@@ -428,6 +445,12 @@ void readProperty(void){
 // マップの画像番号を取得
 int getmapnum(int x,int y){
     int img_num;
+    if((x<0)||(x>=XMAX)){
+        return 0;
+    }else if((y<0)||(y>=YMAX)){
+        return 0;
+    }
+
     switch (Map[y][x]){
     case 'A': // 草原
         img_num=0;
@@ -456,12 +479,13 @@ void drawMap(void){
     int x,y;
     int drawx,drawy;
     int img_num;
-    for(y=0;y<YMAX;y++){
-        for(x=0;x<XMAX;x++){
+    for(y=0;y<InitHeight/IMGSIZE;y++){
+        for(x=0;x<InitWidth/IMGSIZE;x++){
+            //printf("(%d,%d)\n",x,y);
             drawx = x*IMGSIZE;
             drawy = y*IMGSIZE;
-            img_num = getmapnum(x,y);
-            if((distination.x==x)&&(distination.y==y)){
+            img_num = getmapnum(x+tx,y+ty);
+            if((distination.x==x+tx)&&(distination.y==y+ty)){
                 PutSprite(mapimg[6], drawx, drawy, &mapinfo[6],1);
             }else{
                 PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num],1);
@@ -476,11 +500,12 @@ void drawPlayer(void){
     int i;
     for(i=0;i<PLAYERNUM;i++){
         if(i!=turn){
-            PutSprite(playerimg[i], players[i].x,players[i].y, &playerinfo[i],1);
+            PutSprite(playerimg[i], (players[i].x/IMGSIZE-tx)*IMGSIZE,(players[i].y/IMGSIZE-ty)*IMGSIZE, &playerinfo[i],1);
         }
     }
     // ターン中のプレイヤーを最上レイヤーに表示
-    PutSprite(playerimg[turn], players[turn].x,players[turn].y, &playerinfo[turn],1);
+    //PutSprite(playerimg[turn], players[turn].x,players[turn].y, &playerinfo[turn],1);
+    PutSprite(playerimg[turn], 6*IMGSIZE,5*IMGSIZE, &playerinfo[turn],1);
 }
 
 // 1文字の日本語を表示
@@ -596,7 +621,7 @@ void dispStation(int detail){
             printf("%s駅 (%d,%d)\n",stations[i].name,stations[i].x,stations[i].y);
             printf("独占フラグ : %d   物件数 : %d\n",stations[i].ismonopoly,stations[i].propertynum);
             for(j=0;j<stations[i].propertynum;j++){
-                printf("%s %d %d %d %d\n",stations[i].plist[j].name,stations[i].plist[j].price,stations[i].plist[j].earnings,stations[i].plist[j].nameAttribute,stations[i].plist[j].holder);
+                printf("%s %d %d %d\n",stations[i].plist[j].name,stations[i].plist[j].price,stations[i].plist[j].earnings,stations[i].plist[j].holder);
             }
             printf("--------------------\n\n");
         }
@@ -605,7 +630,7 @@ void dispStation(int detail){
         printf("%s駅 (%d,%d)\n",stations[detail-1].name,stations[detail-1].x,stations[detail-1].y);
         printf("独占フラグ : %d   物件数 : %d\n",stations[detail-1].ismonopoly,stations[detail-1].propertynum);
         for(j=0;j<stations[detail-1].propertynum;j++){
-            printf("%s %d %d %d %d\n",stations[detail-1].plist[j].name,stations[detail-1].plist[j].price,stations[detail-1].plist[j].earnings,stations[detail-1].plist[j].nameAttribute,stations[detail-1].plist[j].holder);
+            printf("%s %d %d %d\n",stations[detail-1].plist[j].name,stations[detail-1].plist[j].price,stations[detail-1].plist[j].earnings,stations[detail-1].plist[j].holder);
         }
         printf("--------------------\n\n");     
     }
@@ -694,6 +719,7 @@ void drawStation(void){
     int transx = players[turn].x/IMGSIZE;
     int transy = players[turn].y/IMGSIZE;
     // どの駅か識別
+    //printf("(%d,%d)\n",transx,transy);
     for(i=0;i<STATIONNUM;i++){
          if((stations[i].x==transx)&&(stations[i].y==transy)){
             propertynum = stations[i].propertynum; 
@@ -741,8 +767,8 @@ void drawStation(void){
         }
         // 物件を表示
         drawString(stations[stid].plist[j].name,color,18,42+11+50+7+17*j,0.5);
-        drawMoney(stations[stid].plist[j].price,InitWidth/2,42+11+50+7+17*j,color,0.5);
-        drawString(fname,color,3*InitWidth/4,42+11+50+7+17*j,0.5);
+        drawMoney(stations[stid].plist[j].price,InitWidth/2-16,42+11+50+7+17*j,color,0.5);
+        drawString(fname,color,16+3*InitWidth/4,42+11+50+7+17*j,0.5);
     }
     // 独占ダイアログ表示
     if(stations[stid].ismonopoly!=0){
@@ -814,6 +840,10 @@ if(keyboardflg==0){
                 glutTimerFunc(MOVETIME, MoveTimer, 0);
             }
         }        
+    }else if(turnstatus==6){
+        if(inflg>=1){
+            inflg++;
+        }
     }else if(turnstatus==7){ // 物件購入
         locktime=200;
         if(key=='s'){ //ポジションを下へ
@@ -995,6 +1025,9 @@ void Display(void){
     int transx,transy;
     int i;
     char fname[100];
+    tx = players[turn].x/IMGSIZE-6;
+    ty = players[turn].y/IMGSIZE-5;
+    //printf("(%d,%d)\n",players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
 
     glClear(GL_COLOR_BUFFER_BIT);
     //printf("inflg = %d\n",inflg);
@@ -1016,16 +1049,12 @@ void Display(void){
         turnstatus=2;
 
     }else if(turnstatus==2){ // 目的地設定
-
+        PutSprite(spimg[2],0,0,&spinfo[2],1);
         if(inflg==0){
             if(goalflg==0){
-            glColor3ub(23,194,230);
-            drawQUAD(0,0,InitWidth,InitHeight);
             sprintf(fname,"saiisilonomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
             drawText(fname,11,225,InitWidth-22,42,0);             
             }else if(goalflg==1){
-            glColor3ub(23,194,230);
-            drawQUAD(0,0,InitWidth,InitHeight);
             sprintf(fname,"tuginomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
             drawText(fname,11,225,InitWidth-22,42,0);                    
             }
@@ -1036,22 +1065,17 @@ void Display(void){
             glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg=2;
         }else if(inflg==2){ // ランダム表示
-            glColor3ub(23,194,230);
-            drawQUAD(0,0,InitWidth,InitHeight);
-            drawString("mokutekiti",0,InitWidth/2-80,InitHeight/2-64,1);
-            drawString(stations[dummyresult].name,0,InitWidth/2-80,InitHeight/2-16,1);            
+            drawString(stations[dummyresult].name,0,InitWidth/2-80,105,1);            
         }else if(inflg==3){
             if(onetime==0){
                 randflg=0;
                 randresult=rand()%range;
                 distination.x=stations[randresult].x;
                 distination.y=stations[randresult].y;
+                sprintf(distination.name,"%s",stations[randresult].name);
                 onetime=1;
             }
-            glColor3ub(23,194,230);
-            drawQUAD(0,0,InitWidth,InitHeight);
-            drawString("mokutekiti",0,InitWidth/2-80,InitHeight/2-64,1);
-            drawString(stations[randresult].name,0,InitWidth/2-80,InitHeight/2-16,1);  
+            drawString(distination.name,0,InitWidth/2-80,105,1);  
         }else if(inflg==4){
             onetime=0;
             inflg=0;
@@ -1116,30 +1140,39 @@ void Display(void){
 
         drawMap();
         drawPlayer();  
-        sprintf(fname,"aatoxxss%dxxssssllmasu",recount+1);
-        drawText(fname,390,40,74,60,0);  
+        sprintf(fname,"aatoxxss%dxxssssllmasullxxmokutekitixx%s",recount+1,distination.name);
+        drawText(fname,340,40,125,94,0);  
         if(recount==-1){
             turnstatus=6;
         }
 
     }else if(turnstatus==6){
-
-        transx = players[turn].x/IMGSIZE;
-        transy = players[turn].y/IMGSIZE;
-        st = getmapnum(transx,transy);
-        if(st==3){ // 物件に止まったとき
-            if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
-                goalflg=1;
-                turnstatus=2;
-            }else{ //目的地でないなら
-                turnstatus=7;
+        drawMap();
+        drawPlayer();  
+        if(inflg==0){
+            transx = players[turn].x/IMGSIZE;
+            transy = players[turn].y/IMGSIZE;
+            st = getmapnum(transx,transy);
+            if(st==3){ // 物件に止まったとき
+                if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
+                    goalflg=1;
+                    players[turn].money+=30000;
+                    inflg++;
+                }else{ //目的地でないなら
+                    turnstatus=7;
+                }
+            }else if(st==1){ // プラス駅に止まったとき
+                turnstatus=8;
+            }else if(st==2){ // マイナス駅に止まったとき
+                turnstatus=9;
             }
-        }else if(st==1){ // プラス駅に止まったとき
-            turnstatus=8;
-        }else if(st==2){ // マイナス駅に止まったとき
-            turnstatus=9;
+        }else if(inflg==1){
+            sprintf(fname,"%ssilatilouuga1bannnorimroomedetouugozaiimasumr%ssilatilouunillpurasull3oxexmr",players[turn].name,players[turn].name);
+            drawText(fname,11,225,InitWidth-22,42,0);              
+        }else if(inflg==2){
+            inflg=0;
+            turnstatus=2;
         }
-
     }else if(turnstatus==7){ // 物件購入処理
 
         drawMap();
@@ -1277,11 +1310,11 @@ void Display(void){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
             //drawString("keltsann",0,InitWidth/2-64,InitHeight/2-16,1); 
-            PutSprite(kessanimg[0], 0, 0, &kessaninfo[0],1);           
+            PutSprite(spimg[0], 0, 0, &spinfo[0],1);           
         }else if(inflg==2){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("keltsann",0,InitWidth/2-64,11,1);
             drawString("siluuueekigaku",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
@@ -1292,7 +1325,7 @@ void Display(void){
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("keltsann",0,InitWidth/2-64,11,1);
             drawString("souusisann",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
@@ -1316,11 +1349,11 @@ void Display(void){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
             //drawString("saiisiluuuseiiseki",0,InitWidth/2-144,InitHeight/2-16,1);
-            PutSprite(kessanimg[0], 0, 0, &kessaninfo[0],1);            
+            PutSprite(spimg[0], 0, 0, &spinfo[0],1);            
         }else if(inflg==2){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
             drawString("siluuueekigaku",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
@@ -1331,7 +1364,7 @@ void Display(void){
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            PutSprite(kessanimg[1], 0, 0, &kessaninfo[1],1);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
             drawString("souusisann",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){

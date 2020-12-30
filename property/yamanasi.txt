@@ -1,5 +1,0 @@
-tokusannbudouu 500,150,0
-tokusannbudouu 500,150,0
-budouueenn 6000,40,0
-budouueenn 6000,40,0
-budouueenn 6000,40,0

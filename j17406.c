@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     
     readStation();
     readProperty();
-    dispStation(0);
+    //dispStation(0);
 
     turnstatus=0;
     //イベント登録

@@ -16,7 +16,7 @@ HEADERS =
 
 # コンパイラ・リンカの指定
 CC = gcc
-CCFLAGS = -Wall -I/usr/include/opengl
+CCFLAGS = -Wall -g -O0 -I/usr/include/opengl
 LD = gcc
 LDFLAGS =
 LIBS = -lglpng -lglut32 -lglu32 -lopengl32 -lm
