@@ -70,8 +70,10 @@ int playercolor[3][3]={{30,144,255},
                        {255,255,0}};
 // プラス駅の色
 int pluscolor[3] = {0,0,205};
+
 // マイナス駅の色
 int minuscolor[3] = {220,20,60};
+
 // プラス駅の月別乱数表
 int plusarray[MAXMONTH][2] = {{400,800},
                                {200,600},
@@ -85,6 +87,7 @@ int plusarray[MAXMONTH][2] = {{400,800},
                                {1500,6000},
                                {1000,3000},
                                {600,1200}};
+
 // マイナス駅の月別乱数表
 int minusarray[MAXMONTH][2] = {{4000,12000},
                                {8000,25000},
@@ -98,8 +101,9 @@ int minusarray[MAXMONTH][2] = {{4000,12000},
                                {400,1200},
                                {800,3000},
                                {2000,8000}};
+
 // 収益計算用
-int shueki[3]={0,0,0};
+int shueki[3];
 
 // ウィンドウサイズ変更時に座標を再設定
 void Reshape(int w, int h)
@@ -146,7 +150,11 @@ void MoveTimer(int t)
         }else{
             recount--;
         }
-        keyboardflg=0;
+        if(recount==-1){
+            keyboardflg=1;
+        }else{
+            keyboardflg=0;
+        }
     }
 }
 
@@ -202,7 +210,7 @@ void PutSprite(int num, int x, int y, pngInfo *info,double scale)
 // 1 : 壁
 // 0 : 壁でない
 int isWall(int x,int y){
-    if(getmapnum(x,y)==0){
+    if(getmapnum(x,y)==WALL){
         return 1;
     }
     return 0;
@@ -262,7 +270,7 @@ void nextStation(int x,int y){
     if(direction==0){
         while(1){
             ya--;
-            if(getmapnum(xa,ya)!=4){
+            if(getmapnum(xa,ya)!=SENRO1){
                 break;
             }
         }
@@ -271,7 +279,7 @@ void nextStation(int x,int y){
     if(direction==1){
         while(1){
             xa++;
-            if(getmapnum(xa,ya)!=5){
+            if(getmapnum(xa,ya)!=SENRO2){
                 break;
             }
         }
@@ -280,7 +288,7 @@ void nextStation(int x,int y){
     if(direction==2){
         while(1){
             ya++;
-            if(getmapnum(xa,ya)!=4){
+            if(getmapnum(xa,ya)!=SENRO1){
                 break;
             }
         }
@@ -289,7 +297,7 @@ void nextStation(int x,int y){
     if(direction==3){
         while(1){
             xa--;
-            if(getmapnum(xa,ya)!=5){
+            if(getmapnum(xa,ya)!=SENRO2){
                 break;
             }
         }
@@ -336,6 +344,7 @@ void readImg(void){
     int i;
     char fname[100];
 
+
     //read spimg
     for(i=0;i<3;i++){
         sprintf(fname,".\\eventparts\\sp%d.png",i+1);
@@ -343,8 +352,15 @@ void readImg(void){
        &spinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
     }
 
+   // 季節マップ読み込み 
+    for(i=0;i<SEASON_NUM;i++){
+        sprintf(fname,".\\mapparts\\season%d.png",i+1);
+        seasonimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
+       &seasoninfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
+    }
+
     //read mapimage
-    for(i=0;i<MAP_NUM;i++){
+    for(i=0;i<=MAP_NUM;i++){
         sprintf(fname,".\\mapparts\\map%d.png",i+1);
         mapimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &mapinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
@@ -446,29 +462,29 @@ void readProperty(void){
 int getmapnum(int x,int y){
     int img_num;
     if((x<0)||(x>=XMAX)){
-        return 0;
+        return 623;
     }else if((y<0)||(y>=YMAX)){
-        return 0;
+        return 623;
     }
 
     switch (Map[y][x]){
     case 'A': // 草原
-        img_num=0;
+        img_num=623;
         break;
     case 'B': // 物件
-        img_num=3;
+        img_num=2;
          break;
     case '|': // 線路(縦)
-        img_num=4;
+        img_num=3;
         break; 
     case '-': // 線路(横)
-        img_num=5;
+        img_num=4;
         break;
     case 'P': // プラス駅
-        img_num=1;
+        img_num=0;
         break;
     case 'M': // マイナス駅
-        img_num=2;
+        img_num=1;
         break;
     }
     return img_num;
@@ -481,13 +497,17 @@ void drawMap(void){
     int img_num;
     for(y=0;y<InitHeight/IMGSIZE;y++){
         for(x=0;x<InitWidth/IMGSIZE;x++){
-            //printf("(%d,%d)\n",x,y);
             drawx = x*IMGSIZE;
             drawy = y*IMGSIZE;
             img_num = getmapnum(x+tx,y+ty);
             if((distination.x==x+tx)&&(distination.y==y+ty)){
-                PutSprite(mapimg[6], drawx, drawy, &mapinfo[6],1);
+                //printf("debug1\n");
+                PutSprite(mapimg[DIST], drawx, drawy, &mapinfo[DIST],1);
+            }else if(img_num==WALL){
+                //printf("debug2\n");
+                PutSprite(seasonimg[season], drawx, drawy, &seasoninfo[season],1);
             }else{
+                //printf("debug3\n");
                 PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num],1);
             }
         }
@@ -514,14 +534,18 @@ void drawPlayer(void){
 void drawChar(int num,int kh,int color,int x,int y,double scale){
     if(kh==0){
         if(color==0){ // hiragana black
+            //printf("debug6\n");
             PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
         }else{ //hiragana red
+            //printf("debug7\n");
             PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
             }
         }else{ 
         if(color==0){ // katakana black
+            //printf("debug8\n");
             PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
         }else{ // katakana red
+            //printf("debug9\n");
             PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
         }
     }
@@ -773,9 +797,9 @@ void drawStation(void){
     // 独占ダイアログ表示
     if(stations[stid].ismonopoly!=0){
         sprintf(fname,"%ssilatilouunodokusenndesumr",players[stations[stid].ismonopoly-1].name);
-        drawText(fname,11,210,InitWidth-22,42,0);
+        drawText(fname,11,223,InitWidth-22,32,0);
         sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
-        drawText(fname,11,260,InitWidth-22,42,0);
+        drawText(fname,11,273,InitWidth-22,42,0);
     }else{ // 操作ダイアログ表示
             sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
             drawText(fname,11,225,InitWidth-22,42,0);
@@ -839,7 +863,7 @@ if(keyboardflg==0){
                 keyboardflg=1;
                 glutTimerFunc(MOVETIME, MoveTimer, 0);
             }
-        }        
+        }   
     }else if(turnstatus==6){
         if(inflg>=1){
             inflg++;
@@ -892,6 +916,7 @@ if(keyboardflg==0){
 }
 }
 
+// 変数初期化
 void Initvalue(void){
     keyboardflg=0;
     direction=-1;
@@ -974,6 +999,29 @@ int sale(int ismonopoly,int high){
     return count;
 }
 
+//季節番号を計算
+// 0:春 3~5月
+// 1:夏 6~8月
+// 2:秋 9~11月
+// 3:冬 12~2月
+void calseason(void){
+    switch (month)
+    {
+    case 1: season=3; break;
+    case 2: season=3; break;
+    case 3: season=0; break;
+    case 4: season=0; break;
+    case 5: season=0; break;
+    case 6: season=1; break;
+    case 7: season=1; break;
+    case 8: season=1; break;
+    case 9: season=2; break;
+    case 10: season=2; break;
+    case 11: season=2; break;
+    case 12: season=3; break;
+    }
+} 
+
 // 物件売却処理
 int debtprocess(void){
     int i,j;
@@ -1019,6 +1067,7 @@ int debtprocess(void){
     printf("count = %d\n",count);
     return count;
 }
+
 // ディスプレイ関数
 void Display(void){
     int st; //止まった駅の番号を保持
@@ -1034,8 +1083,9 @@ void Display(void){
     //printf("turnstatus = %d\n",turnstatus);
     if(turnstatus==0){ // ゲーム初期化処理
         Initvalue();
-        month=3;
+        month=4;
         year=1;
+        calseason();
         turn=0;
         onetime=0;
         goalflg=0;
@@ -1043,7 +1093,7 @@ void Display(void){
         turnstatus=1;
 
     }else if(turnstatus==1){ // 未設定
-
+        keyboardflg=0;
         onetime=0;
         inflg=0;
         turnstatus=2;
@@ -1063,7 +1113,7 @@ void Display(void){
             range=STATIONNUM;
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
-            inflg=2;
+            inflg++;
         }else if(inflg==2){ // ランダム表示
             drawString(stations[dummyresult].name,0,InitWidth/2-80,105,1);            
         }else if(inflg==3){
@@ -1153,17 +1203,18 @@ void Display(void){
             transx = players[turn].x/IMGSIZE;
             transy = players[turn].y/IMGSIZE;
             st = getmapnum(transx,transy);
-            if(st==3){ // 物件に止まったとき
+            if(st==PROPERTYMASU){ // 物件に止まったとき
                 if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
+                    keyboardflg=0;
                     goalflg=1;
                     players[turn].money+=30000;
                     inflg++;
                 }else{ //目的地でないなら
                     turnstatus=7;
                 }
-            }else if(st==1){ // プラス駅に止まったとき
+            }else if(st==PLUSMASU){ // プラス駅に止まったとき
                 turnstatus=8;
-            }else if(st==2){ // マイナス駅に止まったとき
+            }else if(st==MINUSMASU){ // マイナス駅に止まったとき
                 turnstatus=9;
             }
         }else if(inflg==1){
@@ -1178,6 +1229,7 @@ void Display(void){
         drawMap();
         drawPlayer(); 
         if(inflg==0){
+            keyboardflg=0;
             selectpos=0;
             inflg++;
         }else if(inflg==1){
@@ -1192,6 +1244,7 @@ void Display(void){
         drawMap();
         drawPlayer(); 
         if(inflg==0){
+            keyboardflg=0;
             range=plusarray[month-1][1]-plusarray[month-1][0];
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
@@ -1226,6 +1279,7 @@ void Display(void){
         drawMap();
         drawPlayer(); 
         if(inflg==0){
+            keyboardflg=0;
             range=minusarray[month-1][1]-minusarray[month-1][0];
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
@@ -1297,6 +1351,7 @@ void Display(void){
             if(month==13){
                 month=1;
             }
+            calseason();
             turnstatus=3;
         }
     }else if(turnstatus==16){ // 決算月
@@ -1310,10 +1365,12 @@ void Display(void){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
             //drawString("keltsann",0,InitWidth/2-64,InitHeight/2-16,1); 
+            printf("debug13\n");
             PutSprite(spimg[0], 0, 0, &spinfo[0],1);           
         }else if(inflg==2){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            printf("debug14\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("keltsann",0,InitWidth/2-64,11,1);
             drawString("siluuueekigaku",0,11,43,0.7);
@@ -1325,6 +1382,7 @@ void Display(void){
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            printf("debug15\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("keltsann",0,InitWidth/2-64,11,1);
             drawString("souusisann",0,11,43,0.7);
@@ -1349,10 +1407,12 @@ void Display(void){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
             //drawString("saiisiluuuseiiseki",0,InitWidth/2-144,InitHeight/2-16,1);
+            printf("debug16\n");
             PutSprite(spimg[0], 0, 0, &spinfo[0],1);            
         }else if(inflg==2){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            printf("debug17\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
             drawString("siluuueekigaku",0,11,43,0.7);
@@ -1364,6 +1424,7 @@ void Display(void){
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            printf("debug18\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
             drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
             drawString("souusisann",0,11,43,0.7);

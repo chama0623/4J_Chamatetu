@@ -13,9 +13,10 @@
 #define MAXMONTH 12
 #define INITX 13*IMGSIZE
 #define INITY 7*IMGSIZE
-#define INITMONEY 1000
+#define INITMONEY 10000
 
-#define MAP_NUM 7
+#define MAP_NUM 6
+#define SEASON_NUM 4
 
 #define RESHAPETIME 100
 #define MOVETIME 100
@@ -25,6 +26,14 @@
 #define SPMAX 24
 #define NAMEMAX 10
 #define STRMAX 60
+
+#define PLUSMASU 0
+#define MINUSMASU 1
+#define PROPERTYMASU 2
+#define SENRO1 3
+#define SENRO2 4
+#define DIST 5
+#define WALL 623
 
 // プレイヤーの情報構造体
 struct playerstatus{
@@ -63,6 +72,8 @@ station stations[STATIONNUM];
 station distination;
 
 // 画像用変数
+GLuint seasonimg[SEASON_NUM];
+pngInfo seasoninfo[SEASON_NUM];
 GLuint mapimg[MAP_NUM];
 pngInfo mapinfo[MAP_NUM];
 GLuint playerimg[PLAYERNUM];
@@ -84,7 +95,7 @@ GLuint kredimg[JPMAX];
 pngInfo kredinfo[JPMAX];
 
 // 年月管理
-int month,year;
+int month,year,season;
 // 誰のターンか判別
 int turn;
 // ターンの状況
@@ -94,8 +105,8 @@ int direction;
 // 次の停車位置座標
 int nx;
 int ny;
-
 int tx,ty;
+
 // キーボードフラグ
 int keyboardflg;
 int keyboardflgformove;
