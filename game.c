@@ -6,6 +6,7 @@
 #include <time.h>
 #include <math.h>
 #include "game.h"
+
 // マップ配列
 char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
        //012345678901234567890123456789      
@@ -75,103 +76,35 @@ int pluscolor[3] = {0,0,205};
 int minuscolor[3] = {220,20,60};
 
 // プラス駅の月別乱数表
-int plusarray[MAXMONTH][2] = {{400,800},
-                               {200,600},
-                               {400,600},
-                               {1000,2000},
-                               {1500,4000},
-                               {4000,8000},
-                               {6000,12000},
-                               {8000,22000},
-                               {6000,15000},
-                               {1500,6000},
-                               {1000,3000},
-                               {600,1200}};
+int plusarray[MAXMONTH][2] = {{400,1200}, // 1月
+                               {200,800}, // 2月
+                               {400,1500}, // 3月
+                               {2000,4000}, // 4月
+                               {3000,7000}, // 5月
+                               {4000,8000}, // 6月
+                               {12000,30000}, // 7月
+                               {35000,70000}, // 8月
+                               {18000,32000}, // 9月
+                               {6000,12000}, // 10月
+                               {3000,7000}, // 11月
+                               {2000,4000}}; // 12月
 
 // マイナス駅の月別乱数表
-int minusarray[MAXMONTH][2] = {{4000,12000},
-                               {8000,25000},
-                               {4000,8000},
-                               {500,1500},
-                               {400,1200},
-                               {300,1000},
-                               {200,600},
-                               {100,400},
-                               {300,1000},
-                               {400,1200},
-                               {800,3000},
-                               {2000,8000}};
+int minusarray[MAXMONTH][2] = {{10000,25000}, // 1月
+                               {20000,80000}, // 2月
+                               {10000,25000}, // 3月
+                               {500,1500}, // 4月
+                               {400,1200}, // 5月
+                               {300,1000}, // 6月
+                               {200,600}, // 7月
+                               {100,400}, // 8月
+                               {500,1500}, // 9月
+                               {2000,4000}, // 10月
+                               {3000,8000}, // 11月
+                               {4000,9000}}; // 12月
 
 // 収益計算用
 int shueki[3];
-
-// ウィンドウサイズ変更時に座標を再設定
-void Reshape(int w, int h)
-{
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluOrtho2D(0, w, 0, h);
-    glScaled(1, -1, 1);
-    glTranslated(0, -h, 0);
-}
-
-// 画面更新用タイマー
-void Timer(int t)
-{
-    glutPostRedisplay();
-    glutTimerFunc(RESHAPETIME, Timer, 0);
-}
-
-// 乱数を一定時間ごとに生成するタイマー
-void RandTimer(int t)
-{
-    dummyresult = rand()%range;
-    if(randflg==1){
-        glutTimerFunc(RANDTIME, RandTimer, 0);
-    }
-}
-
-// 駅移動管理タイマー
-void MoveTimer(int t)
-{
-    move();
-    if((players[turn].x/IMGSIZE != nx)||(players[turn].y/IMGSIZE != ny)){
-        glutTimerFunc(MOVETIME, MoveTimer, 0);
-    }else if((players[turn].x%IMGSIZE!=0)||(players[turn].y%IMGSIZE!=0)){
-        glutTimerFunc(MOVETIME, MoveTimer, 0);
-    }else{
-        if(randresult-recount>0){
-            if((massRecord[randresult-recount-1][0]==players[turn].x/IMGSIZE)&&(massRecord[randresult-recount-1][1]==players[turn].y/IMGSIZE)){
-                recount++;
-            }else{
-                recount--;
-            }
-        }else{
-            recount--;
-        }
-        if(recount==-1){
-            keyboardflg=1;
-        }else{
-            keyboardflg=0;
-        }
-    }
-}
-
-// eを押したか判定
-int isE(unsigned char key){
-    if(key=='e'){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
-//キーボード入力管理タイマー 
-void keyboardTimer(int t)
-{
-    keyboardflg=0;
-}
 
 // (x,y)に大きさscaleの画像を表示
 void PutSprite(int num, int x, int y, pngInfo *info,double scale)
@@ -206,6 +139,87 @@ void PutSprite(int num, int x, int y, pngInfo *info,double scale)
     glPopMatrix();
 }
 
+// ウィンドウサイズ変更時の処理
+void Reshape(int w, int h)
+{
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluOrtho2D(0, w, 0, h);
+    glScaled(1, -1, 1);
+    glTranslated(0, -h, 0);
+    //windowサイズ固定 
+    glutReshapeWindow(InitWidth,InitHeight);
+}
+
+// 画面更新用タイマー
+void Timer(int t)
+{
+    glutPostRedisplay();
+    glutTimerFunc(RESHAPETIME, Timer, 0);
+}
+
+// ダミー乱数を一定時間ごとに生成するタイマー
+void RandTimer(int t)
+{ // (0,range-1)の範囲の乱数を生成
+    dummyresult = rand()%range;
+    if(randflg==1){ // randflgがたっているときタイマー継続
+        glutTimerFunc(RANDTIME, RandTimer, 0);
+    }
+}
+
+// 駅移動管理タイマー
+void MoveTimer(int t)
+{
+    int transx;
+    int transy;
+    // 移動処理
+    move();
+    // 座標変換
+    transx = players[turn].x/IMGSIZE;
+    transy = players[turn].y/IMGSIZE;
+    if((transx != nx)||(transy != ny)){ // 次の駅の座標と同じか
+        glutTimerFunc(MOVETIME, MoveTimer, 0); // 同じでないときタイマー継続
+    }else if((players[turn].x%IMGSIZE!=0)||(players[turn].y%IMGSIZE!=0)){  // 余りが0でないとき
+        glutTimerFunc(MOVETIME, MoveTimer, 0); // タイマー継続
+    }else{
+        if(randresult-recount>0){ // まだ移動可能かどうか
+        // 移動可能のとき,以前の移動履歴をチェック
+            if((massRecord[randresult-recount-1][0]==transx)&&(massRecord[randresult-recount-1][1]==transy)){
+                recount++; // 戻ったとき残りカウント数増加
+            }else{
+                recount--; // 進んだとき残りカウント数減少
+            }
+        }else{
+            recount--; // カウント減少
+        }
+        if(recount==-1){ // カウント終了のときキーボード入力をロック
+            keyboardflg=1;
+        }else{ // キーボード入力のロックを解除
+            keyboardflg=0;
+        }
+    }
+}
+
+
+//キーボード入力管理タイマー 
+void keyboardTimer(int t)
+{
+    // キーボード入力ロックを解除
+    keyboardflg=0;
+}
+
+// eを押したか判定
+// 1: キーがE
+// 0 : キーがEでない
+int isE(unsigned char key){
+    if(key=='e'){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
 // 行先が壁かどうか判定
 // 1 : 壁
 // 0 : 壁でない
@@ -224,22 +238,20 @@ int isWall(int x,int y){
 // 進めるとき 1
 // 進めないとき 0
 int isMovable(int x,int y){
-    int xa=x/IMGSIZE;
-    int ya=y/IMGSIZE;
     if(direction==0){ // 上
-        if(isWall(xa,ya-1)){
+        if(isWall(x,y-1)){
             return 0;
         }
     }else if(direction==1){ //右
-        if(isWall(xa+1,ya)){
+        if(isWall(x+1,y)){
             return 0;
         }    
     }else if(direction==2){ //下
-        if(isWall(xa,ya+1)){
+        if(isWall(x,y+1)){
             return 0;
         }   
     }else{ //左
-        if(isWall(xa-1,ya)){
+        if(isWall(x-1,y)){
             return 0;
         }   
     }
@@ -247,63 +259,60 @@ int isMovable(int x,int y){
 }
 
 // 移動処理
-void move(){
-    if(direction==0){
+void move(void){
+    if(direction==0){ // 上
         players[turn].y-=MOVESIZE;
     }
-    if(direction==1){
+    if(direction==1){ // 右
         players[turn].x+=MOVESIZE;
     }
-    if(direction==2){
+    if(direction==2){ // 下
         players[turn].y+=MOVESIZE;
     }
-    if(direction==3){
+    if(direction==3){ // 左
         players[turn].x-=MOVESIZE;
     }
 }
 
 // 次の駅を取得
 void nextStation(int x,int y){
-    int xa=x/IMGSIZE;
-    int ya=y/IMGSIZE;
-    //printf("Cal Next Station(%d,%d)\n",xa,ya);
-    if(direction==0){
+    int sx=x;
+    int sy=y;
+    if(direction==0){ // 上
         while(1){
-            ya--;
-            if(getmapnum(xa,ya)!=SENRO1){
+            sy--;
+            if(getmapnum(sx,sy)!=SENRO1){ // 駅を発見したら
                 break;
             }
         }
-    }
-
-    if(direction==1){
+    }else if(direction==1){ // 右
         while(1){
-            xa++;
-            if(getmapnum(xa,ya)!=SENRO2){
+            sx++;
+            if(getmapnum(sx,sy)!=SENRO2){ // 駅を発見したら
                 break;
             }
         }
-    }
-
-    if(direction==2){
+    }else if(direction==2){ // 下
         while(1){
-            ya++;
-            if(getmapnum(xa,ya)!=SENRO1){
+            sy++;
+            if(getmapnum(sx,sy)!=SENRO1){ // 駅を発見したら
                 break;
             }
         }
-    }
-
-    if(direction==3){
+    }else if(direction==3){ // 左
         while(1){
-            xa--;
-            if(getmapnum(xa,ya)!=SENRO2){
+            sx--;
+            if(getmapnum(sx,sy)!=SENRO2){ // 駅を発見したら
                 break;
             }
         }
+    }else{ // エラーチェック用
+        sx=-623;
+        sy=-623;
     }
-    nx=xa;
-    ny=ya;
+    // 次の駅の座標をセット
+    nx=sx;
+    ny=sy;
 }
 
 // 物件が購入できるか取得
@@ -311,11 +320,11 @@ void nextStation(int x,int y){
 // 0 : 取得不可能
 int ispurchase(int id){
     int flg=1;
-    // 既に誰かの物件
+    // 既に誰かの物件のとき
     if(stations[stid].plist[id].holder!=0){
         flg=0;
     }
-    // 値段が足りない
+    // 値段が足りないとき
     if(players[turn].money < stations[stid].plist[id].price){ 
         flg=0;
     }
@@ -325,16 +334,22 @@ int ispurchase(int id){
 //物件購入処理
 void purchase(int id){
     int i;
-    int monopolyCheck=0;
+    int monopolyCheck=0; // 独占チェック用
+    // 総資産を計算
     players[turn].assets+=stations[stid].plist[selectpos].price;
+    // 財布を計算
     players[turn].money-=stations[stid].plist[selectpos].price;
+    // 購入済みフラグをたてる
     stations[stid].plist[selectpos].holder=turn+1;    
+    // 独占チェック
     for(i=0;i<propertynum;i++){
         if(stations[stid].plist[i].holder==turn+1){
             monopolyCheck++;
         }
     }    
+    // 独占のとき
     if(monopolyCheck==propertynum){
+        // 独占フラグをたてる
         stations[stid].ismonopoly=turn+1;
     }    
 }
@@ -344,9 +359,8 @@ void readImg(void){
     int i;
     char fname[100];
 
-
-    //read spimg
-    for(i=0;i<3;i++){
+    // イベントマップ読み込み
+    for(i=0;i<SP_NUM;i++){
         sprintf(fname,".\\eventparts\\sp%d.png",i+1);
         spimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &spinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
@@ -359,57 +373,57 @@ void readImg(void){
        &seasoninfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);        
     }
 
-    //read mapimage
+    // マップイメージ読み込み
     for(i=0;i<=MAP_NUM;i++){
         sprintf(fname,".\\mapparts\\map%d.png",i+1);
         mapimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &mapinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    //read playerimage
+    // プレイヤー画像を読み込み
     for(i=0;i<PLAYERNUM;i++){
         sprintf(fname,".\\eventparts\\player%d.png",i+1);
         playerimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &playerinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
-    // read diceimage
+    // サイコロの画像を読み込み
     for(i=0;i<DICEMAX;i++){
         sprintf(fname,".\\dice\\dice%d.png",i+1);
         diceimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
        &diceinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    //read Hiragana black
+    // read Hiragana black
     for(i=0;i<JPMAX;i++){
         sprintf(fname,".\\charimg\\h%sblack.png",jpProtcol[i]);
         hblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &hblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
 
-    //read Hiragana red
+    // read Hiragana red
     for(i=0;i<JPMAX;i++){
         sprintf(fname,".\\charimg\\h%sred.png",jpProtcol[i]);
         hredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &hredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    //read Katakana black
+    // read Katakana black
     for(i=0;i<JPMAX;i++){
         sprintf(fname,".\\charimg\\k%sblack.png",jpProtcol[i]);
         kblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &kblackinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    //read Katakana red
+    // read Katakana red
     for(i=0;i<JPMAX;i++){
         sprintf(fname,".\\charimg\\k%sred.png",jpProtcol[i]);
         kredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &kredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    //read Special Str red
+    // read Special Str red
     for(i=JPMAX;i<JPMAX+SPMAX;i++){
         sprintf(fname,".\\charimg\\%sred.png",jpProtcol[i]);
         hredimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
         &hredinfo[i], GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-    //read Special Str black
+    // read Special Str black
     for(i=JPMAX;i<JPMAX+SPMAX;i++){
         sprintf(fname,".\\charimg\\%sblack.png",jpProtcol[i]);
         hblackimg[i] = pngBind(fname, PNG_NOMIPMAP, PNG_ALPHA, 
@@ -418,16 +432,17 @@ void readImg(void){
 }
 
 // ファイルから駅情報を取得
+// stations構造体を初期化
 void readStation(void){
     FILE *fp;
     int i=0;
     fp=fopen("property.txt","r");
-    if(fp==NULL){
+    if(fp==NULL){ // 開けなかったとき
         printf("file not found");
         exit(0);
-    }else{
+    }else{ // 駅名と座標を取得
         while(fscanf(fp,"%s %d,%d",stations[i].name,&stations[i].x,&stations[i].y)!=EOF){
-            stations[i].ismonopoly=0;
+            stations[i].ismonopoly=0; // 独占フラグ初期化
             i++;
         }
         fclose(fp);
@@ -443,15 +458,16 @@ void readProperty(void){
         sprintf(fname,".\\property\\%s.txt",stations[i].name);
         fp=fopen(fname,"r");
         j=0;
-        if(fp==NULL){
+        if(fp==NULL){ // 開けなかったとき
             printf("file not found in %s",stations[i].name);
             exit(0);
         }else{
+            // 物件名,値段,収益率を取得
             while(fscanf(fp,"%s %d,%d",stations[i].plist[j].name,&stations[i].plist[j].price,&stations[i].plist[j].earnings)!=EOF){
-            stations[i].plist[j].holder=0;
+            stations[i].plist[j].holder=0; // 購入フラグ初期化
             j++;
         }
-        stations[i].propertynum=j;
+        stations[i].propertynum=j; // 物件数を保存
         fclose(fp);
     }
 
@@ -461,10 +477,11 @@ void readProperty(void){
 // マップの画像番号を取得
 int getmapnum(int x,int y){
     int img_num;
-    if((x<0)||(x>=XMAX)){
-        return 623;
+    // 配列番号をはみ出した場合
+    if((x<0)||(x>=XMAX)){ 
+        return 623; // 草原マップを返す
     }else if((y<0)||(y>=YMAX)){
-        return 623;
+        return 623; // 草原マップを返す
     }
 
     switch (Map[y][x]){
@@ -500,14 +517,14 @@ void drawMap(void){
             drawx = x*IMGSIZE;
             drawy = y*IMGSIZE;
             img_num = getmapnum(x+tx,y+ty);
-            if((distination.x==x+tx)&&(distination.y==y+ty)){
-                //printf("debug1\n");
+            if((distination.x==x+tx)&&(distination.y==y+ty)){ // 目的地のとき
+                // 目的地画像を描画
                 PutSprite(mapimg[DIST], drawx, drawy, &mapinfo[DIST],1);
-            }else if(img_num==WALL){
-                //printf("debug2\n");
+            }else if(img_num==WALL){ // 草原マップのとき
+                // 季節にあった草原を描画
                 PutSprite(seasonimg[season], drawx, drawy, &seasoninfo[season],1);
             }else{
-                //printf("debug3\n");
+                // マップ描画
                 PutSprite(mapimg[img_num], drawx, drawy, &mapinfo[img_num],1);
             }
         }
@@ -517,15 +534,18 @@ void drawMap(void){
 // プレイヤーを描画
 // 最上面にターン中のプレイヤーを描画
 void drawPlayer(void){
+    int transx,transy;
     int i;
     for(i=0;i<PLAYERNUM;i++){
-        if(i!=turn){
-            PutSprite(playerimg[i], (players[i].x/IMGSIZE-tx)*IMGSIZE,(players[i].y/IMGSIZE-ty)*IMGSIZE, &playerinfo[i],1);
+        if(i!=turn){ // ターン中のプレイヤー以外を描画
+            transx = players[i].x/IMGSIZE;
+            transy = players[i].y/IMGSIZE;
+            PutSprite(playerimg[i], (transx-tx)*IMGSIZE,(transy-ty)*IMGSIZE, &playerinfo[i],1);
         }
     }
     // ターン中のプレイヤーを最上レイヤーに表示
     //PutSprite(playerimg[turn], players[turn].x,players[turn].y, &playerinfo[turn],1);
-    PutSprite(playerimg[turn], 6*IMGSIZE,5*IMGSIZE, &playerinfo[turn],1);
+    PutSprite(playerimg[turn], CENTX,CENTY, &playerinfo[turn],1);
 }
 
 // 1文字の日本語を表示
@@ -534,18 +554,14 @@ void drawPlayer(void){
 void drawChar(int num,int kh,int color,int x,int y,double scale){
     if(kh==0){
         if(color==0){ // hiragana black
-            //printf("debug6\n");
             PutSprite(hblackimg[num], x, y, &hblackinfo[num],scale);
         }else{ //hiragana red
-            //printf("debug7\n");
             PutSprite(hredimg[num], x, y, &hredinfo[num],scale);
             }
         }else{ 
         if(color==0){ // katakana black
-            //printf("debug8\n");
             PutSprite(kblackimg[num], x, y, &kblackinfo[num],scale);
         }else{ // katakana red
-            //printf("debug9\n");
             PutSprite(kredimg[num], x, y, &kredinfo[num],scale);
         }
     }
@@ -560,7 +576,7 @@ void drawString(char *string,int color,int xo,int yo,double scale){
     int flg;
     int kh=0;
     for(i=0;i<len;i++){
-        flg=string[i]-'0';
+        flg=string[i]-'0'; // インデクス計算
         if((flg>=0)&&(flg<=9)){ // 数字描画
             drawChar(JPMAX+flg,0,color,x,y,scale);
             flg=1;
@@ -589,7 +605,7 @@ void drawString(char *string,int color,int xo,int yo,double scale){
             }     
             i++;
         }
-        if(flg==1){
+        if(flg==1){ // 次の座標に移動
             x+=IMGSIZE*scale;
             if(x>InitWidth-22){
                 x=xo;
@@ -603,7 +619,7 @@ void drawString(char *string,int color,int xo,int yo,double scale){
 void InitPlayer(void){
     int i;
     for(i=0;i<PLAYERNUM;i++){
-        sprintf(players[i].name,"debaltgu%d",i+1); // for debug
+        sprintf(players[i].name,"llpureiiyallms%d",i+1);
         players[i].x=INITX;
         players[i].y=INITY;
         players[i].money=INITMONEY;
@@ -611,57 +627,9 @@ void InitPlayer(void){
     }
 }
 
-// デバッグ用関数 
-// プレイヤー構造体を表示
-// detail : 0 全部表示 , else その番号の駅を表示
-void dispPlayer(int detail){
-    int i;
-    if(detail==0){
-        for(i=0;i<PLAYERNUM;i++){
-            printf("--------------------\n");
-            printf("%s社長 (%d,%d)\n",players[i].name,players[i].x,players[i].y);
-            printf("\n");
-            printf("所持金 : %d\n",players[i].money);
-            printf("総資産 : %d\n",players[i].assets);
-            printf("--------------------\n\n");
-        }
-    }else{
-        printf("--------------------\n");
-        printf("%s社長 (%d,%d)\n",players[detail-1].name,players[detail-1].x,players[detail-1].y);
-        printf("\n");
-        printf("所持金 : %d\n",players[detail-1].money);
-        printf("総資産 : %d\n",players[detail-1].assets);
-        printf("--------------------\n\n");   
-    }
-}
-
-// デバッグ用関数
-// 駅情報を表示
-void dispStation(int detail){
-    int i,j;
-    if(detail==0){
-        for(i=0;i<STATIONNUM;i++){
-            printf("--------------------\n");
-            printf("%s駅 (%d,%d)\n",stations[i].name,stations[i].x,stations[i].y);
-            printf("独占フラグ : %d   物件数 : %d\n",stations[i].ismonopoly,stations[i].propertynum);
-            for(j=0;j<stations[i].propertynum;j++){
-                printf("%s %d %d %d\n",stations[i].plist[j].name,stations[i].plist[j].price,stations[i].plist[j].earnings,stations[i].plist[j].holder);
-            }
-            printf("--------------------\n\n");
-        }
-        }else{
-        printf("--------------------\n");
-        printf("%s駅 (%d,%d)\n",stations[detail-1].name,stations[detail-1].x,stations[detail-1].y);
-        printf("独占フラグ : %d   物件数 : %d\n",stations[detail-1].ismonopoly,stations[detail-1].propertynum);
-        for(j=0;j<stations[detail-1].propertynum;j++){
-            printf("%s %d %d %d\n",stations[detail-1].plist[j].name,stations[detail-1].plist[j].price,stations[detail-1].plist[j].earnings,stations[detail-1].plist[j].holder);
-        }
-        printf("--------------------\n\n");     
-    }
-}
-
 // ダイアログを画面に描画
 void drawDialog(int x,int y,int width,int height){
+    // ダイアログの背景を描画
     glBegin(GL_QUADS);
     glVertex2i(x,y);
     glVertex2i(x,y+height);
@@ -669,6 +637,7 @@ void drawDialog(int x,int y,int width,int height){
     glVertex2i(x+width,y);
     glEnd();
 
+    // 外側の四角を縁取り
     glColor3ub(139,69,19);
     glBegin(GL_LINE_LOOP);
     glVertex2i(x,y);
@@ -677,6 +646,7 @@ void drawDialog(int x,int y,int width,int height){
     glVertex2i(x+width,y);
     glEnd();
 
+    // 内側の四角を縁取り
     glBegin(GL_LINE_LOOP);
     glVertex2i(x+5,y+5);
     glVertex2i(x+5,y+height-5);
@@ -687,11 +657,12 @@ void drawDialog(int x,int y,int width,int height){
 
 // 数字を描画
 void drawMoney(int money,int x,int y,int color,double scale){
-    char fname[100];
+    char fname[50];
     int oku,man;
+    // 億の桁,万の桁を計算
     oku = money/10000;
     man = money%10000;
-    if(money>=0){
+    if(money>=0){ // お金がプラスの時
         if(oku!=0){
             if(man!=0){
                 sprintf(fname,"%dox%dmxex",oku,man);
@@ -701,7 +672,8 @@ void drawMoney(int money,int x,int y,int color,double scale){
         }else{
             sprintf(fname,"%dmxex",man);
         }
-    }else{
+    }else{ // お金がマイナスの時
+    // 数字部分の符号を反転
         oku*=-1;
         man*=-1;
         if(oku!=0){
@@ -714,6 +686,7 @@ void drawMoney(int money,int x,int y,int color,double scale){
             sprintf(fname,"ms%dmxex",man);
         }        
     }
+    // 画面出力
     drawString(fname,color,x,y,scale);
 }
 
@@ -743,10 +716,12 @@ void drawStation(void){
     int transx = players[turn].x/IMGSIZE;
     int transy = players[turn].y/IMGSIZE;
     // どの駅か識別
-    //printf("(%d,%d)\n",transx,transy);
     for(i=0;i<STATIONNUM;i++){
+        // 駅の座標が一致したら
          if((stations[i].x==transx)&&(stations[i].y==transy)){
+            // 物件数を取得
             propertynum = stations[i].propertynum; 
+            // 配列番号を取得
             stid = i;
          }
      }
@@ -811,15 +786,17 @@ void kessan(void){
     int i,j,k;
     int dokusen;
     for(i=0;i<PLAYERNUM;i++){
-        shueki[i]=0;
+        shueki[i]=0; // 収益初期化
         for(j=0;j<STATIONNUM;j++){
+            // 独占チェック
             if(stations[j].ismonopoly==i+1){
-                dokusen=2;
+                dokusen=2; // 独占のとき
             }else{
-                dokusen=1;
+                dokusen=1; // 独占でないとき
             }
             for(k=0;k<stations[j].propertynum;k++){
                 if(stations[j].plist[k].holder==i+1){
+                    // 価格*収益率を計算
                     shueki[i]+=dokusen*stations[j].plist[k].price*stations[j].plist[k].earnings/100;
                 }
             }
@@ -830,8 +807,17 @@ void kessan(void){
 // キーボード入力管理
 void keyboard(unsigned char key,int x,int y){
     int locktime =500;
-if(keyboardflg==0){
-    if(turnstatus==2){ // 目的地設定
+    int transx = players[turn].x/IMGSIZE;
+    int transy = players[turn].y/IMGSIZE;
+if(keyboardflg==0){ // キーボード入力がロックされていないとき
+    if(turnstatus==1){ //ルール説明
+        if(isE(key)){
+            inflg++;
+        }else if(key=='s'){ // ルール説明をスキップ
+            inflg=0;
+            turnstatus=2;
+        }        
+    }else if(turnstatus==2){ // 目的地設定
         if(isE(key)){
             inflg++;
         }
@@ -844,33 +830,35 @@ if(keyboardflg==0){
             inflg++;
         }
     }else if(turnstatus==5){ //移動
-        if(key=='w'){
+        if(key=='w'){ // 上
             direction=0;
-        }else if(key=='d'){
+        }else if(key=='d'){ // 右
             direction=1;
-        }else if(key=='s'){
+        }else if(key=='s'){ // 下
             direction=2;
-        }else if(key=='a'){
+        }else if(key=='a'){ // 左
             direction=3;
-        }else {
-            direction=623;
+        }else { // それ以外
+            direction=-623;
         }
-        if(direction!=623){
-            if(isMovable(players[turn].x,players[turn].y)){
-                massRecord[randresult-recount][0]=players[turn].x/IMGSIZE;
-                massRecord[randresult-recount][1]=players[turn].y/IMGSIZE;
-                nextStation(players[turn].x,players[turn].y);
-                keyboardflg=1;
-                glutTimerFunc(MOVETIME, MoveTimer, 0);
+        if(direction!=-623){
+            if(isMovable(transx,transy)){
+                // 移動履歴を書き込み
+                massRecord[randresult-recount][0]=transx;
+                massRecord[randresult-recount][1]=transy;
+                // 次の駅を計算
+                nextStation(transx,transy);
+                keyboardflg=1; // キーボード入力ロック
+                glutTimerFunc(MOVETIME, MoveTimer, 0); //移動タイマー起動
             }
         }   
-    }else if(turnstatus==6){
+    }else if(turnstatus==6){ // 到着
         if(inflg>=1){
             inflg++;
         }
     }else if(turnstatus==7){ // 物件購入
         locktime=200;
-        if(key=='s'){ //ポジションを下へ
+        if(key=='s'){ // ポジションを下へ
             if(selectpos<propertynum-1){
                 selectpos+=1;
             }            
@@ -878,28 +866,28 @@ if(keyboardflg==0){
             if(selectpos>=1){
                 selectpos-=1;
             }            
-        }else if(isE(key)){
+        }else if(isE(key)){ //　物件購入
             if(ispurchase(selectpos)){
                 purchase(selectpos);
             }
-        }else if(key=='q'){
+        }else if(key=='q'){ // 購入終了
                 inflg++;
         }
-    }else if(turnstatus==8){
+    }else if(turnstatus==8){ // プラスマス
         if(isE(key)){
             inflg++;
         }        
-    }else if(turnstatus==9){
+    }else if(turnstatus==9){ // マイナスマス
         if(isE(key)){
             inflg++;
         }        
-    }else if(turnstatus==16){
+    }else if(turnstatus==16){ // 決算
         if(isE(key)){
             inflg++;
         }        
-    }else if(turnstatus==17){
+    }else if(turnstatus==17){ // 最終成績
         if(inflg==4){
-            if(key=='q'){
+            if(key=='q'){ // ゲーム終了
                 exit(0);
             }
         }else{
@@ -910,22 +898,13 @@ if(keyboardflg==0){
     }
 
     if(turnstatus!=5){
-        keyboardflg=1;
-        glutTimerFunc(locktime, keyboardTimer, 0);
+        keyboardflg=1; // キーボード入力ロック
+        glutTimerFunc(locktime, keyboardTimer, 0); // ロック解除タイマー
     }
 }
 }
 
-// 変数初期化
-void Initvalue(void){
-    keyboardflg=0;
-    direction=-1;
-    selectpos=0;
-    onetime=0;
-    inflg=0;
-}
-
-// 売却する物件を決める関数
+// 物件を売却する関数
 //ismonopoly : 独占の物件を売るか
 // high : 借金より高い物件から売るか
 int sale(int ismonopoly,int high){
@@ -936,20 +915,25 @@ int sale(int ismonopoly,int high){
     int count=0;
     while(1){
         for(i=0;i<STATIONNUM;i++){ // 全ての駅について
-            if(ismonopoly){
+            if(ismonopoly){ // 独占の物件を売るとき
                 for(j=0;j<stations[i].propertynum;j++){ // 全ての物件について
                     if(stations[i].plist[j].holder==turn+1){ // ターン中のププレイヤーの物件のとき
                         // 物件の価格が借金の絶対値より大きいとき
                         if(high){
+                        // 借金より高い物件かチェック
                         if(stations[i].plist[j].price>=-players[turn].money){
+                            // 値段が近いとき
                             if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                // 候補として更新
                                 nearest = abs(-players[turn].money-stations[i].plist[j].price);
                                 nearestst = i;
                                 nearestid = j;                              
                             }
                         }
                         }else{
+                            // 値段が近いとき
                             if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                // 候補として更新
                                 nearest = abs(-players[turn].money-stations[i].plist[j].price);
                                 nearestst = i;
                                 nearestid = j;                              
@@ -962,17 +946,21 @@ int sale(int ismonopoly,int high){
                 for(j=0;j<stations[i].propertynum;j++){ // 全ての物件について
                     if(stations[i].plist[j].holder==turn+1){ // ターン中のププレイヤーの物件のとき
                         // 物件の価格が借金の絶対値より大きいとき
-                        // 物件の価格が借金の絶対値より大きいとき
                         if(high){
+                        // 借金より高い物件かチェック
                         if(stations[i].plist[j].price>=-players[turn].money){
+                            // 値段が近いとき
                             if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                // 候補として更新
                                 nearest = abs(-players[turn].money-stations[i].plist[j].price);
                                 nearestst = i;
                                 nearestid = j;                                 
                             }
                         }
                         }else{
+                            // 値段が近いとき
                             if(abs(-players[turn].money-stations[i].plist[j].price)<nearest){
+                                // 候補として更新
                                 nearest = abs(-players[turn].money-stations[i].plist[j].price);
                                 nearestst = i;
                                 nearestid = j;                                 
@@ -983,14 +971,17 @@ int sale(int ismonopoly,int high){
             }
             }
         }
-        if(nearestst==-1){
+        if(nearestst==-1){ // 売れる物件がない
             break;
         }else{
-            //printf("%sを売却しました\n",stations[nearestst].plist[nearestid].name);
-            count++;
+            count++; // 売った物件の数を追加
+             // 購入フラグ解除
             stations[nearestst].plist[nearestid].holder=0;
+            // 所持金を計算
             players[turn].money+=stations[nearestst].plist[nearestid].price;
+            // 総資産を計算
             players[turn].assets-=stations[nearestst].plist[nearestid].price;
+            // 借金が回復したとき
             if(players[turn].money>=0){
                 return count;
             }
@@ -1040,9 +1031,13 @@ int debtprocess(void){
             }
             for(j=0;j<stations[i].propertynum;j++){
             if(stations[i].plist[j].holder==turn+1){
+                // 購入フラグ初期化
                 stations[i].plist[j].holder=0;
+                // 所持金を計算
                 players[turn].money+=stations[i].plist[j].price;
+                // 総資産を計算
                 players[turn].assets-=stations[i].plist[j].price;
+                // 売った物件数をカウント
                 count++;
                 }
             }
@@ -1064,70 +1059,96 @@ int debtprocess(void){
         return count;
     }
     count +=sale(1,0);
-    printf("count = %d\n",count);
     return count;
+}
+
+// 変数初期化
+void Initvalue(void){
+    keyboardflg=0;
+    direction=-1;
+    selectpos=0;
+    inflg=0;
 }
 
 // ディスプレイ関数
 void Display(void){
     int st; //止まった駅の番号を保持
-    int transx,transy;
+    int transx,transy; // プレイヤーの座標変換用
     int i;
-    char fname[100];
-    tx = players[turn].x/IMGSIZE-6;
-    ty = players[turn].y/IMGSIZE-5;
-    //printf("(%d,%d)\n",players[turn].x/IMGSIZE,players[turn].y/IMGSIZE);
+    char fname[150];
+    tx = players[turn].x/IMGSIZE-CX; // 中央座標計算
+    ty = players[turn].y/IMGSIZE-CY;
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    //printf("inflg = %d\n",inflg);
-    //printf("turnstatus = %d\n",turnstatus);
+    glClear(GL_COLOR_BUFFER_BIT); // 描画クリア
     if(turnstatus==0){ // ゲーム初期化処理
-        Initvalue();
-        month=4;
-        year=1;
-        calseason();
-        turn=0;
-        onetime=0;
-        goalflg=0;
-        inflg=0;
-        turnstatus=1;
+        Initvalue(); // 変数初期化
+        month=4; // 4月にセット
+        year=1; // 1年目にセット
+        calseason(); // 季節計算
+        turn=0; // プレイヤー1のターンにセット
+        goalflg=0; // ゴールフラグ初期化
+        inflg=0; // 進行状況を初期化
+        turnstatus=1; // status更新
 
-    }else if(turnstatus==1){ // 未設定
-        keyboardflg=0;
-        onetime=0;
-        inflg=0;
-        turnstatus=2;
+    }else if(turnstatus==1){ // タイトル,ゲームルール表示
+        if(inflg==0){
+            PutSprite(spimg[3],0,0,&spinfo[3],1);
+        }else if(inflg==1){
+            PutSprite(spimg[4],0,0,&spinfo[4],1);
+        }else if(inflg==2){
+            PutSprite(spimg[5],0,0,&spinfo[5],1);
+        }else if(inflg==3){
+            PutSprite(spimg[6],0,0,&spinfo[6],1);
+        } else if(inflg==4){
+            PutSprite(spimg[7],0,0,&spinfo[7],1);
+        }else if(inflg==5){
+            inflg=0; // 進行状況初を期化
+            turnstatus=2; // status更新
+        }
 
     }else if(turnstatus==2){ // 目的地設定
-        PutSprite(spimg[2],0,0,&spinfo[2],1);
+        PutSprite(spimg[2],0,0,&spinfo[2],1); // 背景表示
         if(inflg==0){
-            if(goalflg==0){
+            if(goalflg==0){ // 初めて目的地をセットするとき
+            // さいしょのもくてきちをきめます．
+            // Eでルーレットをまわしてください．
             sprintf(fname,"saiisilonomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
             drawText(fname,11,225,InitWidth-22,42,0);             
             }else if(goalflg==1){
+            // つぎのもくてきちをきめます．
+            // Eでルーレットをまわしてください．                
             sprintf(fname,"tuginomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
             drawText(fname,11,225,InitWidth-22,42,0);                    
             }
         }
         if(inflg==1){ // 乱数生成用の設定
-            range=STATIONNUM;
-            randflg=1;
+            dummyresult=0;
+            range=STATIONNUM; // rangeを駅の数にセット
+            randflg=1; // ダミータイマーロック解除
+            //タイマー呼び出し
             glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg++;
-        }else if(inflg==2){ // ランダム表示
-            drawString(stations[dummyresult].name,0,InitWidth/2-80,105,1);            
+        }else if(inflg==2){ // ダミーリザルトを表示
+            drawString(stations[dummyresult].name,0,InitWidth/2-80,105,1); 
+            // Eでサイコロをとめます．
+            sprintf(fname,"xedellsaiikorollwotomemasumr");
+            drawText(fname,11,225,InitWidth-22,42,0);             
         }else if(inflg==3){
-            if(onetime==0){
-                randflg=0;
-                randresult=rand()%range;
-                distination.x=stations[randresult].x;
-                distination.y=stations[randresult].y;
-                sprintf(distination.name,"%s",stations[randresult].name);
-                onetime=1;
-            }
-            drawString(distination.name,0,InitWidth/2-80,105,1);  
+            randflg=0; // タイマー停止
+            randresult=rand()%range; // 結果を計算
+            // 目的地の座標,名前を格納
+            distination.x=stations[randresult].x;
+            distination.y=stations[randresult].y;
+            sprintf(distination.name,"%s",stations[randresult].name);
+            inflg++;
         }else if(inflg==4){
-            onetime=0;
+            // 目的地を画面出力
+            // さいしょのもくてきちはhogeです.
+            // Eをおしてください.
+            sprintf(fname,"saiisilonomokutekitiha%sdesumrxxxewooositekudasaiimr",distination.name);
+            drawText(fname,11,225,InitWidth-22,42,0); 
+            drawString(distination.name,0,InitWidth/2-80,105,1);  
+        }else if(inflg==5){ // status更新
             inflg=0;
             if(goalflg==1){
                 turnstatus=7;
@@ -1138,21 +1159,25 @@ void Display(void){
 
     }else if(turnstatus==3){ // ターンのはじめ
 
-        drawMap();
-        drawPlayer();    
+        drawMap(); // マップ描画
+        drawPlayer(); // プレイヤー描画
         if(inflg==0){
-        // 所持金表示
+            // プレイヤーカラーでダイアログ生成
             glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
             drawDialog(11,11,InitWidth-22,34+16);
+            // hogeねんめ hugaがつ
             sprintf(fname,"%dnennmess%dgatu",year,month);
             drawString(fname,0,16,11+8,0.5);
+            // 所持金表示
             drawMoney(players[turn].money,InitWidth/2,11+8+16,0,0.5);
+            // hogeしゃちょう
             sprintf(fname,"%ssilatilouussssss",players[turn].name);
             drawString(fname,0,16,11+8+16,0.5);
-
+            // hogeしゃちょうのばんです．
+            // Eでサイコロをまわしてください．
             sprintf(fname,"%ssilatilouunobanndesumrxxxedellsaiikorollwomawasitekudasaiimr",players[turn].name);
             drawText(fname,11,225,InitWidth-22,42,0);            
-        }else if(inflg==1){
+        }else if(inflg==1){ // status更新
             inflg=0;
             turnstatus=4;
         }    
@@ -1162,27 +1187,31 @@ void Display(void){
         drawMap();
         drawPlayer();    
         if(inflg==0){
+            // ダミーサイコロを起動
+            dummyresult=0;
             range=DICEMAX;
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg=1;
         }else if(inflg==1){
+            // サイコロ描画
             PutSprite(diceimg[dummyresult], 416, 32, &diceinfo[dummyresult],1);
+            // Eでサイコロをとめます．
             sprintf(fname,"xedellsaiikorollwotomemasumr");
             drawText(fname,11,225,InitWidth-22,42,0);   
         }else if(inflg==2){
+            // サイコロ結果処理
             randflg=0;
-            if(onetime==0){
-                randresult = rand()%range;
-                recount=randresult;
-                onetime=1;
-            }
-            PutSprite(diceimg[randresult], 416, 32, &diceinfo[randresult],1);
-            sprintf(fname,"xewooositekudasaiimr");
-            drawText(fname,11,225,InitWidth-22,42,0);   
+            randresult = rand()%range;
+            recount=randresult;
+            inflg++;
         }else if(inflg==3){
+            PutSprite(diceimg[randresult], 416, 32, &diceinfo[randresult],1);
+            // Eをおしてください.
+            sprintf(fname,"xewooositekudasaiimr");
+            drawText(fname,11,225,InitWidth-22,42,0);
+        }else if(inflg==4){
             inflg=0;
-            onetime=0;
             turnstatus=5;
         }
 
@@ -1190,13 +1219,19 @@ void Display(void){
 
         drawMap();
         drawPlayer();  
+        // あと
+        // 　　hoge
+        // 　　　マス
+        // もくてきち
+        // huga
         sprintf(fname,"aatoxxss%dxxssssllmasullxxmokutekitixx%s",recount+1,distination.name);
         drawText(fname,340,40,125,94,0);  
-        if(recount==-1){
+        if(recount==-1){ // 移動マスを消費したらstatus更新
             turnstatus=6;
         }
 
     }else if(turnstatus==6){
+
         drawMap();
         drawPlayer();  
         if(inflg==0){
@@ -1205,9 +1240,9 @@ void Display(void){
             st = getmapnum(transx,transy);
             if(st==PROPERTYMASU){ // 物件に止まったとき
                 if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
-                    keyboardflg=0;
-                    goalflg=1;
-                    players[turn].money+=30000;
+                    keyboardflg=0; // キーボードロック解除
+                    goalflg=1; // ゴールフラグをたてる
+                    players[turn].money+=30000; // プラス3億円
                     inflg++;
                 }else{ //目的地でないなら
                     turnstatus=7;
@@ -1218,11 +1253,13 @@ void Display(void){
                 turnstatus=9;
             }
         }else if(inflg==1){
+            // hogeしゃちょうが1ばんのり.おめでとうございます.
+            // hogeしゃちょうにプラス3億円.
             sprintf(fname,"%ssilatilouuga1bannnorimroomedetouugozaiimasumr%ssilatilouunillpurasull3oxexmr",players[turn].name,players[turn].name);
             drawText(fname,11,225,InitWidth-22,42,0);              
         }else if(inflg==2){
             inflg=0;
-            turnstatus=2;
+            turnstatus=2; // 目的地再設定
         }
     }else if(turnstatus==7){ // 物件購入処理
 
@@ -1233,7 +1270,7 @@ void Display(void){
             selectpos=0;
             inflg++;
         }else if(inflg==1){
-            drawStation();
+            drawStation(); // 物件情報描画
         }else if(inflg==2){
             inflg=0;
             turnstatus=15;
@@ -1244,23 +1281,27 @@ void Display(void){
         drawMap();
         drawPlayer(); 
         if(inflg==0){
+            // ダミータイマー起動
+            dummyresult=0;
             keyboardflg=0;
             range=plusarray[month-1][1]-plusarray[month-1][0];
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg=1;            
         }else if(inflg==1){
+            // ダミー出力
             glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
             drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
             drawMoney(plusarray[month-1][0]+dummyresult,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
         }else if(inflg==2){
-            if(onetime==0){
-                randflg=0;
-                randresult = rand()%range;
-                tmpmoney = plusarray[month-1][0]+randresult;
-                players[turn].money+=tmpmoney;
-                onetime=1;
-            }
+            // 結果を計算
+            randflg=0;
+            randresult = rand()%range;
+            tmpmoney = plusarray[month-1][0]+randresult;
+            players[turn].money+=tmpmoney;
+            inflg++;
+        }else if(inflg==3){
+            // 所持金ダイアログ表示
             glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
             drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
             drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
@@ -1268,10 +1309,10 @@ void Display(void){
             glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
             drawDialog(11,220,InitWidth-22,42);
             drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
+            // しょじきん
             sprintf(fname,"silozikinn");
             drawString(fname,0,16,225,0.5);               
-        }else if(inflg==3){
-            onetime=0;
+        }else if(inflg==4){
             inflg=0;
             turnstatus=15;
         }
@@ -1279,23 +1320,27 @@ void Display(void){
         drawMap();
         drawPlayer(); 
         if(inflg==0){
+            // ダミータイマー起動
+            dummyresult=0;
             keyboardflg=0;
             range=minusarray[month-1][1]-minusarray[month-1][0];
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg=1;            
         }else if(inflg==1){
+            // ダミー出力
             glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
             drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
             drawMoney(-minusarray[month-1][0]-dummyresult,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
         }else if(inflg==2){
-            if(onetime==0){
-                randflg=0;
-                randresult = rand()%range;
-                tmpmoney = -minusarray[month-1][0]-randresult;
-                players[turn].money+=tmpmoney;
-                onetime=1;
-            }
+            // 結果を計算
+            randflg=0;
+            randresult = rand()%range;
+            tmpmoney = -minusarray[month-1][0]-randresult;
+            players[turn].money+=tmpmoney;
+            inflg++;
+        }else if(inflg==3){
+            // 所持金ダイアログ表示
             glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
             drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
             drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
@@ -1305,95 +1350,101 @@ void Display(void){
             drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
             sprintf(fname,"silozikinn");
             drawString(fname,0,16,225,0.5);               
-        }else if(inflg==3){
-            if(players[turn].money<0){
-                onetime=0;
-                inflg=4;
-            }else{
-                onetime=0;
+        }else if(inflg==4){
+            if(players[turn].money<0){ //借金を背負ったとき
+                inflg++;
+            }else{ // それ以外
                 inflg=0;
                 turnstatus=15;
             }
-        }else if(inflg==4){
-            if(onetime==0){
-                rdebet = debtprocess();
-                onetime=1;
-            }
+        }else if(inflg==5){ // 借金返済処理
+            rdebet = debtprocess(); // 売却した物件数を取得
+            inflg++;
+        }else if(inflg==6){
             if(rdebet==-1){
+                // うれるぶっけんがありません．しゃっきんをせおってしまいました.
                 sprintf(fname,"uurerubultkenngaaarimasennmrsilaltkinnwoseoolttesimaiimasitamr");
             }else{
+                // しゃっきんをせおってしまいました.hogeけんのぶっけんをばいきゃくしました.
                 sprintf(fname,"silaltkinnwoseoolttesimaiimasitamr%dkennnobultkennwobaiikilakusimasitamr",rdebet);
             }
             drawText(fname,11,225,InitWidth-22,42,0); 
-        }else if(inflg==5){
+        }else if(inflg==7){
             inflg=0;
             turnstatus=15;
         }
     }else if(turnstatus==15){ // 月別分岐
         // ターン終了処理
         turn++;
-        onetime=0;
         if(turn==3){
             month++;
         }
         // 決算月かどうか判別
         if((turn==3)&&(month==4)){
             if(year==3){
-                turnstatus=17;
+                turnstatus=17; // 最終成績
             }else{
                 turn=0;
-                turnstatus=16;
+                turnstatus=16;  // 決算
             }
         }else{
-            if(turn==3){
+            if(turn==3){ // ターン初期化
                 turn=0;
             }
-            if(month==13){
-                month=1;
+            if(month==MAXMONTH+1){
+                month=1; // 12月まできたら1月にリセット
             }
-            calseason();
-            turnstatus=3;
+            calseason(); // 季節再計算
+            turnstatus=3; // ターンのはじめにもどる
         }
     }else if(turnstatus==16){ // 決算月
         if(inflg==0){
-            kessan();
+            kessan(); // 決算処理
+            // 収益を所持金に追加
             for(i=0;i<PLAYERNUM;i++){
                 players[i].money+=shueki[i];
             }
             inflg++;
         }else if(inflg==1){
+            // 決算のタイトル画像を表示
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            //drawString("keltsann",0,InitWidth/2-64,InitHeight/2-16,1); 
-            printf("debug13\n");
             PutSprite(spimg[0], 0, 0, &spinfo[0],1);           
         }else if(inflg==2){
+            // 背景表示
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            printf("debug14\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // 決算
             drawString("keltsann",0,InitWidth/2-64,11,1);
+            // しゅうえきがく
             drawString("siluuueekigaku",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
+                // 名前表示
                 sprintf(fname,"%s",players[i].name);
                 drawString(fname,0,11,75+25*i,0.7);
+                // 収益額表示
                 drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
             }            
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            printf("debug15\n");
+            // 背景
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // けっさん
             drawString("keltsann",0,InitWidth/2-64,11,1);
+            // そうしさん
             drawString("souusisann",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
+                // 名前表示
                 sprintf(fname,"%s",players[i].name);
                 drawString(fname,0,11,75+25*i,0.7);
+                // 総資産表示
                 drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
             }
         }else if(inflg==4){
             inflg=0;
-            year++;
+            year++; // 1年経過
             turnstatus=3;
         }
     }else if(turnstatus==17){ // 最終成績
@@ -1406,15 +1457,14 @@ void Display(void){
         }else if(inflg==1){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            //drawString("saiisiluuuseiiseki",0,InitWidth/2-144,InitHeight/2-16,1);
-            printf("debug16\n");
             PutSprite(spimg[0], 0, 0, &spinfo[0],1);            
         }else if(inflg==2){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            printf("debug17\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // さいしゅうせいせき
             drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
+            // しゅうえきがく
             drawString("siluuueekigaku",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
                 sprintf(fname,"%s",players[i].name);
@@ -1424,9 +1474,10 @@ void Display(void){
         }else if(inflg==3){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
-            printf("debug18\n");
             PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // さいしゅうせいせき
             drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
+            // しゅうえきがく
             drawString("souusisann",0,11,43,0.7);
             for(i=0;i<PLAYERNUM;i++){
                 sprintf(fname,"%s",players[i].name);
@@ -1436,7 +1487,9 @@ void Display(void){
         }else if(inflg==4){
             glColor3ub(23,194,230);
             drawQUAD(0,0,InitWidth,InitHeight);
+            // おつかれさまでした
             drawString("ootukaresamadesita",0,InitWidth/2-144,InitHeight/2-48,1);
+            // Qでゲームをしゅうりょうします.
             drawString("xqdellgellmsllmullwosiluuurilouusimasu",0,InitWidth/2-120,InitHeight/2+16,0.5);          
         }
     }

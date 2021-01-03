@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     srand((unsigned) time(NULL));
     glutInit(&argc, argv);
     glutInitWindowSize(InitWidth,InitHeight);
-    glutCreateWindow("version beta");
+    glutCreateWindow("Chamatetu");
     glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA);
     glClearColor(1.0, 1.0, 1.0, 0.0);
 
@@ -21,12 +21,8 @@ int main(int argc, char **argv)
     
     readImg();
     InitPlayer();
-    //dispPlayer(0);
-    
     readStation();
     readProperty();
-    //dispStation(0);
-
     turnstatus=0;
     //イベント登録
     glutReshapeFunc(Reshape);

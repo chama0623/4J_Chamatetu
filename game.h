@@ -1,32 +1,35 @@
+// ウィンドウサイズ
 #define InitWidth 480
 #define InitHeight 320
+// 画像サイズ
+#define IMGSIZE 32
+// マップ配列のサイズ
 #define XMAX 30
 #define YMAX 30
-#define MOVESIZE 16
-#define IMGSIZE 32
-
-#define DICEMAX 6
-#define PROPERTMAX 7
-
-#define PLAYERNUM 3 
-#define STATIONNUM 21
-#define MAXMONTH 12
-#define INITX 13*IMGSIZE
-#define INITY 7*IMGSIZE
-#define INITMONEY 10000
-
+// マップ画像の枚数
 #define MAP_NUM 6
+// イベント画像の枚数
+#define SP_NUM 8
+// 季節画像の枚数
 #define SEASON_NUM 4
 
+// 再描画タイマー秒数
 #define RESHAPETIME 100
+// 移動タイマー秒数
 #define MOVETIME 100
+// 乱数表示秒数
 #define RANDTIME 100
 
+// 日本語+特殊文字
 #define JPMAX 75
+// 特殊文字
 #define SPMAX 24
-#define NAMEMAX 10
+// 名前の最大長
+#define NAMEMAX 20
+// 駅名,物件名の最大長
 #define STRMAX 60
 
+// マスIDの定義
 #define PLUSMASU 0
 #define MINUSMASU 1
 #define PROPERTYMASU 2
@@ -35,84 +38,120 @@
 #define DIST 5
 #define WALL 623
 
+// ターン中のプレイヤーを真ん中に描画するための座標
+#define CX 7
+#define CY 5
+#define CENTX CX*IMGSIZE
+#define CENTY CY*IMGSIZE
+// 一回の動く距離
+#define MOVESIZE 16
+
+// プレイヤー人数
+#define PLAYERNUM 3 
+// 初期プレイヤー座標
+#define INITX 13*IMGSIZE
+#define INITY 7*IMGSIZE
+// 初期所持金
+#define INITMONEY 10000
+
+// サイコロの出目の最大値
+#define DICEMAX 6
+// 駅の数
+#define STATIONNUM 21
+// 最大物件数
+#define PROPERTMAX 6
+
+// 月の最大値
+#define MAXMONTH 12
+
 // プレイヤーの情報構造体
 struct playerstatus{
-    char name[NAMEMAX];
-    int money;
-    int assets;
-    int x;
-    int y;
+    char name[NAMEMAX]; // プレイヤー名
+    int money; // 所持金
+    int assets; // 総資産
+    int x; // x座標(実描画座標)
+    int y; // y座標(実描画座標)
 };
 
 typedef struct playerstatus player;
-player players[PLAYERNUM];
+player players[PLAYERNUM]; // 人数分の配列を確保
 
 // 物件情報構造体
 struct propertystatus{
-    char name[STRMAX];
-    int holder;
-    int price;
-    int earnings;
+    char name[STRMAX]; // 物件名
+    int holder; // 物件所持者
+    int price; // 価格
+    int earnings; // 収益率
 };
 
 typedef struct propertystatus property;
 
 // 駅情報構造体
 struct stationstatus{
-    char name[STRMAX];
-    int x;
-    int y;
-    int ismonopoly;
-    int propertynum;
-    property plist[PROPERTMAX];
+    char name[STRMAX]; // 駅名
+    int x; // x座標
+    int y; // y座標
+    int ismonopoly; // 独占フラグ
+    int propertynum; // 物件数
+    property plist[PROPERTMAX]; // 物件情報構造体の配列
 };
 
 typedef struct stationstatus station;
-station stations[STATIONNUM];
-station distination;
+station stations[STATIONNUM]; // 駅の数分の配列を確保
+station distination; // 目的地配列
 
 // 画像用変数
+// 季節画像
 GLuint seasonimg[SEASON_NUM];
 pngInfo seasoninfo[SEASON_NUM];
+// マップ画像
 GLuint mapimg[MAP_NUM];
 pngInfo mapinfo[MAP_NUM];
+// プレイヤー画像
 GLuint playerimg[PLAYERNUM];
 pngInfo playerinfo[PLAYERNUM];
+// サイコロ画像
 GLuint diceimg[DICEMAX];
 pngInfo diceinfo[DICEMAX];
-
-GLuint spimg[3];
-pngInfo spinfo[3];
+// イベント画像
+GLuint spimg[SP_NUM];
+pngInfo spinfo[SP_NUM];
 
 // 日本語画像
+// ひらがな黒
 GLuint hblackimg[JPMAX+SPMAX];
 pngInfo hblackinfo[JPMAX+SPMAX];
+// ひらがな赤
 GLuint hredimg[JPMAX+SPMAX];
 pngInfo hredinfo[JPMAX+SPMAX];
+// カタカナ黒
 GLuint kblackimg[JPMAX];
 pngInfo kblackinfo[JPMAX];
+// カタカナ赤
 GLuint kredimg[JPMAX];
 pngInfo kredinfo[JPMAX];
 
-// 年月管理
+// 月,年,季節
 int month,year,season;
 // 誰のターンか判別
 int turn;
 // ターンの状況
 int turnstatus;
+int inflg;
+// ゴールフラグ
+int goalflg;
 // 向き
 int direction;
 // 次の停車位置座標
 int nx;
 int ny;
+// ターン中のプレイヤーを真ん中に描くための変数
 int tx,ty;
 
 // キーボードフラグ
 int keyboardflg;
-int keyboardflgformove;
 // 残り移動可能マス
 int recount;
-int sold;
 
 // 乱数生成用
 int randflg;
@@ -120,55 +159,55 @@ int range;
 int randresult;
 int dummyresult;
 
+// 収益計算用
 int tmpmoney;
-int onetime;
-int inflg;
-int goalflg;
+// 借金計算用 
 int rdebet;
 
 // 物件を買うときの変数
+// 選択ポジション
 int selectpos;
+// 駅のインデックス
 int stid;
+// 物件数
 int propertynum;
 
 // 移動したマスを記録
 int massRecord[DICEMAX][2];
 
 void Reshape(int, int);
+void PutSprite(int, int, int, pngInfo *,double);
 void Timer(int);
 void keyboardTimer(int);
 void MoveTimer(int);
 void RandTimer(int);
-void PutSprite(int, int, int, pngInfo *,double);
+
+int getmapnum(int,int);
 int isMovable(int,int);
 void move(void);
 void nextStation(int,int);
-void keyboard(unsigned char,int x,int y);
-
-void Display(void);
-
-void readImg(void);
-int getmapnum(int,int);
-void drawMap(void);
-void drawPlayer(void);
-
-void drawChar(int,int,int,int,int,double);
-void drawString(char *,int,int,int,double);
-
-void Initvalue(void);
-void InitPlayer(void);
-void dispPlayer(int);
-
 void dispmassRecord(void);
 
+void readImg(void);
+void readStation(void);
+void readProperty(void);
+
+void drawMap(void);
+void drawPlayer(void);
+void drawChar(int,int,int,int,int,double);
+void drawString(char *,int,int,int,double);
 void drawDialog(int,int,int,int);
 void drawQUAD(int,int,int,int);
 void drawMoney(int,int,int,int,double);
 void drawText(char *,int,int,int,int,int);
 void drawStation(void);
 
-int debtprocess(void);
+void Initvalue(void);
+void InitPlayer(void);
 
-void readStation(void);
-void readProperty(void);
-void dispStation(int);
+void keyboard(unsigned char,int x,int y);
+void calseason(void);
+int sale(int,int);
+void kessan(void);
+int debtprocess(void);
+void Display(void);
