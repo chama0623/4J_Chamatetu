@@ -211,3 +211,6 @@ int sale(int,int);
 void kessan(void);
 int debtprocess(void);
 void Display(void);
+
+void dispPlayer(int);
+void dispStation(int);

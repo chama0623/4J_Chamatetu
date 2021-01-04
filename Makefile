@@ -3,10 +3,10 @@
 #
 
 # 最終目的ファイル
-TARGET = j17406.exe
+TARGET = debuger.exe
 
 # ソースファイル一覧(*.c)の一覧
-SRCS = j17406.c game.c
+SRCS = debuger.c game.c
 
 # オブジェクトファイル一覧(*.o)
 OBJS = ${SRCS:.c=.o}

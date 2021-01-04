@@ -106,6 +106,55 @@ int minusarray[MAXMONTH][2] = {{10000,25000}, // 1月
 // 収益計算用
 int shueki[3];
 
+// デバッグ用関数 	
+// プレイヤー構造体を表示	
+// detail : 0 全部表示 , else その番号の駅を表示	
+void dispPlayer(int detail){	
+    int i;	
+    if(detail==0){	
+        for(i=0;i<PLAYERNUM;i++){	
+            printf("--------------------\n");	
+            printf("%s社長 (%d,%d)\n",players[i].name,players[i].x,players[i].y);	
+            printf("\n");	
+            printf("所持金 : %d\n",players[i].money);	
+            printf("総資産 : %d\n",players[i].assets);	
+            printf("--------------------\n\n");	
+        }	
+    }else{	
+        printf("--------------------\n");	
+        printf("%s社長 (%d,%d)\n",players[detail-1].name,players[detail-1].x,players[detail-1].y);	
+        printf("\n");	
+        printf("所持金 : %d\n",players[detail-1].money);	
+        printf("総資産 : %d\n",players[detail-1].assets);	
+        printf("--------------------\n\n");   	
+    }	
+}
+
+// デバッグ用関数	
+// 駅情報を表示	
+void dispStation(int detail){	
+    int i,j;	
+    if(detail==0){	
+        for(i=0;i<STATIONNUM;i++){	
+            printf("--------------------\n");	
+            printf("%s駅 (%d,%d)\n",stations[i].name,stations[i].x,stations[i].y);	
+            printf("独占フラグ : %d   物件数 : %d\n",stations[i].ismonopoly,stations[i].propertynum);	
+            for(j=0;j<stations[i].propertynum;j++){	
+                printf("%s %d %d %d\n",stations[i].plist[j].name,stations[i].plist[j].price,stations[i].plist[j].earnings,stations[i].plist[j].holder);	
+            }	
+            printf("--------------------\n\n");	
+        }	
+        }else{	
+        printf("--------------------\n");	
+        printf("%s駅 (%d,%d)\n",stations[detail-1].name,stations[detail-1].x,stations[detail-1].y);	
+        printf("独占フラグ : %d   物件数 : %d\n",stations[detail-1].ismonopoly,stations[detail-1].propertynum);	
+        for(j=0;j<stations[detail-1].propertynum;j++){	
+            printf("%s %d %d %d\n",stations[detail-1].plist[j].name,stations[detail-1].plist[j].price,stations[detail-1].plist[j].earnings,stations[detail-1].plist[j].holder);	
+        }	
+        printf("--------------------\n\n");     	
+    }	
+}
+
 // (x,y)に大きさscaleの画像を表示
 void PutSprite(int num, int x, int y, pngInfo *info,double scale)
 {
@@ -619,6 +668,7 @@ void drawString(char *string,int color,int xo,int yo,double scale){
 void InitPlayer(void){
     int i;
     for(i=0;i<PLAYERNUM;i++){
+        //プレイヤーhoge
         sprintf(players[i].name,"llpureiiyallms%d",i+1);
         players[i].x=INITX;
         players[i].y=INITY;

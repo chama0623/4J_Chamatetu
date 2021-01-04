@@ -1,0 +1,203 @@
+int main(int argc, char **argv){
+    readStation();
+    readProperty();
+    dispStation(0);
+}
+--------------------
+nozawaoonnsenn駅 (18,1)
+独占フラグ : 0   物件数 : 6
+nozawanaoyaki 3000 80 0
+nozawanaoyaki 3000 80 0
+nozawanaoyaki 3000 80 0
+ooooyu 12000 5 0
+llsukillmszilouu 40000 10 0
+llsukillmszilouu 40000 10 0
+--------------------
+
+--------------------
+iiiiyama駅 (13,3)
+独占フラグ : 0   物件数 : 6
+llkosihikarill 800 120 0
+llkosihikarill 800 120 0
+llkosihikarill 800 120 0
+nanohanakouueenn 10000 70 0
+llsukillmszilouu 80000 10 0
+llsukillmszilouu 80000 10 0
+--------------------
+
+--------------------
+togakusi駅 (9,9)
+独占フラグ : 0   物件数 : 6
+togakusisoba 1000 120 0
+togakusisoba 1000 120 0
+togakusisoba 1000 120 0
+ninnzilamura 15000 2 0
+kagamiiike 20000 2 0
+togakusizinnzila 40000 7 0
+--------------------
+
+--------------------
+nagano駅 (13,7)
+独占フラグ : 0   物件数 : 6
+rinngoeenn 600 120 0
+rinngoeenn 600 120 0
+yawatayaiisogorouu 6000 20 0
+llaaiisusukellmslltollzilouu 20000 3 0
+zennkouuzi 110000 30 0
+naganokouusenn 600000 1 0
+--------------------
+
+--------------------
+oobuse駅 (19,7)
+独占フラグ : 0   物件数 : 6
+hokusaiikann 800 30 0
+kurikinntonnya 1200 70 0
+kurikinntonnya 1200 70 0
+rinngoeenn 1200 70 0
+rinngoeenn 1200 70 0
+tukurizakaya 15000 2 0
+--------------------
+
+--------------------
+suzaka駅 (19,11)
+独占フラグ : 0   物件数 : 3
+douubutueenn 20000 8 0
+gariluuukouueenn 45000 6 0
+suzakazouunomatinami 50000 10 0
+--------------------
+
+--------------------
+matusiro駅 (12,10)
+独占フラグ : 0   物件数 : 3
+bunnbugaltkouu 20000 6 0
+sanadateii 35000 5 0
+zouuzannkinennkann 50000 4 0
+--------------------
+
+--------------------
+sinonoii駅 (9,12)
+独占フラグ : 0   物件数 : 3
+tilauusuyamadouubutueenn 20000 8 0
+kilouuriluuukouueenn 20000 8 0
+lloorinnpiltkusutaziaamull 80000 10 0
+--------------------
+
+--------------------
+hakuba駅 (3,7)
+独占フラグ : 0   物件数 : 3
+llhoterull 30000 7 0
+llsukillmszilouu 40000 10 0
+aaoonisiluuuraku 65000 3 0
+--------------------
+
+--------------------
+oooomati駅 (3,18)
+独占フラグ : 0   物件数 : 5
+lldamukarellms 700 150 0
+lldamukarellms 700 150 0
+lldamukarellms 700 150 0
+llaarupennrullmslltoll 50000 5 0
+kurobelldamull 110000 1 0
+--------------------
+
+--------------------
+tikuma駅 (9,15)
+独占フラグ : 0   物件数 : 5
+aannzurinn 5000 5 0
+aannzurinn 5000 5 0
+aannzurinn 5000 5 0
+aannzurinn 5000 5 0
+aannzurinn 5000 5 0
+--------------------
+
+--------------------
+uueeda駅 (19,15)
+独占フラグ : 0   物件数 : 3
+beltsilooonnsenn 10000 3 0
+kakeyuoonnsenn 30000 9 0
+uueedazilouu 80000 1 0
+--------------------
+
+--------------------
+karuiizawa駅 (23,15)
+独占フラグ : 0   物件数 : 5
+tennnennkakigoooriya 800 120 0
+kouugennyasaiibatake 1200 150 0
+tenisukurabu 8000 30 0
+keltkonnsikizilouu 40000 15 0
+llaauutorelttomollmsllrull 90000 5 0
+--------------------
+
+--------------------
+aadumino駅 (3,20)
+独占フラグ : 0   物件数 : 4
+namallwasabill 500 80 0
+namallwasabill 500 80 0
+wasabinouuzilouu 15000 5 0
+aaduminokouueenn 25000 3 0
+--------------------
+
+--------------------
+saku駅 (23,18)
+独占フラグ : 0   物件数 : 4
+koiirilouuriya 1400 100 0
+koiirilouuriya 1400 100 0
+koiirilouuriya 1400 100 0
+kokuritutennmonndaii 80000 3 0
+--------------------
+
+--------------------
+matumoto駅 (9,22)
+独占フラグ : 0   物件数 : 6
+giluuuniluuullpannll 1200 130 0
+kamikouuti 12000 80 0
+sinnsiluuudaiigaku 60000 30 0
+aasamaoonnsenn 80000 4 0
+kiluuukaiitigaltkouu 90000 5 0
+matumotozilouu 150000 5 0
+--------------------
+
+--------------------
+suwa駅 (17,25)
+独占フラグ : 0   物件数 : 4
+suwagozouu 8000 100 0
+suwataiisila 15000 20 0
+takasimazilouu 40000 5 0
+llpurinntallmsgaiisila 110000 1 0
+--------------------
+
+--------------------
+kiso駅 (3,25)
+独占フラグ : 0   物件数 : 5
+goheiimotiya 2000 110 0
+goheiimotiya 2000 110 0
+goheiimotiya 2000 110 0
+nakasenndouu 50000 7 0
+tumagoiiziluku 170000 30 0
+--------------------
+
+--------------------
+ookaya駅 (9,27)
+独占フラグ : 0   物件数 : 5
+uunagiya 1300 40 0
+uunagiya 1300 40 0
+uunagiya 1300 40 0
+ookayaoonnsenn 15000 10 0
+kamagutisuiimonn 50000 7 0
+--------------------
+
+--------------------
+iiiida駅 (20,28)
+独占フラグ : 0   物件数 : 3
+motozennkouuzi 15000 15 0
+tennriluuukilouu 25000 4 0
+tennriluuuhunekudari 25000 4 0
+--------------------
+
+--------------------
+iina駅 (23,27)
+独占フラグ : 0   物件数 : 3
+rinngollpaiill 3000 75 0
+bunnguiitouuge 30000 7 0
+takatooozilouusi 130000 5 0
+--------------------
