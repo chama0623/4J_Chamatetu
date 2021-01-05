@@ -9,7 +9,7 @@
 // マップ画像の枚数
 #define MAP_NUM 7
 // イベント画像の枚数
-#define SP_NUM 8
+#define SP_NUM 4
 // 季節画像の枚数
 #define SEASON_NUM 4
 
@@ -198,7 +198,7 @@ int stid;
 int propertynum;
 
 // 移動したマスを記録
-int massRecord[DICEMAX][2];
+int massRecord[DICEMAX*SAIKOROMAX][2];
 
 void Reshape(int, int);
 void PutSprite(int, int, int, pngInfo *,double);

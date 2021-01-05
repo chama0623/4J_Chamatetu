@@ -699,9 +699,9 @@ void InitPlayer(void){
         players[i].y=INITY;
         players[i].money=INITMONEY;
         players[i].assets=0;
-        players[i].cardnum=0;
+        players[i].cardnum=5;
         for(j=0;j<CARDMAX;j++){
-            players[i].card[j]=0;
+            players[i].card[j]=3;
         }
     }
 }
@@ -889,13 +889,10 @@ void keyboard(unsigned char key,int x,int y){
     int transx = players[turn].x/IMGSIZE;
     int transy = players[turn].y/IMGSIZE;
 if(keyboardflg==0){ // キーボード入力がロックされていないとき
-    if(turnstatus==0){ //ルール説明
+    if(turnstatus==0){ //タイトル
         if(isE(key)){
             inflg++;
-        }else if(key=='s'){ // ルール説明をスキップ
-            inflg=0;
-            turnstatus=1;
-        }        
+        }
     }else if(turnstatus==1){ // 目的地設定
         if(isE(key)){
             inflg++;
@@ -1235,11 +1232,11 @@ void Initvalue(void){
     selectpos=0;
     inflg=0;
 }
-
+// ゲーム開始時の処理
 void startgame(void){
     if(inflg==0){
         Initvalue(); // 変数初期化
-        month=4; // 4月にセット
+        month=2; // 4月にセット
         year=1; // 1年目にセット
         calseason(); // 季節計算
         turn=0; // プレイヤー1のターンにセット
@@ -1248,19 +1245,11 @@ void startgame(void){
     }else if(inflg==1){
         PutSprite(spimg[3],0,0,&spinfo[3],1);
     }else if(inflg==2){
-        PutSprite(spimg[4],0,0,&spinfo[4],1);
-    }else if(inflg==3){
-        PutSprite(spimg[5],0,0,&spinfo[5],1);
-    }else if(inflg==4){
-        PutSprite(spimg[6],0,0,&spinfo[6],1);
-    } else if(inflg==5){
-        PutSprite(spimg[7],0,0,&spinfo[7],1);
-    }else if(inflg==6){
         inflg=0;
         turnstatus=1;
     }
 }
-
+// 目的地決定処理
 void desisionDist(void){
     char fname[150];
     PutSprite(spimg[2],0,0,&spinfo[2],1); // 背景表示
@@ -1299,9 +1288,9 @@ void desisionDist(void){
         inflg++;
     }else if(inflg==4){
         // 目的地を画面出力
-        // さいしょのもくてきちはhogeです.
+        // もくてきちはhogeです.
         // Eをおしてください.
-        sprintf(fname,"saiisilonomokutekitiha%sdesumrxxxewooositekudasaiimr",distination.name);
+        sprintf(fname,"mokutekitiha%sdesumrxxxewooositekudasaiimr",distination.name);
         drawText(fname,11,225,InitWidth-22,42,0); 
         drawString(distination.name,0,InitWidth/2-80,105,1);  
     }else if(inflg==5){ // status更新
@@ -1313,7 +1302,7 @@ void desisionDist(void){
         }
     }
 }
-
+// ターン開始時の処理
 void startTurn(void){
     int i;
     char fname[150];
@@ -1321,6 +1310,7 @@ void startTurn(void){
     drawPlayer(); // プレイヤー描画
     if(inflg==0){
         saikoro=1;
+        dummynum=1;
         keyboardflg=0;
         selectpos=0;
         inflg++;
@@ -1438,7 +1428,7 @@ void startTurn(void){
         turnstatus=15;              
     }
 }
-
+// サイコロをふる処理
 void rollDice(void){
     int i;
     char fname[150];
@@ -1483,7 +1473,7 @@ void rollDice(void){
         turnstatus=5;
     }
 }
-
+// 駅移動処理
 void moveMass(void){
     char fname[150];
     drawMap();
@@ -1499,20 +1489,20 @@ void moveMass(void){
         turnstatus=6;
     }
 }
-
+// 停車駅の判定と処理の分岐
 void checkMass(void){
     int st; //止まった駅の番号を保持
     int transx,transy; // プレイヤーの座標変換用
-    char fname[150];
+    char fname[200];
     drawMap();
     drawPlayer();  
     if(inflg==0){
+        keyboardflg=0; // キーボードロック解除
         transx = players[turn].x/IMGSIZE;
         transy = players[turn].y/IMGSIZE;
         st = getmapnum(transx,transy);
         if(st==PROPERTYMASU){ // 物件に止まったとき
             if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
-                keyboardflg=0; // キーボードロック解除
                 goalflg=1; // ゴールフラグをたてる
                 players[turn].money+=30000; // プラス3億円
                 inflg++;
@@ -1527,16 +1517,16 @@ void checkMass(void){
             turnstatus=10;
         }
     }else if(inflg==1){
-        // hogeしゃちょうが1ばんのり.おめでとうございます.
+        // hogeしゃちょうがhugaに1ばんのり.おめでとうございます.
         // hogeしゃちょうにプラス3億円.
-        sprintf(fname,"%ssilatilouuga1bannnorimroomedetouugozaiimasumr%ssilatilouunillpurasull3oxexmr",players[turn].name,players[turn].name);
+        sprintf(fname,"%ssilatilouuga%sni1bannnorimroomedetouugozaiimasumr%ssilatilouunillpurasull3oxexmr",players[turn].name,distination.name,players[turn].name);
         drawText(fname,11,225,InitWidth-22,42,0);              
     }else if(inflg==2){
         inflg=0;
         turnstatus=1; // 目的地再設定
     }
 }
-
+// 物件購入処理
 void purchaseProperty(void){
     drawMap();
     drawPlayer(); 
@@ -1551,7 +1541,7 @@ void purchaseProperty(void){
         turnstatus=15;
     }
 }
-
+// プラス駅の処理
 void plusMass(){
     char fname[150];
     drawMap();
@@ -1594,7 +1584,7 @@ void plusMass(){
         turnstatus=15;
     }
 }
-
+// マイナス駅の処理
 void minusMass(void){
     char fname[150];
     drawMap();
@@ -1655,7 +1645,7 @@ void minusMass(void){
         turnstatus=15;
     }
 }
-
+// カード駅の処理
 void cardMass(void){
     char fname[150];
     drawMap();
@@ -1664,7 +1654,7 @@ void cardMass(void){
         if(players[turn].cardnum==5){
             inflg=5;
         }else{
-        dummynum=1;
+            dummynum=1;
             // ダミータイマー起動
             dummyresult[0]=0;
             keyboardflg=0;
@@ -1684,6 +1674,7 @@ void cardMass(void){
         randresult = 1 + rand()%range;
         players[turn].card[players[turn].cardnum]=randresult;
         players[turn].cardnum++;
+        printf("randresult = %d\n",randresult);
         inflg++;
     }else if(inflg==3){
         // 入手したカードを表示
@@ -1693,17 +1684,16 @@ void cardMass(void){
         sprintf(fname,"%swoteniiiremasitamr",cardname[randresult-1]);
         drawText(fname,11,225,InitWidth-22,42,0);                     
     }else if(inflg==4){
-        dispPlayer(turn+1);
         inflg=0;
         turnstatus=15;
     }else if(inflg==5){
-        sprintf(fname,"koreiiziluuullkallmslldollwomotemasennmr");
+        sprintf(fname,"koreiizilouullkallmslldollwomotemasennmr");
         drawText(fname,11,225,InitWidth-22,42,0);            
     }else if(inflg==6){
         inflg=4;
     }
 };
-
+// ターン終了処理
 void endTurn(void){
 // ターン終了処理
     turn++;
@@ -1729,7 +1719,7 @@ void endTurn(void){
         turnstatus=2; // ターンのはじめにもどる
     }
 }
-
+// 決算の処理
 void processKessan(){
     int i;
     char fname[150];
@@ -1783,7 +1773,7 @@ void processKessan(){
         turnstatus=2;
     }
 }
-
+// ゲーム終了処理
 void endgame(void){
     int i;
     char fname[150];
@@ -1856,9 +1846,9 @@ void Display(void){
         purchaseProperty();
     }else if(turnstatus==8){ // プラス駅の処理
         plusMass();
-    }else if(turnstatus==9){ //マイナス駅の処理
+    }else if(turnstatus==9){ // マイナス駅の処理
         minusMass();
-    }else if(turnstatus==10){
+    }else if(turnstatus==10){ // カード駅の処理
         cardMass();
     }else if(turnstatus==15){ // 月別分岐
         endTurn();
