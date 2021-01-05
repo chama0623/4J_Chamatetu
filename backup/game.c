@@ -13,31 +13,31 @@ char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", // 0
         "AAAAAAAAAAAP-M--M-BAAAAAAAAAAA", // 1
         "AAAAAAAAAAA|A|AAAAAAAAAAAAAAAA", // 2
-        "AAAAAAAAAC-M-BAAAAAAAAAAAAAAAA", // 3
-        "AAAAAAAAA|AAA|AAAAAAAAAAAAAAAA", // 4
-        "AAAAAAAAAP-M-P--CAAAAAAAAAAAAA", // 5
-        "AAAAAAAAA|AAA|AA|AAAAAAAAAAAAA", // 6
-        "AAAB-C---C---B--P--BAAAAAAAAAA", // 7
+        "AAAAAAAAAAAM-BAAAAAAAAAAAAAAAA", // 3
+        "AAAAAAAAAAAAA|AAAAAAAAAAAAAAAA", // 4
+        "AAAAAAAAAP-M-PAAAAAAAAAAAAAAAA", // 5
+        "AAAAAAAAA|AAA|AAAAAAAAAAAAAAAA", // 6
+        "AAAB-M---P---B--P--BAAAAAAAAAA", // 7
         "AAA|AAAAA|AAAAAA|AA|AAAAAAAAAA", // 8
-        "AAAMAAAAABAAAAAAM--P-CAAAAAAAA", // 9
-        "AAA|AAAAA|AABAAAAAA|A|AAAAAAAA", // 0
-        "AAAM-MAAA|AA|AAAAAAB-CAAAAAAAA", // 1
+        "AAAMAAAAABAAAAAAM--PAAAAAAAAAA", // 9
+        "AAA|AAAAA|AABAAAAAA|AAAAAAAAAA", // 0
+        "AAAM-MAAA|AA|AAAAAABAAAAAAAAAA", // 1
         "AAA|A|AAAB--M--PAAA|AAAAAAAAAA", // 2
-        "AAAM-MAAA|AAAAAAAAAMAAAAAAAAAA", // 3
+        "AAAP-MAAA|AAAAAAAAAMAAAAAAAAAA", // 3
         "AAA|AAAAA|AAAAAAAAA|AAAAAAAAAA", // 4
         "AAA|AAAAAB-P-M-M-P-B-P-BAAAAAA", // 5
-        "AAAMAAAAA|AAA|AAAAAAAAA|AAAAAA", // 6
-        "AAA|AAAAAPAAAPAAAAAAAAA|AAAAAA", // 7
-        "AAAB-MAAA|AAA|AAAAAAAAABAAAAAA", // 8
-        "AAA|AAAAAP---CAAAAAAAAA|AAAAAA", // 9
+        "AAAMAAAAA|AAAAAAAAAAAAA|AAAAAA", // 6
+        "AAA|AAAAAPAAAAAAAAAAAAA|AAAAAA", // 7
+        "AAABAAAAA|AAAAAAAAAAAAABAAAAAA", // 8
+        "AAA|AAAAAPAAAAAAAAAAAAA|AAAAAA", // 9
         "AAABAAAAA|AAAAAAAAAAAAA|AAAAAA", // 0
         "AAA|AAAAA|AAAAAAAAAAAAA|AAAAAA", // 1
-        "AAAM-M---B--C--P-MAAAAA|AAAAAA", // 2
+        "AAAM-----B--P--P-MAAAAA|AAAAAA", // 2
         "AAAAAAAAA|AAAAAAA|AAP--PAAAAAA", // 3
         "AAAAAAAAA|AAAAAAA|AA|AA|AAAAAA", // 4
-        "AAABAC-M-C-----M-B--C--P--PAAA", // 5
+        "AAABAP-M-M-----M-B--P--PAAAAAA", // 5
         "AAA|A|A|A|AAAAA|A|AAAAA|AAAAAA", // 6
-        "AAAM-P-P-B-CAAA|A|AAAAABAAAAAA", // 7
+        "AAAM-P-P-BAAAAA|A|AAAAABAAAAAA", // 7
         "AAAAAAAAAAAAAAAM-P--BAAAAAAAAA", // 8
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"  // 9
 };
@@ -75,9 +75,6 @@ int pluscolor[3] = {0,0,205};
 // マイナス駅の色
 int minuscolor[3] = {220,20,60};
 
-// カード駅の色
-int cardcolor[3] = {255,255,33};
-
 // プラス駅の月別乱数表
 int plusarray[MAXMONTH][2] = {{400,1200}, // 1月
                                {200,800}, // 2月
@@ -106,14 +103,6 @@ int minusarray[MAXMONTH][2] = {{10000,25000}, // 1月
                                {3000,8000}, // 11月
                                {4000,9000}}; // 12月
 
-char cardname[CARDNUM][50]={"kiluuukouullkallmslldoll",
-                         "toltkiluuullkallmslldoll",
-                         "sinnkannsennllkallmslldoll",
-                         "llsamilttokallmslldoll",
-                         "bulttobillkallmslldoll",
-                         "10oxexllkallmslldoll",
-                         "tokuseiireiillkallmslldoll",
-                         "gouusoltkiluuullkallmslldoll"};
 // 収益計算用
 int shueki[3];
 
@@ -121,31 +110,23 @@ int shueki[3];
 // プレイヤー構造体を表示	
 // detail : 0 全部表示 , else その番号の駅を表示	
 void dispPlayer(int detail){	
-    int i,j;	
+    int i;	
     if(detail==0){	
         for(i=0;i<PLAYERNUM;i++){	
             printf("--------------------\n");	
             printf("%s社長 (%d,%d)\n",players[i].name,players[i].x,players[i].y);	
             printf("\n");	
             printf("所持金 : %d\n",players[i].money);	
-            printf("総資産 : %d\n",players[i].assets);
-            printf("カード枚数 : %d\n",players[i].cardnum);
-            for(j=0;j<CARDMAX;j++){
-                printf("%d ",players[i].card[j]);
-            }	
-            printf("\n--------------------\n\n");	
+            printf("総資産 : %d\n",players[i].assets);	
+            printf("--------------------\n\n");	
         }	
     }else{	
         printf("--------------------\n");	
         printf("%s社長 (%d,%d)\n",players[detail-1].name,players[detail-1].x,players[detail-1].y);	
         printf("\n");	
         printf("所持金 : %d\n",players[detail-1].money);	
-        printf("総資産 : %d\n",players[detail-1].assets);
-        printf("カード枚数 : %d\n",players[detail-1].cardnum);
-        for(j=0;j<CARDMAX;j++){
-            printf("%d ",players[detail-1].card[j]);
-        }		
-        printf("\n--------------------\n\n");   	
+        printf("総資産 : %d\n",players[detail-1].assets);	
+        printf("--------------------\n\n");   	
     }	
 }
 
@@ -230,10 +211,7 @@ void Timer(int t)
 // ダミー乱数を一定時間ごとに生成するタイマー
 void RandTimer(int t)
 { // (0,range-1)の範囲の乱数を生成
-    int i;
-    for(i=0;i<dummynum;i++){
-        dummyresult[i] = rand()%range;
-    }
+    dummyresult = rand()%range;
     if(randflg==1){ // randflgがたっているときタイマー継続
         glutTimerFunc(RANDTIME, RandTimer, 0);
     }
@@ -264,7 +242,7 @@ void MoveTimer(int t)
         }else{
             recount--; // カウント減少
         }
-        if(recount==0){ // カウント終了のときキーボード入力をロック
+        if(recount==-1){ // カウント終了のときキーボード入力をロック
             keyboardflg=1;
         }else{ // キーボード入力のロックを解除
             keyboardflg=0;
@@ -560,22 +538,19 @@ int getmapnum(int x,int y){
         img_num=623;
         break;
     case 'B': // 物件
-        img_num=3;
+        img_num=2;
          break;
     case '|': // 線路(縦)
-        img_num=4;
+        img_num=3;
         break; 
     case '-': // 線路(横)
-        img_num=5;
+        img_num=4;
         break;
     case 'P': // プラス駅
         img_num=0;
         break;
     case 'M': // マイナス駅
         img_num=1;
-        break;
-    case 'C': // マイナス駅
-        img_num=2;
         break;
     }
     return img_num;
@@ -691,7 +666,7 @@ void drawString(char *string,int color,int xo,int yo,double scale){
 
 // プレイヤー構造体を初期化
 void InitPlayer(void){
-    int i,j;
+    int i;
     for(i=0;i<PLAYERNUM;i++){
         //プレイヤーhoge
         sprintf(players[i].name,"llpureiiyallms%d",i+1);
@@ -699,10 +674,6 @@ void InitPlayer(void){
         players[i].y=INITY;
         players[i].money=INITMONEY;
         players[i].assets=0;
-        players[i].cardnum=0;
-        for(j=0;j<CARDMAX;j++){
-            players[i].card[j]=0;
-        }
     }
 }
 
@@ -889,51 +860,21 @@ void keyboard(unsigned char key,int x,int y){
     int transx = players[turn].x/IMGSIZE;
     int transy = players[turn].y/IMGSIZE;
 if(keyboardflg==0){ // キーボード入力がロックされていないとき
-    if(turnstatus==0){ //ルール説明
+    if(turnstatus==1){ //ルール説明
         if(isE(key)){
             inflg++;
         }else if(key=='s'){ // ルール説明をスキップ
             inflg=0;
-            turnstatus=1;
+            turnstatus=2;
         }        
-    }else if(turnstatus==1){ // 目的地設定
+    }else if(turnstatus==2){ // 目的地設定
         if(isE(key)){
             inflg++;
         }
-    }else if(turnstatus==2){ // ターンのはじめ
-    if(inflg==1){
-        if(key=='w'){
-            if(selectpos==1){
-                selectpos=0;
-            }   
-        }else if(key=='s'){
-            if(selectpos==0){
-                selectpos=1;
-            }
-        }else if(isE(key)){
+    }else if(turnstatus==3){ // ターンのはじめ
+        if(isE(key)){
             inflg++;
         }
-    }else if(inflg==4){
-        if(isE(key)){
-            inflg=1;
-        }        
-    }else if(inflg==5){
-        if(key=='w'){
-            if(selectpos>=1){
-                selectpos--;
-            }   
-        }else if(key=='s'){
-            if(selectpos<players[turn].cardnum){
-                selectpos++;
-            }
-        }else if(isE(key)){
-            inflg++;
-        }        
-    }else{
-        if(isE(key)){
-            inflg++;
-        }        
-    }
     }else if(turnstatus==4){ // サイコロをふるとき
         if(isE(key)){
             inflg++;
@@ -987,10 +928,6 @@ if(keyboardflg==0){ // キーボード入力がロックされていないとき
             inflg++;
         }        
     }else if(turnstatus==9){ // マイナスマス
-        if(isE(key)){
-            inflg++;
-        }        
-    }else if(turnstatus==10){ // カードマス
         if(isE(key)){
             inflg++;
         }        
@@ -1175,697 +1112,436 @@ int debtprocess(void){
     return count;
 }
 
-// カード処理
-int cardprocess(int num){
-    int r=1;
-    int i,j,randst;
-    if(num==KYUKO){
-        saikoro=2;
-    }else if(num==TOKKYU){
-        saikoro=3;
-    }else if(num==SINKANSEN){
-        saikoro=4;
-    }else if(num==SAMMIT){
-        if(rand()%3==0){
-            for(i=0;i<PLAYERNUM;i++){
-                players[i].x=players[turn].x;
-                players[i].y=players[turn].y;
-            }
-        }else{
-            r=0;
-        }
-    }else if(num==BUTTOBI){
-        randst = rand()%STATIONNUM;
-        players[turn].x = stations[randst].x*IMGSIZE;
-        players[turn].y = stations[randst].y*IMGSIZE;
-    }else if(num==JUOKU){
-        players[turn].money+=100000;
-    }else if(num==TOKUSEIREI){
-        for(i=0;i<PLAYERNUM;i++){
-            if(players[i].money<0){
-                players[i].money=0;
-            }
-        }
-    }else if(num==GOUSOKKYU){
-        if(rand()%2){
-        for(i=0;i<PLAYERNUM;i++){
-            if(i!=turn){
-                players[i].cardnum=0;
-                for(j=0;j<CARDMAX;j++){
-                    players[i].card[j]=0;
-                }
-            }
-        }
-        }else{
-           r=0; 
-        }        
-    }
-    dummynum=saikoro;
-    return r;
-}
-
 // 変数初期化
 void Initvalue(void){
-    int i;
     keyboardflg=0;
-    for(i=0;i<SAIKOROMAX;i++){
-        dummyresult[i]=0;
-    }
     direction=-1;
     selectpos=0;
     inflg=0;
 }
 
-void startgame(void){
-    if(inflg==0){
+// ディスプレイ関数
+void Display(void){
+    int st; //止まった駅の番号を保持
+    int transx,transy; // プレイヤーの座標変換用
+    int i;
+    char fname[150];
+    tx = players[turn].x/IMGSIZE-CX; // 中央座標計算
+    ty = players[turn].y/IMGSIZE-CY;
+
+    glClear(GL_COLOR_BUFFER_BIT); // 描画クリア
+    if(turnstatus==0){ // ゲーム初期化処理
         Initvalue(); // 変数初期化
         month=4; // 4月にセット
         year=1; // 1年目にセット
         calseason(); // 季節計算
         turn=0; // プレイヤー1のターンにセット
         goalflg=0; // ゴールフラグ初期化
-        inflg++;
-    }else if(inflg==1){
-        PutSprite(spimg[3],0,0,&spinfo[3],1);
-    }else if(inflg==2){
-        PutSprite(spimg[4],0,0,&spinfo[4],1);
-    }else if(inflg==3){
-        PutSprite(spimg[5],0,0,&spinfo[5],1);
-    }else if(inflg==4){
-        PutSprite(spimg[6],0,0,&spinfo[6],1);
-    } else if(inflg==5){
-        PutSprite(spimg[7],0,0,&spinfo[7],1);
-    }else if(inflg==6){
-        inflg=0;
-        turnstatus=1;
-    }
-}
+        inflg=0; // 進行状況を初期化
+        turnstatus=1; // status更新
 
-void desisionDist(void){
-    char fname[150];
-    PutSprite(spimg[2],0,0,&spinfo[2],1); // 背景表示
-    if(inflg==0){
-        if(goalflg==0){ // 初めて目的地をセットするとき
+    }else if(turnstatus==1){ // タイトル,ゲームルール表示
+        if(inflg==0){
+            PutSprite(spimg[3],0,0,&spinfo[3],1);
+        }else if(inflg==1){
+            PutSprite(spimg[4],0,0,&spinfo[4],1);
+        }else if(inflg==2){
+            PutSprite(spimg[5],0,0,&spinfo[5],1);
+        }else if(inflg==3){
+            PutSprite(spimg[6],0,0,&spinfo[6],1);
+        } else if(inflg==4){
+            PutSprite(spimg[7],0,0,&spinfo[7],1);
+        }else if(inflg==5){
+            inflg=0; // 進行状況初を期化
+            turnstatus=2; // status更新
+        }
+
+    }else if(turnstatus==2){ // 目的地設定
+        PutSprite(spimg[2],0,0,&spinfo[2],1); // 背景表示
+        if(inflg==0){
+            if(goalflg==0){ // 初めて目的地をセットするとき
             // さいしょのもくてきちをきめます．
             // Eでルーレットをまわしてください．
             sprintf(fname,"saiisilonomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
             drawText(fname,11,225,InitWidth-22,42,0);             
-        }else if(goalflg==1){
+            }else if(goalflg==1){
             // つぎのもくてきちをきめます．
             // Eでルーレットをまわしてください．                
             sprintf(fname,"tuginomokutekitiwokimemasumrxxxedellrullmsllrelttollwomawasitekudasaiimr");
             drawText(fname,11,225,InitWidth-22,42,0);                    
             }
-    }else if(inflg==1){ // 乱数生成用の設定
-        dummynum=1;
-        dummyresult[0]=0;
-        range=STATIONNUM; // rangeを駅の数にセット
-        randflg=1; // ダミータイマーロック解除
-        //タイマー呼び出し
-        glutTimerFunc(RANDTIME, RandTimer, 0);
-        inflg++;
-    }else if(inflg==2){ // ダミーリザルトを表示
-        drawString(stations[dummyresult[0]].name,0,InitWidth/2-80,105,1); 
-        // Eでサイコロをとめます．
-        sprintf(fname,"xedellsaiikorollwotomemasumr");
-        drawText(fname,11,225,InitWidth-22,42,0);             
-    }else if(inflg==3){
-        randflg=0; // タイマー停止
-        randresult=rand()%range; // 結果を計算
-        // 目的地の座標,名前を格納
-        distination.x=stations[randresult].x;
-        distination.y=stations[randresult].y;
-        sprintf(distination.name,"%s",stations[randresult].name);
-        inflg++;
-    }else if(inflg==4){
-        // 目的地を画面出力
-        // さいしょのもくてきちはhogeです.
-        // Eをおしてください.
-        sprintf(fname,"saiisilonomokutekitiha%sdesumrxxxewooositekudasaiimr",distination.name);
-        drawText(fname,11,225,InitWidth-22,42,0); 
-        drawString(distination.name,0,InitWidth/2-80,105,1);  
-    }else if(inflg==5){ // status更新
-        inflg=0;
-        if(goalflg==1){
-            turnstatus=7;
-        }else{
-            turnstatus=2;
         }
-    }
-}
-
-void startTurn(void){
-    int i;
-    char fname[150];
-    drawMap(); // マップ描画
-    drawPlayer(); // プレイヤー描画
-    if(inflg==0){
-        saikoro=1;
-        keyboardflg=0;
-        selectpos=0;
-        inflg++;
-    }else if(inflg==1){
-        // プレイヤーカラーでダイアログ生成
-        glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
-        drawDialog(11,11,InitWidth-22,34+16);
-        // hogeねんめ hugaがつ
-        sprintf(fname,"%dnennmess%dgatu",year,month);
-        drawString(fname,0,16,11+8,0.5);
-        // 所持金表示
-        drawMoney(players[turn].money,InitWidth/2,11+8+16,0,0.5);
-        // hogeしゃちょう
-        sprintf(fname,"%ssilatilouussssss",players[turn].name);
-        drawString(fname,0,16,11+8+16,0.5);   
-        // サイコロ
-        // カード
-        sprintf(fname,"llsaiikoroxxkallmslldoll");
-        drawDialog(11,175,74,42);
-        // セレクトポジション表示
-        if(selectpos == 0){
-            glColor3ub(255,0,0);
-            drawQUAD(16,180,64,16);                 
-        }else if(selectpos==1){
-            glColor3ub(255,0,0);
-            drawQUAD(16,196,64,16);               
-        }   
-        drawString(fname,0,16,180,0.5);
-        // hogeしゃちょうのばんです．
-        sprintf(fname,"%ssilatilouunobanndesumr",players[turn].name);
-        drawText(fname,11,225,InitWidth-22,42,0);      
-    }else if(inflg==2){
-        if(selectpos==0){
+        if(inflg==1){ // 乱数生成用の設定
+            dummyresult=0;
+            range=STATIONNUM; // rangeを駅の数にセット
+            randflg=1; // ダミータイマーロック解除
+            //タイマー呼び出し
+            glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg++;
-        }else{
-            if(players[turn].cardnum==0){
-                inflg=4;
-            }else{
-                selectpos=0;
-                inflg=5;
-            }
-        }
-    }else if(inflg==3){ // status更新(サイコロをふる)
-        inflg=0;
-        turnstatus++;
-    }else if(inflg==4){ // カードがないとき
-        sprintf(fname,"llkallmslldollga1maiimoaarimasennmr");
-        drawText(fname,11,225,InitWidth-22,42,0);               
-    }else if(inflg==5){
-        glColor3ub(255,245,238);
-        drawDialog(155,50,10+10*16,10+16*(players[turn].cardnum+1));
-        // セレクトポジション表示
-        glColor3ub(255,0,0);
-        drawQUAD(160,55+selectpos*16,10*16,16);                 
-        
-        for(i=0;i<players[turn].cardnum;i++){
-            if(players[turn].card[i]!=0){
-                drawString(cardname[players[turn].card[i]-1],0,160,55+i*16,0.5);                   
-            }
-        }
-        drawString("modoru",0,160,55+players[turn].cardnum*16,0.5);
-    }else if(inflg==6){
-        if(selectpos==players[turn].cardnum){ // もどるのとき
-            selectpos=0;
-            inflg=1;
-        }else{
-            rcard = cardprocess(players[turn].card[selectpos]);
+        }else if(inflg==2){ // ダミーリザルトを表示
+            drawString(stations[dummyresult].name,0,InitWidth/2-80,105,1); 
+            // Eでサイコロをとめます．
+            sprintf(fname,"xedellsaiikorollwotomemasumr");
+            drawText(fname,11,225,InitWidth-22,42,0);             
+        }else if(inflg==3){
+            randflg=0; // タイマー停止
+            randresult=rand()%range; // 結果を計算
+            // 目的地の座標,名前を格納
+            distination.x=stations[randresult].x;
+            distination.y=stations[randresult].y;
+            sprintf(distination.name,"%s",stations[randresult].name);
             inflg++;
-        }
-    }else if(inflg==7){
-        if(rcard==0){
-            sprintf(fname,"kouugekigakawasaretamr");
-            nextflg=1;
-        }else if(players[turn].card[selectpos]==KYUKO){
-            sprintf(fname,"llsaiikorollga2tuninalttamr");
-            nextflg=0;
-        }else if(players[turn].card[selectpos]==TOKKYU){
-            sprintf(fname,"llsaiikorollga3tuninalttamr");
-            nextflg=0;
-        }else if(players[turn].card[selectpos]==SINKANSEN){
-            sprintf(fname,"llsaiikorollga4tuninalttamr");
-            nextflg=0;
-        }else if(players[turn].card[selectpos]==SAMMIT){
-            sprintf(fname,"zennsilatilouuga%ssilatilouunomotoniaatumalttamr",players[turn].name);
-            nextflg=1;
-        }else if(players[turn].card[selectpos]==BUTTOBI){
-            sprintf(fname,"%ssilatilouuhaiilttaiidokohe",players[turn].name);
-            nextflg=1;
-        }else if(players[turn].card[selectpos]==JUOKU){
-            sprintf(fname,"%ssilatilouunillpurasull10oxexmr",players[turn].name);
-            nextflg=1;
-        }else if(players[turn].card[selectpos]==TOKUSEIREI){
-            sprintf(fname,"zennsilatilouunosilaltkinngatilouukesininalttamr");
-            nextflg=1;
-        }else if(players[turn].card[selectpos]==GOUSOKKYU){
-            sprintf(fname,"hokanosilatilouunollkallmslldollganakunalttamr");
-            nextflg=1;
-        }
-        drawText(fname,11,225,InitWidth-22,42,0);      
-    }else if(inflg+nextflg==8){
-        // 使ったカードの消去
-        for(i=selectpos;i<players[turn].cardnum-1;i++){
-            players[turn].card[i]=players[turn].card[i+1];
-        }
-        players[turn].cardnum--;
-        inflg=0;
-        turnstatus++;        
-    }else if(inflg+nextflg==9){
-        // 使ったカードの消去
-        for(i=selectpos;i<players[turn].cardnum-1;i++){
-            players[turn].card[i]=players[turn].card[i+1];
-        }
-        players[turn].cardnum--;
-        inflg=0;
-        turnstatus=15;              
-    }
-}
-
-void rollDice(void){
-    int i;
-    char fname[150];
-    drawMap();
-    drawPlayer();    
-    if(inflg==0){
-        // ダミーサイコロを起動
-        for(i=0;i<SAIKOROMAX;i++){
-            dummyresult[i]=0;
-        }
-        range=DICEMAX;
-        randflg=1;
-        glutTimerFunc(RANDTIME, RandTimer, 0);
-        inflg=1;
-    }else if(inflg==1){
-        // サイコロ描画
-        for(i=0;i<dummynum;i++){
-            PutSprite(diceimg[dummyresult[i]], 416, 32+32*i, &diceinfo[dummyresult[i]],1);
-        }
-        // Eでサイコロをとめます．
-        sprintf(fname,"xedellsaiikorollwotomemasumr");
-        drawText(fname,11,225,InitWidth-22,42,0);   
-    }else if(inflg==2){
-        // サイコロ結果処理
-        randflg=0;
-        recount=0;
-        for(i=0;i<saikoro;i++){
-            randresulttmp[i] = rand()%range;
-            recount+=randresulttmp[i]+1;
-        }
-        randresult=recount;
-        inflg++;
-    }else if(inflg==3){
-        for(i=0;i<saikoro;i++){
-            PutSprite(diceimg[randresulttmp[i]], 416, 32+32*i, &diceinfo[randresulttmp[i]],1);
-        }       
-        // Eをおしてください.
-        sprintf(fname,"xewooositekudasaiimr");
-        drawText(fname,11,225,InitWidth-22,42,0);
-    }else if(inflg==4){
-        inflg=0;
-        turnstatus=5;
-    }
-}
-
-void moveMass(void){
-    char fname[150];
-    drawMap();
-    drawPlayer();  
-    // あと
-    // 　　hoge
-    // 　　　マス
-    // もくてきち
-    // huga
-    sprintf(fname,"aatoxxss%dxxssssllmasullxxmokutekitixx%s",recount,distination.name);
-    drawText(fname,340,40,125,94,0);  
-    if(recount==0){ // 移動マスを消費したらstatus更新
-        turnstatus=6;
-    }
-}
-
-void checkMass(void){
-    int st; //止まった駅の番号を保持
-    int transx,transy; // プレイヤーの座標変換用
-    char fname[150];
-    drawMap();
-    drawPlayer();  
-    if(inflg==0){
-        transx = players[turn].x/IMGSIZE;
-        transy = players[turn].y/IMGSIZE;
-        st = getmapnum(transx,transy);
-        if(st==PROPERTYMASU){ // 物件に止まったとき
-            if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
-                keyboardflg=0; // キーボードロック解除
-                goalflg=1; // ゴールフラグをたてる
-                players[turn].money+=30000; // プラス3億円
-                inflg++;
-            }else{ //目的地でないなら
-                turnstatus=7;
-            }
-        }else if(st==PLUSMASU){ // プラス駅に止まったとき
-            turnstatus=8;
-        }else if(st==MINUSMASU){ // マイナス駅に止まったとき
-            turnstatus=9;
-        }else if(st==CARDMASU){ // マイナス駅に止まったとき
-            turnstatus=10;
-        }
-    }else if(inflg==1){
-        // hogeしゃちょうが1ばんのり.おめでとうございます.
-        // hogeしゃちょうにプラス3億円.
-        sprintf(fname,"%ssilatilouuga1bannnorimroomedetouugozaiimasumr%ssilatilouunillpurasull3oxexmr",players[turn].name,players[turn].name);
-        drawText(fname,11,225,InitWidth-22,42,0);              
-    }else if(inflg==2){
-        inflg=0;
-        turnstatus=1; // 目的地再設定
-    }
-}
-
-void purchaseProperty(void){
-    drawMap();
-    drawPlayer(); 
-    if(inflg==0){
-        keyboardflg=0;
-        selectpos=0;
-        inflg++;
-    }else if(inflg==1){
-        drawStation(); // 物件情報描画
-    }else if(inflg==2){
-        inflg=0;
-        turnstatus=15;
-    }
-}
-
-void plusMass(){
-    char fname[150];
-    drawMap();
-    drawPlayer(); 
-    if(inflg==0){
-        dummynum=1;
-        // ダミータイマー起動
-        dummyresult[0]=0;
-        keyboardflg=0;
-        range=plusarray[month-1][1]-plusarray[month-1][0];
-        randflg=1;
-        glutTimerFunc(RANDTIME, RandTimer, 0);
-        inflg=1;            
-    }else if(inflg==1){
-        // ダミー出力
-        glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
-        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawMoney(plusarray[month-1][0]+dummyresult[0],InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
-    }else if(inflg==2){
-        // 結果を計算
-        randflg=0;
-        randresult = rand()%range;
-        tmpmoney = plusarray[month-1][0]+randresult;
-        players[turn].money+=tmpmoney;
-        inflg++;
-    }else if(inflg==3){
-        // 所持金ダイアログ表示
-        glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
-        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
-        // 所持金表示
-        glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
-        drawDialog(11,220,InitWidth-22,42);
-        drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
-        // しょじきん
-        sprintf(fname,"silozikinn");
-        drawString(fname,0,16,225,0.5);               
-    }else if(inflg==4){
-        inflg=0;
-        turnstatus=15;
-    }
-}
-
-void minusMass(void){
-    char fname[150];
-    drawMap();
-    drawPlayer(); 
-    if(inflg==0){
-        // ダミータイマー起動
-        dummynum=1;
-        dummyresult[0]=0;
-        keyboardflg=0;
-        range=minusarray[month-1][1]-minusarray[month-1][0];
-        randflg=1;
-        glutTimerFunc(RANDTIME, RandTimer, 0);
-        inflg=1;            
-    }else if(inflg==1){
-        // ダミー出力
-        glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
-        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawMoney(-minusarray[month-1][0]-dummyresult[0],InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
-    }else if(inflg==2){
-        // 結果を計算
-        randflg=0;
-        randresult = rand()%range;
-        tmpmoney = -minusarray[month-1][0]-randresult;
-        players[turn].money+=tmpmoney;
-        inflg++;
-    }else if(inflg==3){
-        // 所持金ダイアログ表示
-        glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
-        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
-        // 所持金表示
-        glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
-        drawDialog(11,220,InitWidth-22,42);
-        drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
-        sprintf(fname,"silozikinn");
-        drawString(fname,0,16,225,0.5);               
-    }else if(inflg==4){
-        if(players[turn].money<0){ //借金を背負ったとき
-            inflg++;
-        }else{ // それ以外
+        }else if(inflg==4){
+            // 目的地を画面出力
+            // さいしょのもくてきちはhogeです.
+            // Eをおしてください.
+            sprintf(fname,"saiisilonomokutekitiha%sdesumrxxxewooositekudasaiimr",distination.name);
+            drawText(fname,11,225,InitWidth-22,42,0); 
+            drawString(distination.name,0,InitWidth/2-80,105,1);  
+        }else if(inflg==5){ // status更新
             inflg=0;
-            turnstatus=15;
+            if(goalflg==1){
+                turnstatus=7;
+            }else{
+                turnstatus=3;
+            }
         }
-    }else if(inflg==5){ // 借金返済処理
-        rdebet = debtprocess(); // 売却した物件数を取得
-        inflg++;
-    }else if(inflg==6){
-        if(rdebet==-1){
-            // うれるぶっけんがありません．しゃっきんをせおってしまいました.
-            sprintf(fname,"uurerubultkenngaaarimasennmrsilaltkinnwoseoolttesimaiimasitamr");
-        }else{
-            // しゃっきんをせおってしまいました.hogeけんのぶっけんをばいきゃくしました.
-            sprintf(fname,"silaltkinnwoseoolttesimaiimasitamr%dkennnobultkennwobaiikilakusimasitamr",rdebet);
-        }
-        drawText(fname,11,225,InitWidth-22,42,0); 
-    }else if(inflg==7){
-        inflg=0;
-        turnstatus=15;
-    }
-}
 
-void cardMass(void){
-    char fname[150];
-    drawMap();
-    drawPlayer(); 
-    if(inflg==0){
-        if(players[turn].cardnum==5){
-            inflg=5;
-        }else{
-        dummynum=1;
-            // ダミータイマー起動
-            dummyresult[0]=0;
-            keyboardflg=0;
-            range=CARDNUM;
+    }else if(turnstatus==3){ // ターンのはじめ
+
+        drawMap(); // マップ描画
+        drawPlayer(); // プレイヤー描画
+        if(inflg==0){
+            // プレイヤーカラーでダイアログ生成
+            glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+            drawDialog(11,11,InitWidth-22,34+16);
+            // hogeねんめ hugaがつ
+            sprintf(fname,"%dnennmess%dgatu",year,month);
+            drawString(fname,0,16,11+8,0.5);
+            // 所持金表示
+            drawMoney(players[turn].money,InitWidth/2,11+8+16,0,0.5);
+            // hogeしゃちょう
+            sprintf(fname,"%ssilatilouussssss",players[turn].name);
+            drawString(fname,0,16,11+8+16,0.5);
+            // hogeしゃちょうのばんです．
+            // Eでサイコロをまわしてください．
+            sprintf(fname,"%ssilatilouunobanndesumrxxxedellsaiikorollwomawasitekudasaiimr",players[turn].name);
+            drawText(fname,11,225,InitWidth-22,42,0);            
+        }else if(inflg==1){ // status更新
+            inflg=0;
+            turnstatus=4;
+        }    
+
+    }else if(turnstatus==4){ // サイコロをふる処理
+
+        drawMap();
+        drawPlayer();    
+        if(inflg==0){
+            // ダミーサイコロを起動
+            dummyresult=0;
+            range=DICEMAX;
             randflg=1;
             glutTimerFunc(RANDTIME, RandTimer, 0);
             inflg=1;
-        }            
-    }else if(inflg==1){
-        // ダミー出力
-        glColor3ub(cardcolor[0],cardcolor[1],cardcolor[2]);
-        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawString(cardname[1+dummyresult[0]],0,InitWidth/2-IMGSIZE*4,InitHeight/2-16,1);           
-    }else if(inflg==2){
-        // 結果を計算
-        randflg=0;
-        randresult = 1 + rand()%range;
-        players[turn].card[players[turn].cardnum]=randresult;
-        players[turn].cardnum++;
-        inflg++;
-    }else if(inflg==3){
-        // 入手したカードを表示
-        glColor3ub(cardcolor[0],cardcolor[1],cardcolor[2]);
-        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawString(cardname[randresult-1],0,InitWidth/2-IMGSIZE*4,InitHeight/2-16,1); 
-        sprintf(fname,"%swoteniiiremasitamr",cardname[randresult-1]);
-        drawText(fname,11,225,InitWidth-22,42,0);                     
-    }else if(inflg==4){
-        dispPlayer(turn+1);
-        inflg=0;
-        turnstatus=15;
-    }else if(inflg==5){
-        sprintf(fname,"koreiiziluuullkallmslldollwomotemasennmr");
-        drawText(fname,11,225,InitWidth-22,42,0);            
-    }else if(inflg==6){
-        inflg=4;
-    }
-};
+        }else if(inflg==1){
+            // サイコロ描画
+            PutSprite(diceimg[dummyresult], 416, 32, &diceinfo[dummyresult],1);
+            // Eでサイコロをとめます．
+            sprintf(fname,"xedellsaiikorollwotomemasumr");
+            drawText(fname,11,225,InitWidth-22,42,0);   
+        }else if(inflg==2){
+            // サイコロ結果処理
+            randflg=0;
+            randresult = rand()%range;
+            recount=randresult;
+            inflg++;
+        }else if(inflg==3){
+            PutSprite(diceimg[randresult], 416, 32, &diceinfo[randresult],1);
+            // Eをおしてください.
+            sprintf(fname,"xewooositekudasaiimr");
+            drawText(fname,11,225,InitWidth-22,42,0);
+        }else if(inflg==4){
+            inflg=0;
+            turnstatus=5;
+        }
 
-void endTurn(void){
-// ターン終了処理
-    turn++;
-    if(turn==3){
-        month++;
-    }
-    // 決算月かどうか判別
-    if((turn==3)&&(month==4)){
-        if(year==3){
-            turnstatus=17; // 最終成績
-        }else{
-            turn=0;
-            turnstatus=16;  // 決算
-        }
-    }else{
-        if(turn==3){ // ターン初期化
-            turn=0;
-        }
-        if(month==MAXMONTH+1){
-            month=1; // 12月まできたら1月にリセット
-        }
-        calseason(); // 季節再計算
-        turnstatus=2; // ターンのはじめにもどる
-    }
-}
-
-void processKessan(){
-    int i;
-    char fname[150];
-    if(inflg==0){
-        kessan(); // 決算処理
-        // 収益を所持金に追加
-        for(i=0;i<PLAYERNUM;i++){
-            players[i].money+=shueki[i];
-        }
-        inflg++;
-    }else if(inflg==1){
-        // 決算のタイトル画像を表示
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        PutSprite(spimg[0], 0, 0, &spinfo[0],1);           
-    }else if(inflg==2){
-        // 背景表示
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        PutSprite(spimg[1], 0, 0, &spinfo[1],1);
-        // 決算
-        drawString("keltsann",0,InitWidth/2-64,11,1);
-        // しゅうえきがく
-        drawString("siluuueekigaku",0,11,43,0.7);
-        for(i=0;i<PLAYERNUM;i++){
-            // 名前表示
-            sprintf(fname,"%s",players[i].name);
-            drawString(fname,0,11,75+25*i,0.7);
-            // 収益額表示
-            drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
-        }            
-    }else if(inflg==3){
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        // 背景
-        PutSprite(spimg[1], 0, 0, &spinfo[1],1);
-        // けっさん
-        drawString("keltsann",0,InitWidth/2-64,11,1);
-        // そうしさん
-        drawString("souusisann",0,11,43,0.7);
-        for(i=0;i<PLAYERNUM;i++){
-        // 名前表示
-            sprintf(fname,"%s",players[i].name);
-            drawString(fname,0,11,75+25*i,0.7);
-            // 総資産表示
-            drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
-        }
-    }else if(inflg==4){
-        inflg=0;
-        year++; // 1年経過
-        turnstatus=2;
-    }
-}
-
-void endgame(void){
-    int i;
-    char fname[150];
-    if(inflg==0){
-        kessan();
-        for(i=0;i<PLAYERNUM;i++){
-            players[i].money+=shueki[i];
-        }
-        inflg++;
-    }else if(inflg==1){
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        PutSprite(spimg[0], 0, 0, &spinfo[0],1);            
-    }else if(inflg==2){
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        PutSprite(spimg[1], 0, 0, &spinfo[1],1);
-        // さいしゅうせいせき
-        drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
-        // しゅうえきがく
-        drawString("siluuueekigaku",0,11,43,0.7);
-        for(i=0;i<PLAYERNUM;i++){
-            sprintf(fname,"%s",players[i].name);
-            drawString(fname,0,11,75+25*i,0.7);
-            drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
-        }            
-    }else if(inflg==3){
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        PutSprite(spimg[1], 0, 0, &spinfo[1],1);
-        // さいしゅうせいせき
-        drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
-        // しゅうえきがく
-        drawString("souusisann",0,11,43,0.7);
-        for(i=0;i<PLAYERNUM;i++){
-        sprintf(fname,"%s",players[i].name);
-            drawString(fname,0,11,75+25*i,0.7);
-            drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
-        }
-    }else if(inflg==4){
-        glColor3ub(23,194,230);
-        drawQUAD(0,0,InitWidth,InitHeight);
-        // おつかれさまでした
-        drawString("ootukaresamadesita",0,InitWidth/2-144,InitHeight/2-48,1);
-        // Qでゲームをしゅうりょうします.
-        drawString("xqdellgellmsllmullwosiluuurilouusimasu",0,InitWidth/2-120,InitHeight/2+16,0.5);          
-    }
-}
-
-// ディスプレイ関数
-void Display(void){
-    tx = players[turn].x/IMGSIZE-CX; // 中央座標計算
-    ty = players[turn].y/IMGSIZE-CY;
-    glClear(GL_COLOR_BUFFER_BIT); // 描画クリア
-    if(turnstatus==0){ // ゲーム初期化処理
-        startgame();
-    }else if(turnstatus==1){ // 目的地設定
-        desisionDist();
-    }else if(turnstatus==2){ // ターンのはじめ
-        startTurn();
-    }else if(turnstatus==3){ // ターンのはじめ
-        turnstatus++;
-    }else if(turnstatus==4){ // サイコロをふる処理
-        rollDice();
     }else if(turnstatus==5){ // マス移動
-        moveMass();
-    }else if(turnstatus==6){ // 条件分岐
-        checkMass();
+
+        drawMap();
+        drawPlayer();  
+        // あと
+        // 　　hoge
+        // 　　　マス
+        // もくてきち
+        // huga
+        sprintf(fname,"aatoxxss%dxxssssllmasullxxmokutekitixx%s",recount+1,distination.name);
+        drawText(fname,340,40,125,94,0);  
+        if(recount==-1){ // 移動マスを消費したらstatus更新
+            turnstatus=6;
+        }
+
+    }else if(turnstatus==6){
+
+        drawMap();
+        drawPlayer();  
+        if(inflg==0){
+            transx = players[turn].x/IMGSIZE;
+            transy = players[turn].y/IMGSIZE;
+            st = getmapnum(transx,transy);
+            if(st==PROPERTYMASU){ // 物件に止まったとき
+                if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
+                    keyboardflg=0; // キーボードロック解除
+                    goalflg=1; // ゴールフラグをたてる
+                    players[turn].money+=30000; // プラス3億円
+                    inflg++;
+                }else{ //目的地でないなら
+                    turnstatus=7;
+                }
+            }else if(st==PLUSMASU){ // プラス駅に止まったとき
+                turnstatus=8;
+            }else if(st==MINUSMASU){ // マイナス駅に止まったとき
+                turnstatus=9;
+            }
+        }else if(inflg==1){
+            // hogeしゃちょうが1ばんのり.おめでとうございます.
+            // hogeしゃちょうにプラス3億円.
+            sprintf(fname,"%ssilatilouuga1bannnorimroomedetouugozaiimasumr%ssilatilouunillpurasull3oxexmr",players[turn].name,players[turn].name);
+            drawText(fname,11,225,InitWidth-22,42,0);              
+        }else if(inflg==2){
+            inflg=0;
+            turnstatus=2; // 目的地再設定
+        }
     }else if(turnstatus==7){ // 物件購入処理
-        purchaseProperty();
+
+        drawMap();
+        drawPlayer(); 
+        if(inflg==0){
+            keyboardflg=0;
+            selectpos=0;
+            inflg++;
+        }else if(inflg==1){
+            drawStation(); // 物件情報描画
+        }else if(inflg==2){
+            inflg=0;
+            turnstatus=15;
+        }
+
     }else if(turnstatus==8){ // プラス駅の処理
-        plusMass();
+
+        drawMap();
+        drawPlayer(); 
+        if(inflg==0){
+            // ダミータイマー起動
+            dummyresult=0;
+            keyboardflg=0;
+            range=plusarray[month-1][1]-plusarray[month-1][0];
+            randflg=1;
+            glutTimerFunc(RANDTIME, RandTimer, 0);
+            inflg=1;            
+        }else if(inflg==1){
+            // ダミー出力
+            glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
+            drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+            drawMoney(plusarray[month-1][0]+dummyresult,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
+        }else if(inflg==2){
+            // 結果を計算
+            randflg=0;
+            randresult = rand()%range;
+            tmpmoney = plusarray[month-1][0]+randresult;
+            players[turn].money+=tmpmoney;
+            inflg++;
+        }else if(inflg==3){
+            // 所持金ダイアログ表示
+            glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
+            drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+            drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
+            // 所持金表示
+            glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+            drawDialog(11,220,InitWidth-22,42);
+            drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
+            // しょじきん
+            sprintf(fname,"silozikinn");
+            drawString(fname,0,16,225,0.5);               
+        }else if(inflg==4){
+            inflg=0;
+            turnstatus=15;
+        }
     }else if(turnstatus==9){ //マイナス駅の処理
-        minusMass();
-    }else if(turnstatus==10){
-        cardMass();
+        drawMap();
+        drawPlayer(); 
+        if(inflg==0){
+            // ダミータイマー起動
+            dummyresult=0;
+            keyboardflg=0;
+            range=minusarray[month-1][1]-minusarray[month-1][0];
+            randflg=1;
+            glutTimerFunc(RANDTIME, RandTimer, 0);
+            inflg=1;            
+        }else if(inflg==1){
+            // ダミー出力
+            glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
+            drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+            drawMoney(-minusarray[month-1][0]-dummyresult,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
+        }else if(inflg==2){
+            // 結果を計算
+            randflg=0;
+            randresult = rand()%range;
+            tmpmoney = -minusarray[month-1][0]-randresult;
+            players[turn].money+=tmpmoney;
+            inflg++;
+        }else if(inflg==3){
+            // 所持金ダイアログ表示
+            glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
+            drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+            drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
+            // 所持金表示
+            glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+            drawDialog(11,220,InitWidth-22,42);
+            drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
+            sprintf(fname,"silozikinn");
+            drawString(fname,0,16,225,0.5);               
+        }else if(inflg==4){
+            if(players[turn].money<0){ //借金を背負ったとき
+                inflg++;
+            }else{ // それ以外
+                inflg=0;
+                turnstatus=15;
+            }
+        }else if(inflg==5){ // 借金返済処理
+            rdebet = debtprocess(); // 売却した物件数を取得
+            inflg++;
+        }else if(inflg==6){
+            if(rdebet==-1){
+                // うれるぶっけんがありません．しゃっきんをせおってしまいました.
+                sprintf(fname,"uurerubultkenngaaarimasennmrsilaltkinnwoseoolttesimaiimasitamr");
+            }else{
+                // しゃっきんをせおってしまいました.hogeけんのぶっけんをばいきゃくしました.
+                sprintf(fname,"silaltkinnwoseoolttesimaiimasitamr%dkennnobultkennwobaiikilakusimasitamr",rdebet);
+            }
+            drawText(fname,11,225,InitWidth-22,42,0); 
+        }else if(inflg==7){
+            inflg=0;
+            turnstatus=15;
+        }
     }else if(turnstatus==15){ // 月別分岐
-        endTurn();
+        // ターン終了処理
+        turn++;
+        if(turn==3){
+            month++;
+        }
+        // 決算月かどうか判別
+        if((turn==3)&&(month==4)){
+            if(year==3){
+                turnstatus=17; // 最終成績
+            }else{
+                turn=0;
+                turnstatus=16;  // 決算
+            }
+        }else{
+            if(turn==3){ // ターン初期化
+                turn=0;
+            }
+            if(month==MAXMONTH+1){
+                month=1; // 12月まできたら1月にリセット
+            }
+            calseason(); // 季節再計算
+            turnstatus=3; // ターンのはじめにもどる
+        }
     }else if(turnstatus==16){ // 決算月
-        processKessan();
+        if(inflg==0){
+            kessan(); // 決算処理
+            // 収益を所持金に追加
+            for(i=0;i<PLAYERNUM;i++){
+                players[i].money+=shueki[i];
+            }
+            inflg++;
+        }else if(inflg==1){
+            // 決算のタイトル画像を表示
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(spimg[0], 0, 0, &spinfo[0],1);           
+        }else if(inflg==2){
+            // 背景表示
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // 決算
+            drawString("keltsann",0,InitWidth/2-64,11,1);
+            // しゅうえきがく
+            drawString("siluuueekigaku",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                // 名前表示
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                // 収益額表示
+                drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
+            }            
+        }else if(inflg==3){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            // 背景
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // けっさん
+            drawString("keltsann",0,InitWidth/2-64,11,1);
+            // そうしさん
+            drawString("souusisann",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                // 名前表示
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                // 総資産表示
+                drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
+            }
+        }else if(inflg==4){
+            inflg=0;
+            year++; // 1年経過
+            turnstatus=3;
+        }
     }else if(turnstatus==17){ // 最終成績
-        endgame();
+        if(inflg==0){
+            kessan();
+            for(i=0;i<PLAYERNUM;i++){
+                players[i].money+=shueki[i];
+            }
+            inflg++;
+        }else if(inflg==1){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(spimg[0], 0, 0, &spinfo[0],1);            
+        }else if(inflg==2){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // さいしゅうせいせき
+            drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
+            // しゅうえきがく
+            drawString("siluuueekigaku",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                drawMoney(shueki[i],InitWidth/2,75+25*i,0,0.7);
+            }            
+        }else if(inflg==3){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            PutSprite(spimg[1], 0, 0, &spinfo[1],1);
+            // さいしゅうせいせき
+            drawString("saiisiluuuseiiseki",0,InitWidth/2-144,11,1);
+            // しゅうえきがく
+            drawString("souusisann",0,11,43,0.7);
+            for(i=0;i<PLAYERNUM;i++){
+                sprintf(fname,"%s",players[i].name);
+                drawString(fname,0,11,75+25*i,0.7);
+                drawMoney(players[i].assets+players[i].money,InitWidth/2,75+25*i,0,0.7);
+            }
+        }else if(inflg==4){
+            glColor3ub(23,194,230);
+            drawQUAD(0,0,InitWidth,InitHeight);
+            // おつかれさまでした
+            drawString("ootukaresamadesita",0,InitWidth/2-144,InitHeight/2-48,1);
+            // Qでゲームをしゅうりょうします.
+            drawString("xqdellgellmsllmullwosiluuurilouusimasu",0,InitWidth/2-120,InitHeight/2+16,0.5);          
+        }
     }
     glFlush();
 }

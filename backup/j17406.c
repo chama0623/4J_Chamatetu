@@ -23,10 +23,7 @@ int main(int argc, char **argv)
     InitPlayer();
     readStation();
     readProperty();
-    dispPlayer(0);
     turnstatus=0;
-    inflg=0; // 進行状況を初期化
-    dummynum=1;
     //イベント登録
     glutReshapeFunc(Reshape);
     glutDisplayFunc(Display);

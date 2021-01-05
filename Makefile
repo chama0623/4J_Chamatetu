@@ -3,10 +3,10 @@
 #
 
 # 最終目的ファイル
-TARGET = debuger.exe
+TARGET = j17406.exe
 
 # ソースファイル一覧(*.c)の一覧
-SRCS = debuger.c game.c
+SRCS = j17406.c game.c
 
 # オブジェクトファイル一覧(*.o)
 OBJS = ${SRCS:.c=.o}
@@ -16,7 +16,7 @@ HEADERS =
 
 # コンパイラ・リンカの指定
 CC = gcc
-CCFLAGS = -Wall -g -O0 -I/usr/include/opengl
+CCFLAGS = -Wall -I/usr/include/opengl
 LD = gcc
 LDFLAGS =
 LIBS = -lglpng -lglut32 -lglu32 -lopengl32 -lm

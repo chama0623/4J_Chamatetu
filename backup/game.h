@@ -7,7 +7,7 @@
 #define XMAX 30
 #define YMAX 30
 // マップ画像の枚数
-#define MAP_NUM 7
+#define MAP_NUM 6
 // イベント画像の枚数
 #define SP_NUM 8
 // 季節画像の枚数
@@ -32,11 +32,10 @@
 // マスIDの定義
 #define PLUSMASU 0
 #define MINUSMASU 1
-#define CARDMASU 2
-#define PROPERTYMASU 3
-#define SENRO1 4
-#define SENRO2 5
-#define DIST 6
+#define PROPERTYMASU 2
+#define SENRO1 3
+#define SENRO2 4
+#define DIST 5
 #define WALL 623
 
 // ターン中のプレイヤーを真ん中に描画するための座標
@@ -57,25 +56,10 @@
 
 // サイコロの出目の最大値
 #define DICEMAX 6
-// サイコロの最大数
-#define SAIKOROMAX 4
 // 駅の数
 #define STATIONNUM 21
 // 最大物件数
 #define PROPERTMAX 6
-// カードの最大枚数
-#define CARDMAX 5
-
-#define CARDNUM 8
-// カード番号の定義
-#define KYUKO 1 // 急行カード
-#define TOKKYU 2 // 特急カード
-#define SINKANSEN 3 // 新幹線カード
-#define SAMMIT 4 // サミットカード 
-#define BUTTOBI 5 // ぶっとびカード
-#define JUOKU 6 // 十億円カード
-#define TOKUSEIREI 7 // 徳政令カード
-#define GOUSOKKYU 8 // 剛速球カード
 
 // 月の最大値
 #define MAXMONTH 12
@@ -87,8 +71,6 @@ struct playerstatus{
     int assets; // 総資産
     int x; // x座標(実描画座標)
     int y; // y座標(実描画座標)
-    int cardnum; // 持っているカード枚数
-    int card[CARDMAX]; // カードの番号記憶
 };
 
 typedef struct playerstatus player;
@@ -171,18 +153,11 @@ int keyboardflg;
 // 残り移動可能マス
 int recount;
 
-//サイコロの数
-int saikoro;
-int rcard;
-int nextflg;
-
 // 乱数生成用
 int randflg;
 int range;
 int randresult;
-int randresulttmp[SAIKOROMAX];
-int dummynum;
-int dummyresult[SAIKOROMAX];
+int dummyresult;
 
 // 収益計算用
 int tmpmoney;
