@@ -237,5 +237,20 @@ void kessan(void);
 int debtprocess(void);
 void Display(void);
 
+void Initvalue(void);
+void startgame(void);
+void desisionDist(void);
+void startTurn(void);
+void rollDice(void);
+void moveMass(void);
+void checkMass(void);
+void purchaseProperty(void);
+void plusMass();
+void minusMass(void);
+void cardMass(void);
+void endTurn(void);
+void processKessan();
+void endgame(void);
+
 void dispPlayer(int);
 void dispStation(int);

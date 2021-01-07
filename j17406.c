@@ -19,14 +19,13 @@ int main(int argc, char **argv)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     
+    // 画像読み込みと構造体の初期化
     readImg();
     InitPlayer();
     readStation();
     readProperty();
-    dispPlayer(0);
     turnstatus=0;
     inflg=0; // 進行状況を初期化
-    dummynum=1;
     //イベント登録
     glutReshapeFunc(Reshape);
     glutDisplayFunc(Display);

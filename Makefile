@@ -19,7 +19,7 @@ CC = gcc
 CCFLAGS = -Wall -I/usr/include/opengl
 LD = gcc
 LDFLAGS =
-LIBS = -lglpng -lglut32 -lglu32 -lopengl32 -lm
+LIBS = -lglpng -lglut32 -lglu32 -lopengl32 -lm icon.o
 
 #OBJSからTARGETを作る方法
 $(TARGET) : $(OBJS)

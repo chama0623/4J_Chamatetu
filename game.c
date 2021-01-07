@@ -699,9 +699,9 @@ void InitPlayer(void){
         players[i].y=INITY;
         players[i].money=INITMONEY;
         players[i].assets=0;
-        players[i].cardnum=5;
+        players[i].cardnum=0;
         for(j=0;j<CARDMAX;j++){
-            players[i].card[j]=3;
+            players[i].card[j]=0;
         }
     }
 }
@@ -1106,20 +1106,14 @@ int sale(int ismonopoly,int high){
 // 2:秋 9~11月
 // 3:冬 12~2月
 void calseason(void){
-    switch (month)
-    {
-    case 1: season=3; break;
-    case 2: season=3; break;
-    case 3: season=0; break;
-    case 4: season=0; break;
-    case 5: season=0; break;
-    case 6: season=1; break;
-    case 7: season=1; break;
-    case 8: season=1; break;
-    case 9: season=2; break;
-    case 10: season=2; break;
-    case 11: season=2; break;
-    case 12: season=3; break;
+    if((3<=month)&&(month<=5)){
+        season=0;
+    }else if((6<=month)&&(month<=8)){
+        season=1;
+    }else if((9<=month)&&(month<=11)){
+        season=2;
+    }else{
+        season=3;
     }
 } 
 
@@ -1176,14 +1170,14 @@ int debtprocess(void){
 int cardprocess(int num){
     int r=1;
     int i,j,randst;
-    if(num==KYUKO){
+    if(num==KYUKO){ // 急行カード
         saikoro=2;
-    }else if(num==TOKKYU){
+    }else if(num==TOKKYU){ // 特急カード
         saikoro=3;
-    }else if(num==SINKANSEN){
+    }else if(num==SINKANSEN){ // 新幹線カード
         saikoro=4;
-    }else if(num==SAMMIT){
-        if(rand()%3==0){
+    }else if(num==SAMMIT){ // サミットカード
+        if(rand()%3!=0){
             for(i=0;i<PLAYERNUM;i++){
                 players[i].x=players[turn].x;
                 players[i].y=players[turn].y;
@@ -1191,19 +1185,19 @@ int cardprocess(int num){
         }else{
             r=0;
         }
-    }else if(num==BUTTOBI){
+    }else if(num==BUTTOBI){ // ぶっとびカード
         randst = rand()%STATIONNUM;
         players[turn].x = stations[randst].x*IMGSIZE;
         players[turn].y = stations[randst].y*IMGSIZE;
-    }else if(num==JUOKU){
+    }else if(num==JUOKU){ // 10億円カード
         players[turn].money+=100000;
-    }else if(num==TOKUSEIREI){
+    }else if(num==TOKUSEIREI){ // 徳政令カード
         for(i=0;i<PLAYERNUM;i++){
             if(players[i].money<0){
                 players[i].money=0;
             }
         }
-    }else if(num==GOUSOKKYU){
+    }else if(num==GOUSOKKYU){ // 剛速球カード
         if(rand()%2){
         for(i=0;i<PLAYERNUM;i++){
             if(i!=turn){
@@ -1236,7 +1230,7 @@ void Initvalue(void){
 void startgame(void){
     if(inflg==0){
         Initvalue(); // 変数初期化
-        month=2; // 4月にセット
+        month=4; // 4月にセット
         year=1; // 1年目にセット
         calseason(); // 季節計算
         turn=0; // プレイヤー1のターンにセット
@@ -1275,8 +1269,8 @@ void desisionDist(void){
         inflg++;
     }else if(inflg==2){ // ダミーリザルトを表示
         drawString(stations[dummyresult[0]].name,0,InitWidth/2-80,105,1); 
-        // Eでサイコロをとめます．
-        sprintf(fname,"xedellsaiikorollwotomemasumr");
+        // Eでとめます．
+        sprintf(fname,"xedetomemasumr");
         drawText(fname,11,225,InitWidth-22,42,0);             
     }else if(inflg==3){
         randflg=0; // タイマー停止
@@ -1410,22 +1404,18 @@ void startTurn(void){
             nextflg=1;
         }
         drawText(fname,11,225,InitWidth-22,42,0);      
-    }else if(inflg+nextflg==8){
+    }else if(inflg==8){ // 
         // 使ったカードの消去
         for(i=selectpos;i<players[turn].cardnum-1;i++){
             players[turn].card[i]=players[turn].card[i+1];
         }
         players[turn].cardnum--;
         inflg=0;
-        turnstatus++;        
-    }else if(inflg+nextflg==9){
-        // 使ったカードの消去
-        for(i=selectpos;i<players[turn].cardnum-1;i++){
-            players[turn].card[i]=players[turn].card[i+1];
-        }
-        players[turn].cardnum--;
-        inflg=0;
-        turnstatus=15;              
+        if(nextflg==1){
+            turnstatus=15; // ターン終了 
+        }else{
+            turnstatus++; // サイコロをふる処理
+        }     
     }
 }
 // サイコロをふる処理
@@ -1674,19 +1664,20 @@ void cardMass(void){
         randresult = 1 + rand()%range;
         players[turn].card[players[turn].cardnum]=randresult;
         players[turn].cardnum++;
-        printf("randresult = %d\n",randresult);
         inflg++;
     }else if(inflg==3){
         // 入手したカードを表示
         glColor3ub(cardcolor[0],cardcolor[1],cardcolor[2]);
         drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
         drawString(cardname[randresult-1],0,InitWidth/2-IMGSIZE*4,InitHeight/2-16,1); 
+        // hogeをてにいれました.
         sprintf(fname,"%swoteniiiremasitamr",cardname[randresult-1]);
         drawText(fname,11,225,InitWidth-22,42,0);                     
     }else if(inflg==4){
         inflg=0;
         turnstatus=15;
     }else if(inflg==5){
+        // これいじょうカードをもてません.
         sprintf(fname,"koreiizilouullkallmslldollwomotemasennmr");
         drawText(fname,11,225,InitWidth-22,42,0);            
     }else if(inflg==6){
