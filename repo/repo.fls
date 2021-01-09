@@ -55,3 +55,5 @@ INPUT c:/w32tex/share/texmf-dist/tex/latex/listings/listings.cfg
 INPUT c:/w32tex/share/texmf-dist/tex/latex/listings/listings.cfg
 INPUT c:/Users/yudai/OneDrive/ドキュメント/学校/4年/proen/Chamatetu/repo/jlisting.sty
 INPUT c:/Users/yudai/OneDrive/ドキュメント/学校/4年/proen/Chamatetu/repo/jlisting.sty
+INPUT c:/w32tex/share/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
+OUTPUT c:/Users/yudai/OneDrive/ドキュメント/学校/4年/proen/Chamatetu/repo/repo.pdf
