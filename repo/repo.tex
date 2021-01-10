@@ -767,6 +767,52 @@ void drawString(char *string,int color,int xo,int yo,double scale){
 }
 
                   \end{lstlisting} 
+
+    日本語の中でも,金額だけを表示したい場合がある.このため,引数として金額を与えると画面に表示するを作成した.
+    リスト\ref{drawMoney}に金額を画面に表示する関数であるdrawMoney関数のコードを示す.drawMoney関数は
+    引数として受け取った金額moneyを座標(x,y)に表示する関数である.引数colorで色,scaleで大きさの指定を行うことも
+    可能である. 金額の表示方法について説明する.まず,リスト\ref{drawMoney}の6行目および7行目で,引数として受け取った金額moneyを
+    億,万の単位に分割する処理を行っている.金額は負のときで符号を表示する必要があるから,符号によって処理を変える必要がある.
+    8行目から17行目が金額が0より大きいとき,18行目から31行目が金額が負のときの処理である.金額が正のとき,
+    文字列fnameに日本語プロトコルにおける「hoge億huga万」と表示されるように文字列を代入している.金額が負のときは「ms」を
+    文字列の先頭につけることでマイナスを表す符号「-」が表示されるように処理している.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=drawMoney,caption=drawMoney関数]
+// 数字を描画
+void drawMoney(int money,int x,int y,int color,double scale){
+    char fname[50];
+    int oku,man;
+    // 億の桁,万の桁を計算
+    oku = money/10000;
+    man = money%10000;
+    if(money>=0){ // お金がプラスの時
+        if(oku!=0){
+            if(man!=0){
+                sprintf(fname,"%dox%dmxex",oku,man);
+            }else{
+                sprintf(fname,"%doxex",oku);
+            }
+        }else{
+            sprintf(fname,"%dmxex",man);
+        }
+    }else{ // お金がマイナスの時
+    // 数字部分の符号を反転
+        oku*=-1;
+        man*=-1;
+        if(oku!=0){
+            if(man!=0){
+                sprintf(fname,"ms%dox%dmxex",oku,man);
+            }else{
+                sprintf(fname,"ms%doxex",oku);
+            }
+        }else{
+            sprintf(fname,"ms%dmxex",man);
+        }        
+    }
+    // 画面出力
+    drawString(fname,color,x,y,scale);
+}  
+    \end{lstlisting} 
+
   \subsection{駅および物件情報の読み込み}
   駅および物件の情報を読み込む方法について説明する.動作確認は次節のメイン関数で行う.まず,駅の情報を読み込む方法について説明する.
   駅の情報はproperty.txtに保存されている.リスト\ref{propertytxt}にproperty.txtの内容を示す. property.txt
@@ -2193,10 +2239,999 @@ int cardprocess(int num){
     nextflgが0のときはturnstatusを15,つまりターン終了処理にセットしている.これらの処理によってターンのはじめの処理を実装している.
 
     \subsection{サイコロをふる処理}
+    サイコロを振る処理について説明する. これはturnstatus=4のときの処理である.
+    Display関数(リスト\ref{Display})ではturnstatus=4のとき,rollDice関数を呼び出している.
+    リスト\ref{rollDice}にrollDice関数のコードを示す. また,turnstatus=4のときのkeyboard関数のコードをリスト\ref{rollDicekey}に示す.
+    turnstatus=4のときのキーボードの処理はEキーを押したときにinflgをインクリメントするだけである.
+        \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=rollDice,caption=rollDice関数]
+// サイコロをふる処理
+void rollDice(void){
+    int i;
+    char fname[150];
+    drawMap();
+    drawPlayer();    
+    if(inflg==0){
+        // ダミーサイコロを起動
+        for(i=0;i<SAIKOROMAX;i++){
+            dummyresult[i]=0;
+        }
+        range=DICEMAX;
+        randflg=1;
+        glutTimerFunc(RANDTIME, RandTimer, 0);
+        inflg=1;
+    }else if(inflg==1){
+        // サイコロ描画
+        for(i=0;i<dummynum;i++){
+            PutSprite(diceimg[dummyresult[i]], 416, 32+32*i, &diceinfo[dummyresult[i]],1);
+        }
+        // Eでサイコロをとめます．
+        sprintf(fname,"xedellsaiikorollwotomemasumr");
+        drawText(fname,11,225,InitWidth-22,42,0);   
+    }else if(inflg==2){
+        // サイコロ結果処理
+        randflg=0;
+        recount=0;
+        for(i=0;i<saikoro;i++){
+            randresulttmp[i] = rand()%range;
+            recount+=randresulttmp[i]+1;
+        }
+        randresult=recount;
+        inflg++;
+    }else if(inflg==3){
+        for(i=0;i<saikoro;i++){
+            PutSprite(diceimg[randresulttmp[i]], 416, 32+32*i, 
+            &diceinfo[randresulttmp[i]],1);
+        }       
+        // Eをおしてください.
+        sprintf(fname,"xewooositekudasaiimr");
+        drawText(fname,11,225,InitWidth-22,42,0);
+    }else if(inflg==4){
+        inflg=0;
+        turnstatus=5;
+    }
+}
+        \end{lstlisting}
+
+        \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=rollDicekey,caption=サイコロを振るときのキーボードの処理]
+void keyboard(unsigned char key,int x,int y){
+    int locktime =500;
+    int transx = players[turn].x/IMGSIZE;
+    int transy = players[turn].y/IMGSIZE;
+if(keyboardflg==0){ // キーボード入力がロックされていないとき
+    (省略)    
+    }else if(turnstatus==4){ // サイコロをふるとき
+        if(isE(key)){
+            inflg++;
+        }
+    }
+    (省略)
+    if(turnstatus!=5){
+        keyboardflg=1; // キーボード入力ロック
+        glutTimerFunc(locktime, keyboardTimer, 0); // ロック解除タイマー
+    }
+}   
+}    
+        \end{lstlisting}
+
+        rollDice関数の処理について説明する. 変数inflg=0のとき,ダミー乱数を生成するための変数の初期化およびコールバック関数の登録を行っている.
+        この処理は目的地設定のときの乱数生成の準備の処理とほぼ同じである.乱数の生成範囲は定数DICEMAX=6を与えている. inflg=1のときは図\ref{rolldice1}および
+        図\ref{rolldice2}に示すようにダミー乱数で生成した値をサイコロで表示する処理と,「Eでサイコロをとめます.」というダイアログの表示を行っている.
+        図\ref{rolldice1}はサイコロ1つ,つまりターンのスタート時に「サイコロ」を選択した場合,図\ref{rolldice2}は新幹線カードを使用してサイコロを4つにしたときの
+        処理である.急行カード,特急カードの場合については,サイコロの数が変化するだけであるから省略する.
+        図\ref{rolldice1}ではサイコロとして「5」が表示されいるが実際には100msおきにランダムなサイコロの画像が表示される.
+        サイコロの画像データはdiceimg配列およびdiceinfo配列に格納されているおり,表示したいサイコロの目から1を引いた値をインデックスで指定することで
+        サイコロの画像が表示できる.
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.3]{stopdice.eps}
+            \caption{サイコロを振ったときの画面表示1}
+             \label{rolldice1}
+            \end{figure}   
+
+            \begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.3]{saikoro4.eps}
+            \caption{サイコロを振ったときの画面表示2}
+             \label{rolldice2}
+            \end{figure}   
+
+        inflg=1の状態でキーボードからEキーの入力があるとinflgがインクリメントされ,inflg=2の処理が行われる.リスト\ref{rollDice}では24行目から33行目である.
+        inflg=2の処理はダミーの乱数生成を停止して,本当の結果を計算することである.28行目から32行目でサイコロの数saikoroを
+        ループ回数として,本当の結果を計算している.29行目で生成した乱数をグローバル変数(配列)randresulttmpに格納する. 
+        格納した値はサイコロを画面に表示するためのインデックスの番号であるから,これに1を足してグローバル変数recoutに加算する.
+        これによって,サイコロの結果の合計が変数recountに代入される. 最後に画面に結果を出力するための変数randresultにrecountを代入して,
+        inflgをインクリメントしている. \\
+        inflg=3およびinflg=4のときの処理について説明する. inflg=2でサイコロの出目の計算を行ったから,inflg=3ではこれを画面に表示する処理を行う.
+        inflg=3では,図\ref{dicestop1}および図\ref{dicestop4}に示すように,サイコロの出目と「Eをおしてください.」というダイアログを表示する処理を行っている.
+        inflg=3の処理は,リスト\ref{rollDice}の34行目から41行目である.サイコロの出目はrandresulttmp配列に格納されているため,これをPutSprite関数で表示している.
+        inflg=3の状態でEキーを押すとinflgがインクリメントされ,inflg=4の処理が行われる.inflg=4の処理はturnstatusを5,つまり移動処理に更新する処理を行っている.
+        これによって,サイコロの出目を表示する画面から,移動を行う画面に切り替わる.
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.3]{saikoro1r.eps}
+            \caption{サイコロをとめたときの画面表示1}
+             \label{dicestop1}
+            \end{figure}   
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.3]{saikoro4r.eps}
+            \caption{サイコロをとめたときの画面表示2}
+             \label{dicestop4}
+            \end{figure}   
+
     \subsection{マス移動および停車駅の判定処理}
+    マスの移動および停車駅の判定の処理について説明する.Display関数(リスト\ref{Display})ではturnstatus=5および6のときの処理である.
+    まず,マス移動の処理であるturnstaus=5の処理について説明する. turnstaus=5の状態はサイコロの出目の数だけ駅を移動することができる.
+    「マス」と「駅」の違いについて説明する.「マス」は線路を含む移動できる部分のことである.これに対して「駅」は停車できる部分のことである. 
+    例として,サイコロの出目で2が出たときの動作を説明する.図\ref{kekka2}がサイコロを振って2がでた状態である.図\ref{kekka2}から読み取れるように,
+    移動可能なときは,右上のダイアログに残り移動可能な駅の数と目的地設定が表示される.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{kekka2.eps}
+        \caption{出目が2の状態}
+         \label{kekka2}
+        \end{figure} 
+
+    移動は次に示すキーで可能である. 図\ref{kekkamigi}に,図\ref{kekka2}の状態でDキーを押して右に1駅移動したときの画面表示を示す.
+    図\ref{kekkamigi}から,右上のダイアログの残り移動可能な駅の数が2から1に減少したことが読み取れる.このように,移動に対応して
+    右上のダイアログの値が変化する.ちなみに,図\ref{kekkamigi}の状態でAキーを押して戻ったときの仕様は図\ref{kekka2}に示す状態になる.
+    ここでは1駅しか戻っていないが,2駅以上戻った場合も同様に残り移動可能な駅の数が上昇する.図\ref{kekkamigi}の状態で左以外の方向に
+    移動すると,残り移動可能な駅の数が0になる.残り移動可能な駅の数が0になると,turnstatus=5からturnstatus=6の状態になり,どの駅に停車したのか
+    判定され,処理が分岐する. 停車した駅ごとの処理は次節以降で述べる.
+
+    \begin{itemize}
+        \item 「W」 $\dots$ 上
+        \item 「A」 $\dots$ 左
+        \item 「S」 $\dots$ 下
+        \item 「D」 $\dots$ 右
+    \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{kekkamigi.eps}
+        \caption{右に1駅移動した状態}
+         \label{kekkamigi}
+        \end{figure} 
+
+    これらの動作の実装部分について説明する. まず,画面にダイアログを表示する処理について説明する. Display関数(リスト\ref{Display})ではturnstatus=5のときmoveMass関数を
+    呼び出している.リスト\ref{moveMass}にmoveMass関数のコードを示す. moveMass関数の処理は図\ref{kekka2}の
+    右上に表示されるダイアログを生成する処理である.ダイアログの生成は,11行目および12行目で行っている.
+    13行目から16行目では,変数recountが0になったときにturnstatusを6つまり駅の判定に更新する処理を行っている.
+        \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=moveMass,caption=moveMass関数]
+// 駅移動処理
+void moveMass(void){
+    char fname[150];
+    drawMap();
+    drawPlayer();  
+    // あと
+    // 　　hoge
+    // 　　　マス
+    // もくてきち
+    // huga
+    sprintf(fname,"aatoxxss%dxxssssllmasullxxmokutekitixx%s",recount,distination.name);
+    drawText(fname,340,40,125,94,0);  
+    if(recount==0){ // 移動マスを消費したらstatus更新
+        turnstatus=6;
+    }
+}
+        \end{lstlisting}
+
+    次に移動の処理を行う部分について説明する. まず,キー入力を管理するkeyboard関数の処理について説明する.
+    リスト\ref{keyboard5}にturnstatus=5のときの,keyboard関数のコードを示す.リスト\ref{keyboard5}において,
+    キー入力から,進む方向を制御しているのは11行目から21行目である.進方向はグローバル変数directionに格納している.
+    変数directionと値の対応は上が0,右が1,下が2,左が3,どの方向でもないとき-623という仕様にしている.
+
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=keyboard5,caption=移動のための入力処理]
+// キーボード入力管理
+void keyboard(unsigned char key,int x,int y){
+    int locktime =500;
+    int transx = players[turn].x/IMGSIZE;
+    int transy = players[turn].y/IMGSIZE;
+if(keyboardflg==0){ // キーボード入力がロックされていないとき
+
+    (省略)
+
+    }else if(turnstatus==5){ //移動
+        if(key=='w'){ // 上
+            direction=0;
+        }else if(key=='d'){ // 右
+            direction=1;
+        }else if(key=='s'){ // 下
+            direction=2;
+        }else if(key=='a'){ // 左
+            direction=3;
+        }else { // それ以外
+            direction=-623;
+        }
+        if(direction!=-623){
+            if(isMovable(transx,transy)){
+                // 移動履歴を書き込み
+                massRecord[randresult-recount][0]=transx;
+                massRecord[randresult-recount][1]=transy;
+                // 次の駅を計算
+                nextStation(transx,transy);
+                keyboardflg=1; // キーボード入力ロック
+                glutTimerFunc(MOVETIME, MoveTimer, 0); //移動タイマー起動
+            }
+        }   
+    } 
+    
+    (省略)
+
+    if(turnstatus!=5){
+        keyboardflg=1; // キーボード入力ロック
+        glutTimerFunc(locktime, keyboardTimer, 0); // ロック解除タイマー
+    }
+}
+}
+                \end{lstlisting}
+
+    キー入力から方向の情報を取得できたから,その方向に移動可能かどうかの判定を行う.この判定はリスト\ref{keyboard5}の
+    23行目のisMovable関数で行っている.リスト\ref{isMovable}にisMovable関数のコードを示す. isMovable関数は引数として
+    受け取ったMap配列のインデックス(x,y)とグローバル変数directionの値からその方向に移動できるかどうかを判定する関数である.
+    探索は,探索したい方向のMap配列におけるインデックスをisWall関数に渡すことで行っている.isWall関数の真偽によって,進める場合は1,進めない場合は0を返す. リスト\ref{isWall}に
+    isWall関数のコードを示す. 進むことができるかどうかは,その方向が背景でないことを確認すればよい.このため, isWall関数は引数として受けとった
+    Map配列におけるインデックスをgetmapnum関数(リスト\ref{getmapnum})に渡すことで,進みたい方向が背景かどうかを判別している. 
+    進みたい方向が背景のときは1,背景でないときは0を返している.
+
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=isMovable,caption=isMovable関数]
+// 0 : 上
+// 1 : 右
+// 2 : 下
+// 3 : 左 
+//
+// 進めるとき 1
+// 進めないとき 0
+int isMovable(int x,int y){
+    if(direction==0){ // 上
+        if(isWall(x,y-1)){
+            return 0;
+        }
+    }else if(direction==1){ //右
+        if(isWall(x+1,y)){
+            return 0;
+        }    
+    }else if(direction==2){ //下
+        if(isWall(x,y+1)){
+            return 0;
+        }   
+    }else{ //左
+        if(isWall(x-1,y)){
+            return 0;
+        }   
+    }
+    return 1;
+}
+    \end{lstlisting}    
+
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=isWall,caption=isWall関数]
+// 行先が壁かどうか判定
+// 1 : 壁
+// 0 : 壁でない
+int isWall(int x,int y){
+    if(getmapnum(x,y)==WALL){
+        return 1;
+    }
+    return 0;
+}
+    \end{lstlisting}  
+    
+    移動可能かどうかの判定の結果,移動可能であれば次の停車駅の計算と移動履歴の書き込み処理を行う.移動履歴の書き込みは
+    リスト\ref{keyboard5}の25行目および26行目で行っている.移動履歴の書き込みはグローバル変数(配列)massRecordに,
+    今いる座標を書き込むことで行っている. 書き込まれるインデックスは1回目の移動のとき0,2回目の移動のとき1,$\dots$というふうになっている.
+    28行目では,次の停車駅を計算する関数であるnextStation関数を実行している.リスト\ref{nextStation}にnextStation関数のコードを示す.
+    nextStation関数では,変数directionの示す方向を,1マスずつgetmapnum関数を用いて探索することで,次に止まる駅の座標を計算している.
+    なぜこのような関数が必要かというと,社長が移動する場所には線路と駅の2つがあり,停車できるのは駅だけである.
+    次に停車する駅の座標を決めてから移動する処理を行わないと,移動のたびに駅か線路かを判定する必要があるため処理が重くなってしまう.
+    このため先に停車する座標を計算してから移動の処理を行うようにしている. 次の停車駅の座標はグローバル変数nx,nyに代入される.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=nextStation,caption=nextStation関数]
+// 次の駅を取得
+void nextStation(int x,int y){
+    int sx=x;
+    int sy=y;
+    if(direction==0){ // 上
+        while(1){
+            sy--;
+            if(getmapnum(sx,sy)!=SENRO1){ // 駅を発見したら
+                break;
+            }
+        }
+    }else if(direction==1){ // 右
+        while(1){
+            sx++;
+            if(getmapnum(sx,sy)!=SENRO2){ // 駅を発見したら
+                break;
+            }
+        }
+    }else if(direction==2){ // 下
+        while(1){
+            sy++;
+            if(getmapnum(sx,sy)!=SENRO1){ // 駅を発見したら
+                break;
+            }
+        }
+    }else if(direction==3){ // 左
+        while(1){
+            sx--;
+            if(getmapnum(sx,sy)!=SENRO2){ // 駅を発見したら
+                break;
+            }
+        }
+    }else{ // エラーチェック用
+        sx=-623;
+        sy=-623;
+    }
+    // 次の駅の座標をセット
+    nx=sx;
+    ny=sy;
+}
+    \end{lstlisting}  
+
+    次の停車駅の計算と移動履歴の書き込み処理が行えたから,移動の処理を行う.リスト\ref{keyboard5}では30行目の処理である.
+    turnstatus=5以外のときは,キーボード入力があると一定時間入力を受け付けない処理を行っていたが, turnstatus=5のときは
+    移動が完了するまでキーボードの入力をロックする仕様になっている.このため,リスト\ref{keyboard5}の37行目に示すように,
+    turnstatus=5のときは例外処理としてkeyboardTimer関数を実行しないようになっている. \\
+    　30行目でコールバック関数に登録している
+    MoveTimer関数が,定数MOVETIME(100ms)おきに移動処理を行う関数である.リスト\ref{MoveTimer}にMoveTimer関数のコードを示す.
+    リスト\ref{MoveTimer}において,移動の処理を行っているのは7行目のmove関数である.リスト\ref{move}にmove関数の処理を示す.
+    move関数の処理はターン中の社長の座標を,移動する方向に定数MOVESIZE(ここでは16に設定している)だけ変化させる処理である.\\
+    　リスト\ref{MoveTimer}の11行目から15行目は,nextStation関数で計算した次の駅の座標と,
+    ターン中の社長の座標が一致しない,つまり停車する駅についていないときに,タイマーを再度呼び出す処理行っている.
+    この処理によってnextStation関数で計算した駅の座標に一致するまで移動し続け,座標が一致すると移動が終了する.
+    nextStation関数で計算した駅に到着したときの処理はリスト\ref{MoveTimer}の17行目から32行目である.
+    17行目から32行目の処理は残り移動可能な駅の数の再計算である.この計算は,まず完了した移動と移動履歴を照合して
+    進む,戻るのどちらの移動が行われたのか判別する.　i回目に戻る移動が行われた場合,
+    移動履歴を管理している配列massRecordのi-2番目に格納されている座標と,いまいる座標が一致するはずである.19行目および20行目ではこれを
+    判定している. 座標が一致している場合は,変数recountをインクリメントすることで,残り移動可能な駅の数を増やしている.一致しない場合は
+    進む移動が行われているから変数recountをデクリメントすることで,残り移動可能な駅の数を減らしている.\\
+    　残り移動可能な駅の数が0のときの処理は28行目から32行目で行っている.残り移動可能な駅の数が0のとき,
+    キーボードの入力をロックしている. 0でないときは,次の移動の入力を受け付けるために,キーボード入力のロックを解除している.
+    これらの処理によって,駅の移動処理を実装している.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=MoveTimer,caption=MoveTimer関数]
+// 駅移動管理タイマー
+void MoveTimer(int t)
+{
+    int transx;
+    int transy;
+    // 移動処理
+    move();
+    // 座標変換
+    transx = players[turn].x/IMGSIZE;
+    transy = players[turn].y/IMGSIZE;
+    if((transx != nx)||(transy != ny)){ // 次の駅の座標と同じか
+        glutTimerFunc(MOVETIME, MoveTimer, 0); // 同じでないときタイマー継続
+    }else if((players[turn].x%IMGSIZE!=0)||(players[turn].y%IMGSIZE!=0)){  
+        // 余りが0でないとき
+        glutTimerFunc(MOVETIME, MoveTimer, 0); // タイマー継続
+    }else{
+        if(randresult-recount>0){ // まだ移動可能かどうか
+        // 移動可能のとき,以前の移動履歴をチェック
+            if((massRecord[randresult-recount-1][0]==transx)&&
+            (massRecord[randresult-recount-1][1]==transy)){
+                recount++; // 戻ったとき残りカウント数増加
+            }else{
+                recount--; // 進んだとき残りカウント数減少
+            }
+        }else{
+            recount--; // カウント減少
+        }
+        if(recount==0){ // カウント終了のときキーボード入力をロック
+            keyboardflg=1;
+        }else{ // キーボード入力のロックを解除
+            keyboardflg=0;
+        }
+    }
+}
+    \end{lstlisting}  
+
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=move,caption=move関数]
+// 移動処理
+void move(void){
+    if(direction==0){ // 上
+        players[turn].y-=MOVESIZE;
+    }
+    if(direction==1){ // 右
+        players[turn].x+=MOVESIZE;
+    }
+    if(direction==2){ // 下
+        players[turn].y+=MOVESIZE;
+    }
+    if(direction==3){ // 左
+        players[turn].x-=MOVESIZE;
+    }
+}
+    \end{lstlisting} 
+
+    次にturnstatus=6のときの処理について説明する. turnstatus=6のときの処理は停車した駅を判定して処理を分岐する処理である.
+    Display関数(リスト\ref{Display})ではturnstatus=6のとき, checkMass関数を実行している.リスト\ref{checkMass}にcheckMass関数のコードを示す.
+    リスト\ref{checkMass}ではinflg=0のとき,社長が停車した駅の種類をgetmapnum関数で取得し,次に行う処理のためにinflgおよびturnstatusを
+    更新する処理を行っている. 12行目に示すようにgetmapnum関数の返り値はローカル変数stに代入している.13行目から27行目では,
+    この値を駅を表す定数と比較することで,駅ごとに処理を分けている.物件駅に停車したときの処理は13行目から20行目である.
+    物件駅に停車したときは,まずその駅が目的駅かどうかを判定している.目的地のときは,変数goalflgを1にして,ターン中の社長の所持金を
+    プラス3億円する処理を行っている.そして,inflgをインクリメントしている.inflg=1のとき図\ref{goal}に示すように,画面に「(社長名)しゃちょうが
+    1ばんのり,おめでとうございます.(社長名)しゃちょうにプラス3億円.」と表示される. 図\ref{goal}の状態でEキーを押すと
+    inflgインクリメントされ,inflg=2の処理が行われる. inflg=2の処理はturnstatusを1に更新する処理である. turnstatus=1の処理は
+    目的地の設定を行う処理である.これによって目的地に到着したときに目的地が再設定される.\\
+    　停車した駅がプラス駅,マイナス駅,カード駅のときのturnstatusの更新はリスト\ref{checkMass}の21行目から27行目で行っている.
+    これらの処理によって,停車した駅を判定して,処理を分岐させている.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=checkMass,caption=checkMass関数]   
+// 停車駅の判定と処理の分岐
+void checkMass(void){
+    int st; //止まった駅の番号を保持
+    int transx,transy; // プレイヤーの座標変換用
+    char fname[200];
+    drawMap();
+    drawPlayer();  
+    if(inflg==0){
+        keyboardflg=0; // キーボードロック解除
+        transx = players[turn].x/IMGSIZE;
+        transy = players[turn].y/IMGSIZE;
+        st = getmapnum(transx,transy);
+        if(st==PROPERTYMASU){ // 物件に止まったとき
+            if((transx == distination.x)&&(transy == distination.y)){ // 目的地なら
+                goalflg=1; // ゴールフラグをたてる
+                players[turn].money+=30000; // プラス3億円
+                inflg++;
+            }else{ //目的地でないなら
+                turnstatus=7;
+            }
+        }else if(st==PLUSMASU){ // プラス駅に止まったとき
+            turnstatus=8;
+        }else if(st==MINUSMASU){ // マイナス駅に止まったとき
+            turnstatus=9;
+        }else if(st==CARDMASU){ // マイナス駅に止まったとき
+            turnstatus=10;
+        }
+    }else if(inflg==1){
+        // hogeしゃちょうがhugaに1ばんのり.おめでとうございます.
+        // hogeしゃちょうにプラス3億円.
+        sprintf(fname,"%ssilatilouuga%sni1bannnorimroomedetouugozaiimasumr%s
+        silatilouunillpurasull3oxexmr",players[turn].name,distination.name,
+        players[turn].name);
+        drawText(fname,11,225,InitWidth-22,42,0);              
+    }else if(inflg==2){
+        inflg=0;
+        turnstatus=1; // 目的地再設定
+    }
+} 
+    \end{lstlisting} 
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{goal.eps}
+        \caption{目的地に到着したときの表示}
+         \label{goal}
+        \end{figure} 
+
     \subsection{物件駅の処理}
+    物件駅に停車したときの処理について説明する. まず,物件駅に停車したときの動作について説明する.
+    物件駅に停車すると図\ref{purbutu}に示すように物件情報,セレクトポジション,「Q しゅうりょう E こうにゅう」という
+    ダイアログの3つが表示される. 図\ref{purbutu}では「W」キーおよび「S」キーで購入する物件を選択することができ,所持金が足りる場合は
+    「E」キーを押すことで物件を購入することができる.また「Q」キーを押すことで物件の購入を終了できる.図\ref{ringo}に「りんごえん」を購入した時の画面表示を示す.図\ref{ringo}から
+    「りんごえん」を購入すると,所持金が購入した物件の価格分引かれることがわかる.またレポートでは伝わらないが購入した物件は背景がプレイヤーカラーで
+    表示される.また,誰かが購入した物件および所持金では購入できない物件は赤文字で表示される.レポートでは文字色の変化は伝わらないため
+    画像は省略する.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{purbutu.eps}
+        \caption{物件購入画面(長野駅)}
+         \label{purbutu}
+        \end{figure} 
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{ringo.eps}
+        \caption{「りんごえん」を購入した場合の画面表示}
+         \label{ringo}
+        \end{figure} 
+
+    物件を独占したときの画面表示について確認する.図\ref{dokusen}に長野駅を独占したときの画面表示を占めす.図\ref{dokusen}から読み取れるように,
+    独占を行うと「(社長名)しゃちょうのどくせんです.」というダイアログが表示される.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{ringo.eps}
+        \caption{独占したときの画面表示}
+         \label{dokusen}
+        \end{figure} 
+
+    これらを実装しているコードについて説明する. 物件の購入は,Display関数(リスト\ref{Display})ではturnstatus=7のときの処理である.
+    Display関数ではturnstatus=7のとき, purchaseProperty関数を実行している.リスト\ref{purchaseProperty}にpurchaseProperty関数の
+    コードを示す.また,リスト\ref{keyboard7}にturnstatus=7のときのkeyboard関数のコードを示す.\\
+
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=purchaseProperty,caption=purchaseProperty関数]
+// 物件購入処理
+void purchaseProperty(void){
+    drawMap();
+    drawPlayer(); 
+    if(inflg==0){
+        keyboardflg=0;
+        selectpos=0;
+        inflg++;
+    }else if(inflg==1){
+        drawStation(); // 物件情報描画
+    }else if(inflg==2){
+        inflg=0;
+        turnstatus=15;
+    }
+}
+    \end{lstlisting} 
+
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=keyboard7,caption=物件購入時のキーボード入力の処理]
+// キーボード入力管理
+void keyboard(unsigned char key,int x,int y){
+    int locktime =500;
+    int transx = players[turn].x/IMGSIZE;
+    int transy = players[turn].y/IMGSIZE;
+if(keyboardflg==0){ // キーボード入力がロックされていないとき
+    
+    (省略)
+
+    }else if(turnstatus==7){ // 物件購入
+        locktime=200;
+        if(key=='s'){ // ポジションを下へ
+            if(selectpos<propertynum-1){
+                selectpos+=1;
+            }            
+        }else if(key=='w'){ // ポジションを上へ
+            if(selectpos>=1){
+                selectpos-=1;
+            }            
+        }else if(isE(key)){ //　物件購入
+            if(ispurchase(selectpos)){
+                purchase(selectpos);
+            }
+        }else if(key=='q'){ // 購入終了
+                inflg++;
+        }
+        }
+
+        (省略)
+
+        if(turnstatus!=5){
+            keyboardflg=1; // キーボード入力ロック
+            glutTimerFunc(locktime, keyboardTimer, 0); // ロック解除タイマー
+        }
+}
+}
+    \end{lstlisting} 
+
+    purchaseProperty関数では,inflg=1のときセレクトポジションを管理する変数selectposを0に設定している.これによって,物件購入
+    画面が表示されたときにセレクトポジションが最上部の物件を選択するようになっている. inflg=2のときは,drawStation関数を実行して
+    物件の情報およびダイアログを表示している.リスト\ref{drawStation}にdrawStation関数のコードを示す.
+    drawStation関数では,まず停車した駅の座標から,どの物件駅に停車したのかを判別している.この処理はリスト\ref{drawStation}の
+    10行目から18行目で行っている.駅の判別が行えたから,画面に物件の情報を描画する処理を行う. 21行目から24行目で駅名,27行目から31行目で
+    所持金の描画を行っている. 物件の表示は34行目から64行目で行っている.所持している物件をプレイヤーカラーの背景で描画しているのは43行目から
+    47行目の処理である.セレクトポジションを描画しているのは50行目から53行目での処理である. ターンスタート時の処理と同様にkeyboard関数(リスト\ref{keyboard7})の
+    12行目から19行目でキー入力に合わせて変数selectposを更新し,50行目から53行目で変数selectopsを描画する処理を行うことでセレクトポジションを表示している.\\
+    
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=drawStation,caption=drawStation関数]
+ // 物件情報を描画
+void drawStation(void){
+    char fname[100];
+    int i,j;
+    int holder;
+    int color;
+    int transx = players[turn].x/IMGSIZE;
+    int transy = players[turn].y/IMGSIZE;
+    // どの駅か識別
+    for(i=0;i<STATIONNUM;i++){
+        // 駅の座標が一致したら
+         if((stations[i].x==transx)&&(stations[i].y==transy)){
+            // 物件数を取得
+            propertynum = stations[i].propertynum; 
+            // 配列番号を取得
+            stid = i;
+         }
+     }
+    
+    // 駅名表示
+    glColor3ub(255,245,238);
+    drawDialog(11,11,InitWidth-22,42);
+    sprintf(fname,"%seeki",stations[stid].name);
+    drawString(fname,0,16,16,1);
+    
+    // 所持金表示
+    glColor3ub(playercolor[turn][0],playercolor[turn][1],
+    playercolor[turn][2]);
+    drawDialog(11,61,InitWidth-22,34);
+    drawString("silozikinn",0,16,61+8,0.5);
+    drawMoney(players[turn].money,2*InitWidth/4,61+8,0,0.5);
+    
+    // 物件表示
+    glColor3ub(255,245,238);
+    drawDialog(11,103,InitWidth-22,11+17*stations[stid].propertynum);
+    for(j=0;j<propertynum;j++){
+        
+        // 収益率を文字列に変換
+        sprintf(fname,"%dpx",stations[stid].plist[j].earnings);
+        
+        // 物件の所有者がいるとき,所有者カラーで物件を囲む
+        holder = stations[stid].plist[j].holder;
+        if(holder!=0){
+            glColor3ub(playercolor[holder-1][0],playercolor[holder-1][1],
+            playercolor[holder-1][2]);
+            drawQUAD(16,108+j*17,InitWidth-32,17);
+        }
+
+        // セレクトポジションを表示
+        if(selectpos == j){
+            glColor3ub(255,0,0);
+            drawQUAD(16,108+j*17,InitWidth-32,17);                 
+        }
+        // 物件の表示色設定
+        if(ispurchase(j)){
+            color=0;
+        }else{
+            color=1;
+        }
+        // 物件を表示
+        drawString(stations[stid].plist[j].name,color,18,42+11+50+7+17*j,0.5);
+        drawMoney(stations[stid].plist[j].price,InitWidth/2-16,42+11+50+7+17*j,color,0.5);
+        drawString(fname,color,16+3*InitWidth/4,42+11+50+7+17*j,0.5);
+    }
+    // 独占ダイアログ表示
+    if(stations[stid].ismonopoly!=0){
+        sprintf(fname,"%ssilatilouunodokusenndesumr",
+        players[stations[stid].ismonopoly-1].name);
+        drawText(fname,11,223,InitWidth-22,32,0);
+        sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
+        drawText(fname,11,273,InitWidth-22,42,0);
+    }else{ // 操作ダイアログ表示
+            sprintf(fname,"xqsssiluuurilouuxxxesskouuniluuu");
+            drawText(fname,11,225,InitWidth-22,42,0);
+    }
+}       
+    \end{lstlisting} 
+
+    物件が購入できるとき黒字,購入できないとき赤字で表示する処理はリスト\ref{drawStation}の55行目から59行目で行っている. 55行目ではispurchase関数という
+    関数を用いて物件が購入できるかどうかを判定している.リスト\ref{ispurchase}にispurchase関数のコードを示す. ispurchase関数では
+    物件が購入できるかどうかを,既に誰かが購入しているケースと値段が足りないケースの2つに分けて判定している.
+    既に誰かの物件かどうかはplayerstatus構造体のholderメンバに記述されているからこれを確認している.値段が足りるかどうかは,ターン中の社長の
+    所持金moneyと購入しようとしている物件の値段を比較することで行っている.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=ispurchase,caption=ispurchase関数]
+// 物件が購入できるか取得
+// 1 : 取得可能
+// 0 : 取得不可能
+int ispurchase(int id){
+    int flg=1;
+    // 既に誰かの物件のとき
+    if(stations[stid].plist[id].holder!=0){
+        flg=0;
+    }
+    // 値段が足りないとき
+    if(players[turn].money < stations[stid].plist[id].price){ 
+        flg=0;
+    }
+    return flg;
+}
+    \end{lstlisting} 
+
+    独占ダイアログおよび画面下部の表示はリスト\ref{drawStation}の66行目から75行目の処理で行っている.独占かどうかはstations構造体の
+    メンバismonopolyに記述されているから,これを判定して独占ダイアログを表示/非表示にする処理を行っている.\\
+    　次に購入の処理について説明する.購入はEキーが押されたときに行われる.リスト\ref{keyboard7}の20行目から23行目がEキーを押された
+    ときの処理である. Eキーが押されたとき,購入可能かどうかをispurchase関数で確認して,購入可能であれば購入処理を行うpurchaseを
+    実行している.リスト\ref{purchase}にpurchase関数のコードを示す. purchase関数の6行目から10行目では,総資産,所持金,購入フラグ
+    の3つを更新している. 12行目から21行目では,独占したかどうかのチェックを行っている.独占したかどうかは,
+    同一駅内の全ての物件の購入フラグがターン中の社長のものと一致するかどうかを確認すれば判定できる.このため,for文を用いて
+    物件の購入フラグをチェックしている.独占のときは独占フラグを立てる処理を行っている.これらの処理によって物件を購入する処理を
+    実装している.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=purchase,caption=purchase関数]
+//物件購入処理
+void purchase(int id){
+    int i;
+    int monopolyCheck=0; // 独占チェック用
+    // 総資産を計算
+    players[turn].assets+=stations[stid].plist[selectpos].price;
+    // 所持金を計算
+    players[turn].money-=stations[stid].plist[selectpos].price;
+    // 購入済みフラグをたてる
+    stations[stid].plist[selectpos].holder=turn+1;    
+    // 独占チェック
+    for(i=0;i<propertynum;i++){
+        if(stations[stid].plist[i].holder==turn+1){
+            monopolyCheck++;
+        }
+    }    
+    // 独占のとき
+    if(monopolyCheck==propertynum){
+        // 独占フラグをたてる
+        stations[stid].ismonopoly=turn+1;
+    }    
+}
+    \end{lstlisting} 
+    
+    物件購入画面でQキーを押してたときの処理について説明する.リスト\ref{keyboard7}の24行目から26行目に示すように, Qキーを押すと
+    inflgがインクリメントされ,inflg=2の処理が行われる.リスト\ref{purchaseProperty}の13行目に示すように, inflg=2のときturnstatusを15,
+    つまりターンの終了処理に更新している.これによって, Qキーを押すと物件購入処理が終了する.
+    
     \subsection{プラス駅の処理}
+    プラス駅に停車したときの処理について説明する.まず,プラス駅に停車したときの動作について説明する.
+    図\ref{plusmass}にプラス駅に停車したときの画面表示を示す.図\ref{plusmass}では
+    「2349万円」と表示されている部分は,実際には100msおきにランダムな金額が表示されている.図\ref{plusmass}の状態で
+    Eキーを押すと図\ref{plusmassresult}のようにランダムな表示が停止して所持金が表示される.図\ref{plusmassresult}の
+    状態でEキーを押すとターンが終了する.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{plusmass.eps}
+        \caption{プラス駅に停車したときの画面表示}
+         \label{plusmass}
+        \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{plusresult.eps}
+        \caption{図\ref{plusmass}の状態でEキーを押したときの画面表示}
+         \label{plusmassresult}
+        \end{figure}
+
+    この動作を実行しているのがturnstatus=8のときの処理である.
+    Display関数(リスト\ref{Display})ではturnstatus=8のときplusMass関数を実行している.
+    リスト\ref{plusMass}にplusMass関数のコードを示す. リスト\ref{plusMass}ではinflg=0のとき
+    ダミータイマーを起動する処理を行っている. 乱数の生成範囲はpulsarrayに最小値,最大値という形で記述されている.例えば4月の場合
+    2000万円から4000万円の範囲の乱数が生成される.範囲は月ごとに乱数生成に変えることで,季節ごとにもらえる金額が変化する仕様を実
+    装している. inflg=1のときはダミーの乱数の生成結果を画面に出力する処理を行っている. inflg=1からinflg=2の状態への更新はEキーの
+    入力によって行われる. turnstatus=8のときのキーボードの処理はEキーの入力でinflgをインクリメントするだけであるから省略する.
+    inflg=2では本当の結果を計算する処理を行ってinflgをインクリメントする処理を行っている. inflg=3のときは本当の結果と所持金を表示する
+    ダイアログを表示する処理を行っている.これによって図\ref{plusmassresult}に示す画面表示が行われている. inflg=3の状態で
+    Eキーが押されるとinflg=4の処理が行われる. inflg=4のとき,turnstatusを15,つまりターンの終了処理を行うように更新している.
+    これらの処理によってプラス駅の処理を実装している.
+    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=plusMass,caption=plusMass関数]
+// プラス駅の色
+int pluscolor[3] = {0,0,205};
+
+// プラス駅の月別乱数表
+int plusarray[MAXMONTH][2] = {{400,1200}, // 1月
+                               {200,800}, // 2月
+                               {400,1500}, // 3月
+                               {2000,4000}, // 4月
+                               {3000,7000}, // 5月
+                               {4000,8000}, // 6月
+                               {12000,30000}, // 7月
+                               {35000,70000}, // 8月
+                               {18000,32000}, // 9月
+                               {6000,12000}, // 10月
+                               {3000,7000}, // 11月
+                               {2000,4000}}; // 12月
+
+// プラス駅の処理
+void plusMass(){
+    char fname[150];
+    drawMap();
+    drawPlayer(); 
+    if(inflg==0){
+        dummynum=1;
+        // ダミータイマー起動
+        dummyresult[0]=0;
+        keyboardflg=0;
+        range=plusarray[month-1][1]-plusarray[month-1][0];
+        randflg=1;
+        glutTimerFunc(RANDTIME, RandTimer, 0);
+        inflg++;            
+    }else if(inflg==1){
+        // ダミー出力
+        glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
+        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+        drawMoney(plusarray[month-1][0]+dummyresult[0],InitWidth/2-IMGSIZE*3,
+        InitHeight/2-16,0,1);            
+    }else if(inflg==2){
+        // 結果を計算
+        randflg=0;
+        randresult = rand()%range;
+        tmpmoney = plusarray[month-1][0]+randresult;
+        players[turn].money+=tmpmoney;
+        inflg++;
+    }else if(inflg==3){
+        // 所持金ダイアログ表示
+        glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
+        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+        drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
+        // 所持金表示
+        glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+        drawDialog(11,220,InitWidth-22,42);
+        drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
+        // しょじきん
+        sprintf(fname,"silozikinn");
+        drawString(fname,0,16,225,0.5);               
+    }else if(inflg==4){
+        inflg=0;
+        turnstatus=15;
+    }
+}
+    \end{lstlisting}
     \subsection{マイナス駅および借金の処理}
+    マイナス駅および借金時の処理について説明する.まず,マイナス駅に停車したときの動作を確認する.
+    図\ref{minusmass}にマイナス駅に停車したときの画面表示を示す.図\ref{minusmass}で「-1339万円」と表示されている部分は,
+    実際には100msときにランダムな金額が表示されている.図\ref{minusmass}の状態でEキーを押すと図\ref{minusmassresult}のように
+    ランダムな表示が停止して所持金が表示される. 所持金が負の値でない場合は,図\ref{minusmassresult}の状態でEキーを押すと
+    ターンが終了する.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{minus.eps}
+        \caption{マイナス駅に停車したときの画面表示}
+         \label{minusmass}
+        \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{minusresult.eps}
+        \caption{図\ref{minusmass}の状態でEキーを押したときの画面表示}
+         \label{minusmassresult}
+        \end{figure}
+
+    次に,借金を背負ったときの動作について確認する.借金を背負ったときの動作は物件を持っているかどうかで
+    変化する.まず,物件を一つも処理していないときの動作を確認する.なお,確認のためにマイナス駅で生成される乱数の値を
+    プログラムで事前に打ち込んでいる.図\ref{minus20}に物件を一つも持っていないときにマイナス駅に
+    停車して,-19億円の借金を負ったときの画面表示を示す.図\ref{minus20}の状態でEキーを押すと,図\ref{minus20result}に
+    示すように「うれるぶっけんがありません.しゃっきんをせおってしまいました.」というダイアログが表示される.
+    図\ref{minus20result}の状態でEキーを押すとターンが終了する.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{minus20.eps}
+        \caption{-19億円の借金を背負った状態}
+         \label{minus20}
+        \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{minus20result.eps}
+        \caption{売れる物件がないというダイアログの表示}
+         \label{minus20result}
+        \end{figure}
+
+    次に,物件を持っているときの動作を確認する.いま,ある社長が図\ref{obuse}に示すように
+    小布施駅の物件を5つ購入し,所持金が4400万円である状態にあるとする.この社長の総資産は5600万円である.
+    図\ref{obuse}で物件を購入した次のターンに,マイナス駅で所持金から20億円引かれるときの画面表示を図\ref{b5}に示す.
+    図\ref{b5}から,「しゃっきんをせおってしまいました.5けんのぶっけんをばいきゃくします.」と表示されていることがわかる.
+    この場合,総資産5600万円に対して借金額が19億4600万円であるから,すべての物件を売却して,かつ19億円の借金が所持金に残る.
+    このため,小布施で購入した5件の物件がすべて売却されている. 図\ref{b5}の次のターンに所持金を確認すると図\ref{b6}に示すように
+    -19億円になっている.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{obuse.eps}
+        \caption{小布施の物件を購入した状態}
+         \label{mobuse}
+        \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{b5.eps}
+        \caption{売却した物件数の表示}
+         \label{b5}
+        \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=1.3]{b6.eps}
+        \caption{所持金が負になっていることの確認}
+         \label{b6}
+        \end{figure}
+
+        借金をしたが,物件を売却することで借金が回復する場合についても確認する.先の例と同様に小布施の物件を5つ
+        購入し,マイナス駅で600万円の借金をした状態であるとする.図\ref{b1}にこの状態で借金を返済する処理を行った
+        ときの画面表示を示す.図\ref{b1}から「しゃっきんをせおってしまいました.1けんのぶっけんをばいきゃくします.」
+        という表示が行われていることがわかる.実際に小布施駅に戻って売却された物件を確認すると,図\ref{hokusai}に示すように
+        借金額600万円に最も近い600万円の北斎館が売却されていることがわかる.物件の売却の優先順位は!で説明した通りであるため
+        この場合北斎館が売却される.
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.3]{b1.eps}
+            \caption{借金を返済したときの画面表示}
+             \label{b1}
+            \end{figure}
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[scale=1.3]{hokusai.eps}
+            \caption{物件が購入済みでなくなっていることの確認}
+             \label{hokusai}
+            \end{figure}
+
+        これらを実装しているのがturnstatus=9のときの処理である. Display関数(リスト\ref{Display})でturnstatus=9のとき
+        minusMass関数を実行している.リスト\ref{minusMass}にminusMass関数のコードを示す. turnstatus=9のときの
+        キーボードの処理はEキーの入力でinflgをインクリメントするだけであるから省略する.
+        \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=minusMass,caption=minusMass関数]
+// マイナス駅の色
+int minuscolor[3] = {220,20,60};
+
+// マイナス駅の月別乱数表
+int minusarray[MAXMONTH][2] = {{10000,25000}, // 1月
+                               {20000,80000}, // 2月
+                               {10000,25000}, // 3月
+                               {500,1500}, // 4月
+                               {400,1200}, // 5月
+                               {300,1000}, // 6月
+                               {200,600}, // 7月
+                               {100,400}, // 8月
+                               {500,1500}, // 9月
+                               {2000,4000}, // 10月
+                               {3000,8000}, // 11月
+                               {4000,9000}}; // 12月
+
+// マイナス駅の処理
+void minusMass(void){
+    char fname[150];
+    drawMap();
+    drawPlayer(); 
+    if(inflg==0){
+        // ダミータイマー起動
+        dummynum=1;
+        dummyresult[0]=0;
+        keyboardflg=0;
+        range=minusarray[month-1][1]-minusarray[month-1][0];
+        randflg=1;
+        glutTimerFunc(RANDTIME, RandTimer, 0);
+        inflg=1;            
+    }else if(inflg==1){
+        // ダミー出力
+        glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
+        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+        drawMoney(-minusarray[month-1][0]-dummyresult[0],
+        InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
+    }else if(inflg==2){
+        // 結果を計算
+        randflg=0;
+        randresult = rand()%range;
+        tmpmoney = -minusarray[month-1][0]-randresult;
+        players[turn].money+=tmpmoney;
+        inflg++;
+    }else if(inflg==3){
+        // 所持金ダイアログ表示
+        glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
+        drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
+        drawMoney(tmpmoney,InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);
+        // 所持金表示
+        glColor3ub(playercolor[turn][0],playercolor[turn][1],playercolor[turn][2]);
+        drawDialog(11,220,InitWidth-22,42);
+        drawMoney(players[turn].money,InitWidth/2,225,0,0.5);
+        sprintf(fname,"silozikinn");
+        drawString(fname,0,16,225,0.5);               
+    }else if(inflg==4){
+        if(players[turn].money<0){ //借金を背負ったとき
+            inflg++;
+        }else{ // それ以外
+            inflg=0;
+            turnstatus=15;
+        }
+    }else if(inflg==5){ // 借金返済処理
+        rdebet = debtprocess(); // 売却した物件数を取得
+        inflg++;
+    }else if(inflg==6){
+        if(rdebet==-1){
+            // うれるぶっけんがありません．しゃっきんをせおってしまいました.
+            sprintf(fname,"uurerubultkenngaaarimasennmr
+            silaltkinnwoseoolttesimaiimasitamr");
+        }else{
+            // しゃっきんをせおってしまいました.hogeけんのぶっけんをばいきゃくしました.
+            sprintf(fname,"silaltkinnwoseoolttesimaiimasitamr
+            %dkennnobultkennwobaiikilakusimasitamr",rdebet);
+        }
+        drawText(fname,11,225,InitWidth-22,42,0); 
+    }else if(inflg==7){
+        inflg=0;
+        turnstatus=15;
+    }
+}
+        \end{lstlisting}
+        inflg=1からinflg=4までの処理はプラス駅の場合とほぼ同じである.プラス駅との違いは,符号の扱いである.
+        RandTimer関数は0以上の乱数しか生成できない.このためマイナス駅での月別の乱数の範囲は,minusarrayでマイナスされる額
+        の絶対値を保持している.そして,生成した乱数を-1倍することでマイナスする額を計算している.\\
+        　プラス駅の処理と異なるのはinflg=4以降の処理である. inflg=4のときターン中の社長の所持金を確認して,所持金が
+        0未満,つまり借金を負ったときは,inflg=5の処理を行うようにしている. 借金を負っていないときはturnstatus=15,つまり
+        ターンの終わりの処理を行うようにturnstatusを更新している.\\
+        　inflg=5および6のとき,借金を返済する処理を行い,結果を画面に表示する処理を行っている.
+        
+
     \subsection{カード駅の処理}
     \subsection{ターン終了時の処理}
     \subsection{決算および最終成績の処理}
