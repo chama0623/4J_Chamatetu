@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.14159265-p3.8.2-190908-2.6 (utf8.euc) (TeX Live 2019/Debian) (preloaded format=platex 2020.10.18)  10 JAN 2021 22:31
+This is e-pTeX, Version 3.14159265-p3.8.2-190908-2.6 (utf8.euc) (TeX Live 2019/Debian) (preloaded format=platex 2020.10.18)  11 JAN 2021 14:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -394,20 +394,6 @@ File: minus20.eps Graphic file (type eps)
 [63]
 File: minus20result.eps Graphic file (type eps)
 <minus20result.eps>
-LaTeX Font Info:    Font shape `JT1/mc/b/n' in size <10> not available
-(Font)              Font shape `JT1/mc/bx/n' tried instead on input line 3090.
-LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <10> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 3090.
-LaTeX Font Info:    Font shape `JY1/mc/b/n' in size <10> not available
-(Font)              Font shape `JY1/mc/bx/n' tried instead on input line 3090.
-LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <10> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 3090.
-
-LaTeX Warning: Reference `obuse' on page 64 undefined on input line 3090.
-
-
-LaTeX Warning: Reference `obuse' on page 64 undefined on input line 3092.
-
 File: obuse.eps Graphic file (type eps)
 <obuse.eps>
 [64]
@@ -420,7 +406,219 @@ File: b1.eps Graphic file (type eps)
 <b1.eps>
 File: hokusai.eps Graphic file (type eps)
 <hokusai.eps>
-[66] [67] [68] (./repo.aux)
+[66] [67] [68] [69]
+File: randcard.eps Graphic file (type eps)
+<randcard.eps>
+[70]
+File: randresult.eps Graphic file (type eps)
+<randresult.eps>
+File: motenai.eps Graphic file (type eps)
+<motenai.eps>
+[71] [72]
+File: sp1.png Graphic file (type bmp)
+<sp1.png>
+[73]
+File: shueki.eps Graphic file (type eps)
+<shueki.eps>
+File: yorozu.eps Graphic file (type eps)
+<yorozu.eps>
+LaTeX Font Info:    Font shape `JT1/mc/b/n' in size <10> not available
+(Font)              Font shape `JT1/mc/bx/n' tried instead on input line 3581.
+LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <10> not available
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 3581.
+LaTeX Font Info:    Font shape `JY1/mc/b/n' in size <10> not available
+(Font)              Font shape `JY1/mc/bx/n' tried instead on input line 3581.
+LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <10> not available
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 3581.
+
+LaTeX Warning: Reference `ssan' on page 74 undefined on input line 3581.
+
+File: sisan.eps Graphic file (type eps)
+<sisan.eps>
+[74]
+File: quit.eps Graphic file (type eps)
+<quit.eps>
+[75] [76] [77] [78] [79] [80] [81] [82] [83]
+Overfull \hbox (54.76718pt too wide) in paragraph at lines 4217--4218
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (50.45488pt too wide) in paragraph at lines 4237--4238
+[][][][][][][]\JY1/mc/m/it/8 独占フラグ[][][][][][][][][][][][][][][][][][][][]
+[][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (319.97304pt too wide) in paragraph at lines 4239--4240
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (54.76717pt too wide) in paragraph at lines 4245--4246
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (111.65623pt too wide) in paragraph at lines 4246--4247
+[][][][][][][]\JY1/mc/m/it/8 独占フラグ[][][][][][][][][][][][][][][][][][][][]
+[][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (442.37575pt too wide) in paragraph at lines 4248--4249
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[84]
+Overfull \hbox (29.26662pt too wide) in paragraph at lines 4331--4332
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[85]
+Overfull \hbox (100.6682pt too wide) in paragraph at lines 4336--4337
+[][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[86] [87] [88]
+Overfull \hbox (212.87068pt too wide) in paragraph at lines 4614--4615
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][] 
+ []
+
+[89]
+Overfull \hbox (29.26662pt too wide) in paragraph at lines 4694--4695
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[90] [91] [92]
+Overfull \hbox (49.66707pt too wide) in paragraph at lines 4907--4908
+[][][][][][][][][][][][][][][][][][] 
+ []
+
+[93]
+Overfull \hbox (3.76605pt too wide) in paragraph at lines 4924--4925
+[][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (34.36673pt too wide) in paragraph at lines 4929--4930
+[][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (54.76718pt too wide) in paragraph at lines 4955--4956
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[94] [95]
+Overfull \hbox (34.36673pt too wide) in paragraph at lines 5106--5107
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (19.06639pt too wide) in paragraph at lines 5112--5113
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (29.26662pt too wide) in paragraph at lines 5114--5115
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (19.06639pt too wide) in paragraph at lines 5121--5122
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (29.26662pt too wide) in paragraph at lines 5123--5124
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (34.36673pt too wide) in paragraph at lines 5133--5134
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (19.06639pt too wide) in paragraph at lines 5139--5140
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (29.26662pt too wide) in paragraph at lines 5141--5142
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[96]
+Overfull \hbox (19.06639pt too wide) in paragraph at lines 5148--5149
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (29.26662pt too wide) in paragraph at lines 5150--5151
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[97] [98]
+Overfull \hbox (85.36786pt too wide) in paragraph at lines 5329--5330
+[][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (64.9674pt too wide) in paragraph at lines 5333--5334
+[][][][][][][][][][][][] 
+ []
+
+[99] [100]
+Overfull \hbox (39.46684pt too wide) in paragraph at lines 5470--5471
+[][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[101]
+Overfull \hbox (3.76605pt too wide) in paragraph at lines 5522--5523
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (24.1665pt too wide) in paragraph at lines 5539--5540
+[][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[102]
+Overfull \hbox (376.0743pt too wide) in paragraph at lines 5595--5596
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (44.56696pt too wide) in paragraph at lines 5635--5636
+[][][][][][][][][][][][][][][][][][] 
+ []
+
+[103]
+Overfull \hbox (54.76718pt too wide) in paragraph at lines 5678--5679
+[][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (13.96628pt too wide) in paragraph at lines 5710--5711
+[][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (100.6682pt too wide) in paragraph at lines 5713--5714
+[][][][][][][][][][][][][][][][] 
+ []
+
+[104] [105] [106]
+Overfull \hbox (49.66707pt too wide) in paragraph at lines 5896--5897
+[][][][][][][][][][][][][][] 
+ []
+
+[107] [108] (./repo.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -429,12 +627,12 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 4425 strings out of 482863
- 59580 string characters out of 5959217
- 532931 words of memory out of 5000000
- 19682 multiletter control sequences out of 15000+600000
+ 4511 strings out of 482863
+ 60618 string characters out of 5959217
+ 546931 words of memory out of 5000000
+ 19759 multiletter control sequences out of 15000+600000
  543107 words of font info for 69 fonts, out of 8000000 for 9000
  264 hyphenation exceptions out of 8191
- 30i,8n,51p,256b,1752s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 30i,8n,51p,256b,1754s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on repo.dvi (69 pages, 457336 bytes).
+Output written on repo.dvi (109 pages, 907264 bytes).
