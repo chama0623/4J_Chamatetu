@@ -3,4 +3,9 @@
 *.o
 /charimg_backup
 /charimg
+/dice
+/backup
+/eventparts
 /j17406
+*.eps
+*.xcf
