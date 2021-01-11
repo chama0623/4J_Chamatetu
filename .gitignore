@@ -1,11 +1,14 @@
 /編集用画像
 *.exe
 *.o
-/charimg_backup
 /charimg
 /dice
 /backup
 /eventparts
-/j17406
+/j17406/charimg
+/j17406/dice
+/j17406/eventparts
+/j17406/mapparts
+/mapparts
 *.eps
 *.xcf
