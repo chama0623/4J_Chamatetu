@@ -316,7 +316,6 @@ j17406
         \item メイン関数(j17406.c)
         \item ウィンドウサイズ変更への対応(Reshape関数)
         \item ゲームの進行状況管理
-        \item キーボード入力の処理
         \item ゲームの初期化とタイトル画面の表示
         \item 目的地の設定処理
         \item プレイヤーおよびマップの描画処理
@@ -3809,7 +3808,6 @@ void kessan(void){
     \begin{enumerate}
         \item game.h
         \item game.c
-        \item j17406.c
     \end{enumerate}
 
     \subsection{game.h}
@@ -5992,60 +5990,9 @@ void Display(void){
 }
     \end{lstlisting}
 
-    \subsection{j17406.c}
-    リスト\ref{code3}にj17406.hのコードを示す.
-    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single,label=code3,caption=j17406.c]
-//////////////////////////////////////////////////////////////////////////////
-//                                                                          //
-// 17406 408 金澤雄大 ちゃま鉄 version delta                                 //
-//                                                                          //
-//////////////////////////////////////////////////////////////////////////////
-
-#include <GL/glut.h>
-#include <GL/glpng.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include "game.h"
-
-int main(int argc, char **argv)
-{
-    srand((unsigned) time(NULL));
-    glutInit(&argc, argv);
-    glutInitWindowSize(InitWidth,InitHeight);
-    glutCreateWindow("Chamatetu");
-    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA);
-    glClearColor(1.0, 1.0, 1.0, 0.0);
-
-    //  テクスチャのアルファチャネルを有効にする設定
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    
-    // 画像読み込みと構造体の初期化
-    readImg();
-    InitPlayer();
-    readStation();
-    readProperty();
-    //dispPlayer(0); // デバッグ用
-    //dispStation(0); // デバッグ用
-    turnstatus=0;
-    inflg=0; // 進行状況を初期化
-    //イベント登録
-    glutReshapeFunc(Reshape);
-    glutDisplayFunc(Display);
-    glutKeyboardFunc(keyboard);
-    glutTimerFunc(RESHAPETIME, Timer, 0);
-    //  イベントループ突入
-    glutMainLoop();
-
-    return(0);
-}
-    \end{lstlisting}
 
     \begin{thebibliography}{9}
         \bibitem{mmtt}  桃太郎電鉄,\url{https://www.konami.com/games/momotetsu/teiban/} ,閲覧日2021年1月5日
         \bibitem{springc} 伊藤 祥一,"Springs of C 楽しく身につくプログラミング",森北出版株式会社,2017
         \end{thebibliography}
 \end{document}
-
