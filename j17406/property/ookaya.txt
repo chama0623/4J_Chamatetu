@@ -1,5 +1,5 @@
-uunagiya 1300,40
-uunagiya 1300,40
-uunagiya 1300,40
-ookayaoonnsenn 15000,10
-kamagutisuiimonn 50000,7
+uunagiya 1300,140
+uunagiya 1300,140
+uunagiya 1300,140
+ookayaoonnsenn 150000,10
+kamagutisuiimonn 500000,7

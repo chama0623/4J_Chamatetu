@@ -1,4 +1,4 @@
 suwagozouu 8000,100
-suwataiisila 15000,20
-takasimazilouu 40000,5
-llpurinntallmsgaiisila 110000,1
+suwataiisila 150000,20
+takasimazilouu 400000,5
+llpurinntallmsgaiisila 1100000,1

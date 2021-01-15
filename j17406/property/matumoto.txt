@@ -1,6 +1,6 @@
 giluuuniluuullpannll 1200,130 
-kamikouuti 12000,80
-sinnsiluuudaiigaku 60000,30
-aasamaoonnsenn 80000,4
+giluuuniluuullpannll 1200,130
+aasamaoonnsenn 40000,4 
 kiluuukaiitigaltkouu 90000,5
-matumotozilouu 150000,5
+sinnsiluuudaiigaku 600000,70
+matumotozilouu 1500000,20

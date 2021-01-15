@@ -1,3 +1,3 @@
-llhoterull 30000,7
-llsukillmszilouu 40000,10
-aaoonisiluuuraku 65000,3
+llhoterull 300000,7
+llsukillmszilouu 400000,10
+aaoonisiluuuraku 650000,3

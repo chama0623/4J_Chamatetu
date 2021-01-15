@@ -1,6 +1,6 @@
 nozawanaoyaki 3000,80
 nozawanaoyaki 3000,80
 nozawanaoyaki 3000,80
-ooooyu 12000,5
-llsukillmszilouu 40000,10 
-llsukillmszilouu 40000,10
+ooooyu 120000,5
+llsukillmszilouu 200000,10 
+llsukillmszilouu 400000,10

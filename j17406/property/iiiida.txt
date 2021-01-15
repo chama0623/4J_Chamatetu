@@ -1,3 +1,3 @@
-motozennkouuzi 15000,15
-tennriluuukilouu 25000,4
-tennriluuuhunekudari 25000,4
+motozennkouuzi 150000,15
+tennriluuukilouu 250000,4
+tennriluuuhunekudari 250000,4

@@ -1,6 +1,6 @@
-togakusisoba 1000,120
-togakusisoba 1000,120
-togakusisoba 1000,120
+togakusisoba 1000,150
+togakusisoba 1000,150
+togakusisoba 1000,150
 ninnzilamura 15000,2
-kagamiiike 20000,2
-togakusizinnzila 40000,7
+kagamiiike 200000,2
+togakusizinnzila 250000,7

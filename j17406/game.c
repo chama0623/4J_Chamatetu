@@ -20,6 +20,7 @@
 #include <math.h>
 #include "game.h"
 
+
 // マップ配列
 char Map[YMAX][XMAX+1] = { //NULL文字に気を付ける
        //012345678901234567890123456789      
@@ -124,7 +125,7 @@ char cardname[CARDNUM][50]={"kiluuukouullkallmslldoll",
                          "sinnkannsennllkallmslldoll",
                          "llsamilttokallmslldoll",
                          "bulttobillkallmslldoll",
-                         "10oxexllkallmslldoll",
+                         "100oxexllkallmslldoll",
                          "tokuseiireiillkallmslldoll",
                          "gouusoltkiluuullkallmslldoll"};
 // 収益計算用
@@ -1201,8 +1202,8 @@ int cardprocess(int num){
         randst = rand()%STATIONNUM;
         players[turn].x = stations[randst].x*IMGSIZE;
         players[turn].y = stations[randst].y*IMGSIZE;
-    }else if(num==JUOKU){ // 10億円カード
-        players[turn].money+=100000;
+    }else if(num==JUOKU){ // 100億円カード
+        players[turn].money+=1000000;
     }else if(num==TOKUSEIREI){ // 徳政令カード
         for(i=0;i<PLAYERNUM;i++){
             if(players[i].money<0){
@@ -1241,8 +1242,8 @@ void Initvalue(void){
 void startgame(void){
     if(inflg==0){
         Initvalue(); // 変数初期化
-        month=3; // 4月にセット
-        year=3; // 1年目にセット
+        month=4; // 4月にセット
+        year=100; // 1年目にセット
         calseason(); // 季節計算
         turn=0; // プレイヤー1のターンにセット
         goalflg=0; // ゴールフラグ初期化
@@ -1411,7 +1412,7 @@ void startTurn(void){
             nextflg=1;
         }else if(players[turn].card[selectpos]==JUOKU){
             // hogeしゃちょうにプラス10億円.
-            sprintf(fname,"%ssilatilouunillpurasull10oxexmr",players[turn].name);
+            sprintf(fname,"%ssilatilouunillpurasull100oxexmr",players[turn].name);
             nextflg=1;
         }else if(players[turn].card[selectpos]==TOKUSEIREI){
             // ぜんしゃちょうのしゃっきんがちょうけしになった.
@@ -1568,12 +1569,12 @@ void plusMass(){
         // ダミー出力
         glColor3ub(pluscolor[0],pluscolor[1],pluscolor[2]);
         drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawMoney(plusarray[month-1][0]+dummyresult[0],InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
+        drawMoney((plusarray[month-1][0]+dummyresult[0])*(year+1),InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
     }else if(inflg==2){
         // 結果を計算
         randflg=0;
         randresult = rand()%range;
-        tmpmoney = plusarray[month-1][0]+randresult;
+        tmpmoney = (plusarray[month-1][0]+randresult)*(year+1);
         players[turn].money+=tmpmoney;
         inflg++;
     }else if(inflg==3){
@@ -1611,12 +1612,12 @@ void minusMass(void){
         // ダミー出力
         glColor3ub(minuscolor[0],minuscolor[1],minuscolor[2]);
         drawQUAD(0,InitHeight/2-16,InitWidth,IMGSIZE);
-        drawMoney(-minusarray[month-1][0]-dummyresult[0],InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
+        drawMoney((-minusarray[month-1][0]-dummyresult[0])*(year+1),InitWidth/2-IMGSIZE*3,InitHeight/2-16,0,1);            
     }else if(inflg==2){
         // 結果を計算
         randflg=0;
         randresult = rand()%range;
-        tmpmoney = -minusarray[month-1][0]-randresult;
+        tmpmoney = (-minusarray[month-1][0]-randresult)*(year+1);
         players[turn].money+=tmpmoney;
         inflg++;
     }else if(inflg==3){
@@ -1712,7 +1713,7 @@ void endTurn(void){
     }
     // 決算月かどうか判別
     if((turn==3)&&(month==4)){
-        if(year==3){
+        if(year==100){
             turnstatus=17; // 最終成績
         }else{
             turn=0;

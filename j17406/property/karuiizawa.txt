@@ -1,5 +1,5 @@
 tennnennkakigoooriya 800,120
 kouugennyasaiibatake 1200,150
-tenisukurabu 8000,30
-keltkonnsikizilouu 40000,15
-llaauutorelttomollmsllrull 90000,5
+tenisukurabu 80000,30
+keltkonnsikizilouu 400000,15
+llaauutorelttomollmsllrull 900000,8

@@ -1,6 +1,6 @@
-rinngoeenn 600,120
-rinngoeenn 600,120
+rinngoeenn 6000,120
+rinngoeenn 6000,120
 yawatayaiisogorouu 6000,20 
-llaaiisusukellmslltollzilouu 20000,3 
-zennkouuzi 110000,30
-naganokouusenn 600000,1
+llaaiisusukellmslltollzilouu 200000,3 
+zennkouuzi 1100000,30
+naganokouusenn 60000000,1

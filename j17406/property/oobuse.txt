@@ -1,6 +1,6 @@
 hokusaiikann 800,30
 kurikinntonnya 1200,70
 kurikinntonnya 1200,70
-rinngoeenn 1200,70
-rinngoeenn 1200,70
-tukurizakaya 15000,2
+rinngoeenn 1200,120
+rinngoeenn 1200,120
+tukurizakaya 150000,2

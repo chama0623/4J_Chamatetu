@@ -1,3 +1,4 @@
-beltsilooonnsenn 10000,3
-kakeyuoonnsenn 30000,9
-uueedazilouu 80000,1
+beltsilooonnsenn 100000,3
+kakeyuoonnsenn 400000,9
+llaarioouueedall 500000,15
+uueedazilouu 800000,1
