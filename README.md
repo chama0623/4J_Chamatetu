@@ -1,5 +1,11 @@
 # 4J_Chamatetu
 
+<img src="./repo/sp4.png" width="500">
+
+<img src="./repo/st2p1.png" width="500">
+
+<img src="./repo/havacard.png" width="500">
+
 ## Description
 4Jで作成したミニゲーム「ちゃま鉄」のプロジェクトファイルです.実装した機能としては次に示すものがあります.
 
